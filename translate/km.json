@@ -1,0 +1,46 @@
+{
+  "about_description": "AMVStrm ឬ Anime/Movie/Video Stream គឺជាគេហទំព័រដែលអនុញ្ញាតឱ្យអ្នកមើល Anime តាមអ៊ីនធឺណិតដោយមិនគិតថ្លៃដោយគ្មានពាណិជ្ជកម្ម និងការរំខានោឡើយ។",
+  "about_title": "អំពី AMVStreaming",
+  "bookmark_desc": "Anime របស់អ្នកដែលបានចំណាំ ",
+  "contact": "ទំនាក់ទំនង",
+  "contact_description": "ប្រសិនបើអ្នកមានចម្ងល់សូមទាក់ទងមកយើងខ្ញុំតាមរយ:",
+  "copyright": "រក្សាសិទ្ធិ © amvstr.ml កម្ពុជា",
+  "current_episode": "វគ្គថ្មី",
+  "episode": "វគ្គ",
+  "episode_all": "វគ្គទាំងអស់",
+  "export": "Export",
+  "features": {
+    "li1": "Watch Anime Online For Free",
+    "li2": "Bookmarking Features that allows you to save anime to lists \n and watch them later. (Beta)(Store In Cloud will be Comming Soon)",
+    "li3": "No ADs and Free.",
+    "title": "លក្ខណៈពិសេស"
+  },
+  "goback": "ត្រឡប់ទៅ",
+  "import": "Import",
+  "infrom_watch": "Reccommended To Use Adblock To block ads from Iframe. We dont want to ruined your experience.",
+  "menu": {
+    "about": "អំពី",
+    "account": "គណនី",
+    "animelist": "បញ្ជីAnime",
+    "bookmark": "ទីចំណាំ",
+    "home": "ទំព័រដើម",
+    "movies": "ភាពយន្តAnime",
+    "popular": "Animeពេញនិយម"
+  },
+  "page": "ទំព័រ",
+  "popularfr": "Anime ពេញនិយម",
+  "privacy_policy": "គោលការណ៍ភាពឯកជន",
+  "recentfr": "Anime ថ្មីៗ",
+  "search": "ស្វែងរក",
+  "watchnow": "មើលឥឡូវនេះ",
+  "welcome": "សូមស្វាគមន៍មកកាន់គេហទំព័រ AMVStreaming ",
+  "langswtch": "ប្តូរភាសា",
+  "info":{
+    "status": "ស្ថានភាព",
+    "release": "ចេញឆ្នាំ",
+    "other_name": "ឈ្មោះផ្សេងៗ",
+    "genres": "ប្រភេទ",
+    "bookmark": "ទីចំណាំ"
+  },
+  "ongoing": "Anime កំពុងបន្តភាគ"
+}

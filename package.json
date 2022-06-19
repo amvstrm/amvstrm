@@ -1,0 +1,42 @@
+{
+  "name": "animestrm",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.13.6",
+    "@nuxtjs/i18n": "^7.2.2",
+    "axios": "^0.27.2",
+    "cookie-universal-nuxt": "^2.2.1",
+    "core-js": "^3.19.3",
+    "js-cookie": "^3.0.1",
+    "lodash.debounce": "^4.0.8",
+    "node-fetch": "2.6.2",
+    "nodejs-base64": "^2.0.0",
+    "nuxt": "^2.15.8",
+    "ufo": "^0.8.4",
+    "vue": "^2.6.14",
+    "vue-disqus": "^4.0.1",
+    "vue-server-renderer": "^2.6.14",
+    "vue-template-compiler": "^2.6.14",
+    "vuetify": "^2.6.1",
+    "webpack": "^4.46.0"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.18.2",
+    "@nuxtjs/eslint-config": "^10.0.0",
+    "@nuxtjs/eslint-module": "^3.1.0",
+    "@nuxtjs/vuetify": "^1.12.3",
+    "eslint": "^8.18.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-nuxt": "^3.2.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vue": "^9.1.1",
+    "prettier": "^2.7.1"
+  }
+}
