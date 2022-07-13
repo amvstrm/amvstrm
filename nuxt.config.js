@@ -30,9 +30,6 @@ export default {
   plugins: [
     { src: '~/plugins/router' },
     { src: '~/plugins/disqus' },
-    // { src: '~/plugins/service-worker' },
-    // { src: '@/plugins/authlisten', mode: 'client' },
-    // { src: '@/plugins/firebase', mode: 'client' }
   ],
 
   loading: {
@@ -63,9 +60,6 @@ export default {
     '@nuxtjs/dotenv',
     '@nuxtjs/pwa',
   ],
-  // serverMiddleware: [
-  //   '~/server/index.js'
-  // ],
   pwa: {
     icon: {
       iconSrc: '/android-chrome-192x192.png',
