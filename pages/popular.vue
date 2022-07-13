@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h2 class="ma-5">Anime Movies</h2>
+    <h2 class="ma-5">All Popular Anime</h2>
     <div class="grid-ctn ma-5">
-      <div v-for="data in movie" :key="data.id" class="grid-item mx-5">
+      <div v-for="data in popular" :key="data.id" class="grid-item mx-5">
         <AnimeCard
           :id="data.id"
           class="media-container"
@@ -28,18 +28,18 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      movie: null,
+      popular: null,
       page: 1,
-      length: 90,
+      length: 100,
     }
   },
   head() {
     return {
-      title: 'Anime Movies',
+      title: 'Popular Anime',
       meta: [
         {
           name: 'description',
-          content: 'Anime Movies',
+          content: 'Popular Anime',
         },
         { name: 'og:image', content: '/seoimg.png' },
         { name: 'og:image:width', content: '1200' },
@@ -47,21 +47,22 @@ export default {
         { name: 'og:image:type', content: 'image/png' },
         { name: 'og:image:alt', content: 'amvstrm' },
         { name: 'og:type', content: 'website' },
-        { name: 'og:title', content: 'Anime Movies | amvstrm' },
+        { name: 'og:title', content: 'Popular Anime | amvstrm' },
         {
           name: 'og:description',
-          content: 'All the most popular anime movies on amvstr.ml.',
+          content: 'All the most popular anime on amvstr.ml.',
         },
-        { name: 'og:url', content: 'https://amvstrm.com/movies' },
-        { name: 'og:site_name', content: 'Anime Movies | amvstrm' },
+        { name: 'og:url', content: 'https://amvstrm.com/popular' },
+        { name: 'og:site_name', content: 'Popular Anime | amvstrm' },
         { name: 'og:locale', content: 'en_US' },
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:site', content: 'https://amvstr.ml/movies' },
-        { name: 'twitter:title', content: 'Anime Movies | amvstrm' },
+        { name: 'twitter:site', content: 'https://amvstr.ml/popular' },
+        { name: 'twitter:title', content: 'Popular Anime | amvstrm' },
         {
           name: 'twitter:description',
-          content: 'All the most popular anime movies on amvstr.ml.',
+          content: 'All the most popular anime on amvstr.ml.',
         },
+        { name: 'twitter:image', content: '/seo_img.png' },
       ],
     }
   },
@@ -69,26 +70,20 @@ export default {
     await this.onPageChange()
   },
   methods: {
-    getMovie: function () {
-      axios
-        .get(`${process.env.API_URL2}/movies/${this.page}`)
-        .then((res) => {
-          this.movie = res.data.movies
-        })
-        .catch((err) => {
-          // eslint-disable-next-line no-console
-          console.log(err)
-        })
+    getPopular: function () {
+      axios.get(`${process.env.API_URL2}/popular/${this.page}`).then((res) => {
+        this.popular = res.data.popular
+      })
     },
     onPageChange() {
-      this.getMovie()
+      this.getPopular()
     },
   },
 }
 </script>
 <style>
 .media-container {
-  height: 16rem;
+  height: 16rem ;
   width: 11rem;
   display: flex !important;
   padding: 1rem;
@@ -125,5 +120,4 @@ export default {
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   }
 }
-
 </style>

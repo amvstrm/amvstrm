@@ -3,14 +3,16 @@
   "watchnow": "Watch Now",
   "about_description": "AMVStrm or Anime/Movie/Video Streaming is a website that allows you to watch anime online for free with no ads and annoying popup.",
   "about_title": "About AMVStreaming",
-  "contact": "Contact",
+  "about":"About",
+  "contact-donation-title": "Contact / Donation",
   "contact_description": "If you have any questions, please contact us at",
-  "privacy_policy" : "Privacy Policy",
+  "privacy_policy": "Privacy Policy",
   "search": "Search",
   "menu": {
     "home": "Home",
     "about": "About",
     "popular": "Popular",
+    "genres": "Genres",
     "animelist": "Anime List",
     "movies": "Movies",
     "bookmark": "Bookmarks",
@@ -19,26 +21,34 @@
   "copyright": "Copyright © amvstr.ml KAMPUCHEA",
   "page": "page",
   "episode": "Episode",
-  "popularfr":"Popular Anime",
+  "popularfr": "Popular Anime",
   "recentfr": "Recent Anime",
   "bookmark_desc": "Your Bookmarks Anime",
-  "infrom_watch":"Reccommended To Use Adblock To block ads from Iframe. We dont want to ruined your experience.",
+  "infrom_watch": "Reccommended To Use Adblock To block ads from Iframe. We dont want to ruined your experience.",
   "episode_all": "All Episodes",
   "current_episode": "Current Episode",
   "goback": "Go Back To",
-  "features":{
+  "features": {
     "title": "Features",
     "li1": "Watch Anime Online For Free",
     "li2": "Bookmarking Features that allows you to save anime to lists \n and watch them later. (Beta)(Store In Cloud will be Comming Soon)",
     "li3": "No ADs and Free."
   },
   "langswtch": "Change Languages",
-  "info":{
+  "info": {
+    "plotsum": "Plot Summary",
     "status": "Status",
     "release": "Released In",
     "other_name": "Other Names",
     "genres": "Genres",
-    "bookmark": "Bookmark"
+    "bookmark": "Bookmark",
+    "unbookmark": "Unbookmark",
+    "rating": "Rating"
   },
-  "ongoing": "Ongoing Anime"
+
+  "alert100bookmark": "You have max out your bookmark list. Please delete some bookmark to add new one.",
+  "ongoing": "Ongoing Anime",
+  "upcoming": "Upcoming Anime",
+  "donation_desc": "Even though its free, no ads and open-source website, donation is the most important for us so we can keep our servers up and running 24/7 with no interupption. 1$ can keep our server up and running for a week or a month.",
+  "translation_desc": "Help us translate our website in Khmer language, So Our Cambodian visitor who does not know understands english well and help them a lot. We will add other language soon (es, ru, id, ph, ...)."
 }

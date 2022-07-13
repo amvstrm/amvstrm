@@ -92,3 +92,13 @@ sw.*
 .vercel
 
 translate/localazy.json
+
+pnpm-lock.yaml
+
+bk.txt
+
+cnf.json
+
+
+# Local Netlify folder
+.netlify

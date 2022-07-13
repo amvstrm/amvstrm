@@ -1,59 +1,28 @@
 <template>
   <v-app>
-    <!-- <v-dialog v-model="dialoginfo">
-      <v-btn slot="activator" color="primary">Dialog</v-btn>
-      <v-card>
-        <v-card-title>
-          <span class="headline">Page Not Found</span>
-        </v-card-title>
-        <v-card-text>
-          The page you are looking for does not exist or has been removed.
-        </v-card-text>
-      </v-card>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="dialoginfo = false">
-          Close
-        </v-btn>
-      </v-card-actions>
-    </v-dialog> -->
-    <v-navigation-drawer v-model="drawer" app color="accent darken-2" temporary>
-      <v-list-item>
-        <v-list-item-content>
-          <router-link to="/" style="display: flex">
-            <img src="../static/logo.svg" width="125" alt="logo" />
-          </router-link>
-          <v-list-item-subtitle> Anime Streaming Website </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-      <v-divider></v-divider>
-      <v-col cols="auto">
-        <SearchBar />
-      </v-col>
-      <v-divider></v-divider>
-      <v-list dense nav>
-        <v-list-item
-          v-for="item in items"
-          :key="item.title"
-          link
-          :to="localePath(item.href)"
-        >
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
+    <div class="mx-xl-16 mx-lg-16 mx-md-8 mx-sm-4 mx-xs-2">
+      <v-navigation-drawer
+        v-model="drawer"
+        app
+        color="accent darken-2"
+        temporary
+      >
+        <v-list-item>
           <v-list-item-content>
-            <v-list-item-title>{{
-              $t(`menu.${item.title}`)
-            }}</v-list-item-title>
+            <router-link to="/" style="display: flex">
+              amvstrm BETA
+            </router-link>
+            <v-list-item-subtitle> Free Anime Contents </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-      </v-list>
-      <v-spacer></v-spacer>
-      <template #append>
+        <v-divider></v-divider>
+        <v-col cols="auto">
+          <SearchBar />
+        </v-col>
         <v-divider></v-divider>
         <v-list dense nav>
           <v-list-item
-            v-for="item in items2"
+            v-for="item in items"
             :key="item.title"
             link
             :to="localePath(item.href)"
@@ -68,16 +37,17 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
-      </template>
-    </v-navigation-drawer>
-    <div class="mx-xl-16 mx-lg-16 mx-md-8 mx-sm-0 mx-xs-0">
+      </v-navigation-drawer>
       <v-app-bar app dark absolute>
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-        <router-link :to="localePath('/')" style="display: flex">
-          <img src="../static/logo.svg" height="100%" alt="logo" />
-        </router-link>
+        <v-col>
+          <router-link :to="localePath('/')">
+            <!-- <img src="../static/logo.svg" height="120" width="120" alt="logo" /> -->
+            amvstr.ml BETA
+          </router-link>
+        </v-col>
         <v-spacer></v-spacer>
-        <v-col cols="6" sm="2">
+        <v-col>
           <SearchBar />
         </v-col>
       </v-app-bar>
@@ -86,8 +56,7 @@
           <v-icon slot="icon" color="warning" size="36">
             mdi-information
           </v-icon>
-          This website is still under development, Some functions and features
-          may be not working properly. There will be 500 error showing up.
+          Website/API is under construction. There will be 404/500 errors occurred. 
           <template #action="{ attrs }">
             <v-btn
               text
@@ -120,15 +89,19 @@
         <v-col cols="auto">
           <span>{{ $t('copyright') }} {{ year }}</span
           ><br />
-          <span style="opacity: 50%"
-            >Disclaimer : We do not store video on our database.</span
-          >
+          <span style="opacity: 50%; font-size: 0.8em">
+            Disclaimer : We do not store data in our database. We get data from
+            3rd party sites and other site only. Our Website and Domain is
+            Protected by Cloudflare.
+          </span>
         </v-col>
         <v-col cols="auto">
-          <v-chip to="/about"> About </v-chip>
+          <LangSwitch />
+          <v-chip label to="/about"> About </v-chip>
           <v-chip
             v-if="showGoTop"
             elevation="4"
+            label
             background-color="primary"
             @click="goTop"
           >
@@ -159,9 +132,9 @@ export default {
           href: '/',
         },
         {
-          icon: 'mdi-view-list',
-          title: 'animelist',
-          href: '/animelist',
+          icon: 'mdi-tag',
+          title: 'genres',
+          href: '/genres',
         },
         {
           icon: 'mdi-account-group-outline',
@@ -173,17 +146,10 @@ export default {
           title: 'movies',
           href: '/movies',
         },
-      ],
-      items2: [
         {
           icon: 'mdi-star',
           title: 'bookmark',
           href: '/bookmarks',
-        },
-        {
-          icon: 'mdi-account-circle-outline',
-          title: 'account',
-          href: '/account',
         },
         {
           icon: 'mdi-information-outline',
@@ -201,14 +167,6 @@ export default {
     goTop() {
       window.scrollTo(0, 0)
     },
-    // check if the scroll is on the top if not show the go top button
-    // checkScroll() {
-    //   if (window.scrollY > 0) {
-    //     this.showGoTop = true
-    //   } else {
-    //     this.showGoTop = false
-    //   }
-    // },
   },
 }
 </script>

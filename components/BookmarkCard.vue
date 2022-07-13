@@ -7,17 +7,27 @@
       'background-size': 'cover',
     }"
   >
-    <router-link :to="'/anime/' + id">
+    <router-link :to="localePath('/anime/' + id)">
       <p class="txt">
         {{ title }}
       </p>
     </router-link>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn class="ma-2" elevation="4" fab small @click="clickdata()">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
-    </v-card-actions>
+    <v-menu bottom left>
+      <template #activator="{ on, attrs }">
+        <v-btn dark icon v-bind="attrs" v-on="on">
+          <v-icon>mdi-dots-vertical</v-icon>
+        </v-btn>
+      </template>
+      <v-list>
+        <v-list-item @click="clickdata()">
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ $t('info.unbookmark') }}
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </v-card>
 </template>
 <script>

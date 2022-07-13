@@ -1,41 +1,23 @@
 <template>
-  <v-app dark>
-    <div
-      v-if="bgimg"
-      class="bg-img center"
-      :style="{
-        'background-image': `url(${bgimg})`,
-      }"
-    >
+  <v-app dark class="bg-sze">
+    <div class="centerctn">
       <h1 v-if="error.statusCode === 404" class="textsha">
-        {{ pageNotFound }}
-      </h1>
-      <h1 v-else-if="error.statusCode === 500" class="textsha">
-        {{ serverError }}
-      </h1>
-      <h1 v-else class="textsha">
-        {{ otherError }}
-      </h1>
-      
-      <NuxtLink class="textsha" to="/"> Home page </NuxtLink>
-      <div v-if="info" class="downleft text-opacity">
-        <a :href="info.url">
-          <p>GIF by {{ info.username }}</p>
-        </a>
-      </div>
-      <div class="downright">
-        <a href="https://giphy.com">
-          <img src="../static/giphy.png" alt="powered_by_giphy" width="150"/>
-        </a>
-      </div>
+      {{ pageNotFound }}
+    </h1>
+    <h1 v-else-if="error.statusCode === 500" class="textsha">
+      {{ serverError }}
+    </h1>
+    <h1 v-else class="textsha">
+      {{ otherError }}
+    </h1>
+    <NuxtLink class="textsha" to="/"> Home page </NuxtLink>
     </div>
   </v-app>
 </template>
 <script>
-import axios from "axios";
 export default {
-  name: "EmptyLayout",
-  layout: "empty",
+  name: 'EmptyLayout',
+  layout: 'empty',
   props: {
     error: {
       type: Object,
@@ -44,48 +26,39 @@ export default {
   },
   data() {
     return {
-      pageNotFound: "404 Not Found",
-      otherError: "An error occurred",
-      serverError: "500 Server Error, Please Contact to Adminitrator",
+      pageNotFound: '404 Not Found',
+      otherError: 'An error occurred',
+      serverError: '500 Server Error, Please Contact to Adminitrator',
       bgimg: null,
       info: null,
-    };
+    }
   },
   head() {
     const title =
-      this.error.statusCode === 404 ? this.pageNotFound : this.otherError;
+      this.error.statusCode === 404 ? this.pageNotFound : this.otherError
     return {
       title,
-    };
+    }
   },
-  created() {
-    axios
-      .get(
-        "https://api.giphy.com/v1/gifs/search?q=anime&sort=recent&api_key=j7P9MWUCeefgmPepdpmlKYjQlH2hpHFd"
-      )
-      .then((res) => {
-        const r = Math.floor(Math.random() * 30);
-        this.bgimg = res.data.data[r].images.downsized_medium.url;
-        this.info = res.data.data[r];
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  },
-};
+}
 </script>
 
 <style scoped>
-.center{
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.bg-sze {
+  height: 100vh;
+}
+.centerctn {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  text-align: center;
 }
 .text-opacity {
   text-shadow: 0 0 5px #000;
   opacity: 75%;
 }
-.downright{
+.downright {
   position: absolute;
   top: 2rem;
   right: 32px;

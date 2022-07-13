@@ -24,20 +24,19 @@
               type="password"
               required
             ></v-text-field>
-            <!-- connect google account -->
-
-            <v-btn :disabled="!valid" class="my-2" >
+            <v-btn :disabled="!valid" class="my-2" @click.native="createAccount">
               Create Account
             </v-btn>
             <v-btn
               class="ma-2"
               color="primary"
               text-color="white"
+              to="/login"
             >
               Already have an account?
             </v-btn>
           </v-form>
-          <v-row>
+          <!-- <v-row>
             <v-col>
               <v-btn class="ma-2" color="grey darken-2">
                 <v-icon>mdi-google</v-icon> Google
@@ -46,7 +45,7 @@
                 <v-icon>mdi-facebook</v-icon> Facebook
               </v-btn>
             </v-col>
-          </v-row>
+          </v-row> -->
         </v-col>
       </v-card>
     </v-row>
@@ -73,6 +72,21 @@ export default {
         (v) => v.length >= 6 || "Username must be at least 4 characters",
       ],
     };
+  },
+  methods: {
+  //   createAccount() {
+  //     this.$store.dispatch('createAccount', {
+  //       email: this.email,
+  //       password: this.password
+  //     }).then(() => {
+  //       this.email = ''
+  //       this.password = ''
+  //       // move to account page
+  //       this.$router.push('/account')
+  //     }).catch((e) => {
+  //       console.log(e.message);
+  //     })
+  //   },
   },
   
 };

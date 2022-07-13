@@ -4,40 +4,21 @@ export default {
   ssr: false,
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s',
-    title: 'AMVStrm - Anime Streaming Site',
+    titleTemplate: '%s | amvstrm',
+    title: 'amvstrm',
     htmlAttrs: {
       lang: 'en'
     },
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: 'AMVStrm or Anime/Movie/Video Streaming is a website that allows you to watch anime online for free with no ads and annoying popup.' },
-      { name: 'format-detection', content: 'telephone=no' },
-      { name: 'keywords', content: 'anime, watch anime free, free anime, gogoanime, animixplay, 9anime, 4anime, amvstrm, amvstreaming' },
       { name: 'robots', content: 'index, follow' },
-      { name: 'revisit-after', content: '1 days' },
-      // { name: 'referrer', content: 'no-referrer' },
-      // { name: 'referrer', content: 'no-referrer-when-downgrade' },
-      { name: 'og:image', content: '/seo_img.png' },
-      { name: 'og:image:width', content: '1200' },
-      { name: 'og:image:height', content: '630' },
-      { name: 'og:image:type', content: 'image/png' },
-      { name: 'og:image:alt', content: 'AMVStrm - Anime Streaming Site' },
-      { name: 'og:type', content: 'website' },
-      { name: 'og:title', content: 'AMVStrm - Anime Streaming Site' },
-      { name: 'og:description', content: 'AMVStrm or Anime/Movie/Video Streaming is a website that allows you to watch anime online for free with no ads and annoying popup.' },
-      { name: 'og:url', content: 'https://amvstrm.com' },
-      { name: 'og:site_name', content: 'AMVStrm - Anime Streaming Site' },
-      { name: 'og:locale', content: 'en_US' },
-      { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:site', content: 'https://amvstr.ml/' },
-      { name: 'twitter:title', content: 'AMVStrm - Anime Streaming Site' },
-      { name: 'twitter:description', content: 'AMVStrm or Anime/Movie/Video Streaming is a website that allows you to watch anime online for free with no ads and annoying popup.' },
-      { name: 'twitter:image', content: '/seo_img.png' },
+      { name: 'canonical', content: 'https://amvstr.ml' },
+      { name: 'referrer', content: 'origin' },
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/ico.png' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'canonical', href: 'https://amvstr.ml' },
     ]
   },
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -49,7 +30,7 @@ export default {
   plugins: [
     { src: '~/plugins/router' },
     { src: '~/plugins/disqus' },
-    // { src: '@/plugins/axios' },
+    // { src: '~/plugins/service-worker' },
     // { src: '@/plugins/authlisten', mode: 'client' },
     // { src: '@/plugins/firebase', mode: 'client' }
   ],
@@ -58,6 +39,13 @@ export default {
     color: 'white',
     height: '1px'
   },
+
+  loadingIndicator: {
+    name: 'pulse',
+    color: '#3B8070',
+    background: '#191919'
+  },
+  
   // Auto import components: https://go.nuxtjs.dev/config-components
   // components: true,
   components: true,
@@ -67,13 +55,50 @@ export default {
     '@nuxtjs/eslint-module',
     '@nuxtjs/vuetify',
   ],
-
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     'cookie-universal-nuxt',
     '@nuxtjs/i18n',
     '@nuxtjs/axios',
+    '@nuxtjs/dotenv',
+    '@nuxtjs/pwa',
   ],
+  // serverMiddleware: [
+  //   '~/server/index.js'
+  // ],
+  pwa: {
+    icon: {
+      iconSrc: '/android-chrome-192x192.png',
+    },
+    meta: {
+      title: 'amvstrm',
+      author: 'amvstrm Teams',
+    },
+    manifest: {
+      name: 'amvstrm',
+      short_name: 'amvstrm',
+      lang: 'en',
+      theme_color: '#3B8070',
+      background_color: '#191919',
+      display: 'standalone',
+    },
+    workbox: {
+      autoRegister: true,
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/.*\.googleapis\.com\/fonts\/.*/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts-cache',
+            expiration: {
+              maxEntries: 3,
+              maxAgeSeconds: 60 * 60 * 24 * 30
+            }
+          }
+        }
+      ],
+    }
+  },
   i18n: {
     locales: [
       {
@@ -117,8 +142,8 @@ export default {
       }
     }
   },
-
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    // extractCSS: true,
   }
 }

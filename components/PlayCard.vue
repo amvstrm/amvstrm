@@ -5,14 +5,13 @@
     style="box-shadow: 0px -120px 4.6rem 0px rgba(0, 0, 0, 0.75) inset"
   >
     <p class="txt mb-1">{{ title }}</p>
-    <span style="font-style: italic; font-size: 12px">{{
+    <span style="font-style: italic; font-size: 11.5px">{{
       subordub
     }}</span>
-    <span style="font-style: italic; font-size: 12px">Episode {{
+    <span style="font-style: italic; font-size: 11.5px">Episode {{
       episode
     }}</span>
-    <!-- play btn --> 
-    <v-btn class="ma-2" elevation="4" dark fab small>
+    <v-btn class="ma-2" elevation="4" dark fab x-small>
       <v-icon>mdi-play</v-icon>
     </v-btn>
   </v-card>

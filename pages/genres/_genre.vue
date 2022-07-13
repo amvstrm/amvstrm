@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h2 class="ma-5">Anime Movies</h2>
+    <h2 class="ma-5">{{ $route.params.genre }}</h2>
     <div class="grid-ctn ma-5">
-      <div v-for="data in movie" :key="data.id" class="grid-item mx-5">
+      <div v-for="data in genre" :key="data.id" class="grid-item mx-5">
         <AnimeCard
           :id="data.id"
           class="media-container"
@@ -11,16 +11,6 @@
         />
       </div>
     </div>
-    <div class="text-center mx-3">
-      <p>Page: {{ page }}</p>
-      <v-pagination
-        v-model="page"
-        class="my-4"
-        :length="length"
-        :total-visible="10"
-        @input="onPageChange"
-      ></v-pagination>
-    </div>
   </div>
 </template>
 <script>
@@ -28,18 +18,16 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      movie: null,
-      page: 1,
-      length: 90,
+      genre: null,
     }
   },
   head() {
     return {
-      title: 'Anime Movies',
+      title: this.$route.params.genre,
       meta: [
         {
           name: 'description',
-          content: 'Anime Movies',
+          content: this.$route.params.genre + ' Genre on amvstr.ml.',
         },
         { name: 'og:image', content: '/seoimg.png' },
         { name: 'og:image:width', content: '1200' },
@@ -47,20 +35,20 @@ export default {
         { name: 'og:image:type', content: 'image/png' },
         { name: 'og:image:alt', content: 'amvstrm' },
         { name: 'og:type', content: 'website' },
-        { name: 'og:title', content: 'Anime Movies | amvstrm' },
+        { name: 'og:title', content: `${this.$route.params.genre} | amvstrm` },
         {
           name: 'og:description',
-          content: 'All the most popular anime movies on amvstr.ml.',
+          content: `${this.$route.params.genre} Genre on amvstr.ml.`,
         },
-        { name: 'og:url', content: 'https://amvstrm.com/movies' },
-        { name: 'og:site_name', content: 'Anime Movies | amvstrm' },
+        { name: 'og:url', content: 'https://amvstrm.com/genres' },
+        { name: 'og:site_name', content: `${this.$route.params.genre} | amvstrm` },
         { name: 'og:locale', content: 'en_US' },
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:site', content: 'https://amvstr.ml/movies' },
-        { name: 'twitter:title', content: 'Anime Movies | amvstrm' },
+        { name: 'twitter:site', content: 'https://amvstr.ml/genres' },
+        { name: 'twitter:title', content: `${this.$route.params.genre} | amvstrm` },
         {
           name: 'twitter:description',
-          content: 'All the most popular anime movies on amvstr.ml.',
+          content: `${this.$route.params.genre} Genres on amvstr.ml.`,
         },
       ],
     }
@@ -71,9 +59,9 @@ export default {
   methods: {
     getMovie: function () {
       axios
-        .get(`${process.env.API_URL2}/movies/${this.page}`)
+        .get(`${process.env.API_URL2}/genre/${this.$route.params.genre}/1`)
         .then((res) => {
-          this.movie = res.data.movies
+          this.genre = res.data.anime
         })
         .catch((err) => {
           // eslint-disable-next-line no-console
@@ -88,14 +76,26 @@ export default {
 </script>
 <style>
 .media-container {
-  height: 16rem;
+  height: 16rem !important;
   width: 11rem;
-  display: flex !important;
+  display: flex;
   padding: 1rem;
   align-items: flex-start;
   justify-content: flex-end;
   flex-direction: column;
   padding-top: 1rem;
+}
+@media screen and (max-width: 600px) {
+  .media-container {
+    width: 9.5rem;
+    height: 14rem;
+  }
+  .grid-ctn {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
 }
 .grid-ctn {
   display: grid;
@@ -107,23 +107,4 @@ export default {
 .grid-item {
   margin-bottom: 20px;
 }
-@media screen and (max-width: 600px) {
-  .media-container {
-    width: 9.5rem;
-    height: 14rem;
-  }
-  .grid-ctn {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  }
-}
-@media screen and (max-width: 400px) {
-  .media-container {
-    width: 8rem;
-    height: 12rem;
-  }
-  .grid-ctn {
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  }
-}
-
 </style>

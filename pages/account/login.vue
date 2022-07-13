@@ -1,10 +1,11 @@
+
 <template>
-  <div class="ma-8" >
+  <div class="ma-8">
     <v-row justify="center" flex>
       <v-card class="pa-6 " width="600px" height="35rem">
         <v-col align="center" class="align-self-center">
           <span class="headline mb-2">Login</span>
-        <v-form ref="form" v-model="valid" lazy-validation>
+        <v-form ref="form" lazy-validation>
           <v-text-field
             v-model="email"
             :rules="emailRules"
@@ -18,16 +19,28 @@
             type="password"
             required
           ></v-text-field>
-          <v-btn :disabled="!valid" class="my-2" @click="validate">
+          <p class="text-center">
+            Forgot your password? <router-link to="/reset-password">Reset it</router-link>
+          </p>
+          <v-btn class="my-2" @click="emailLogin">
             Login
+          </v-btn>
+          <!-- <v-btn
+            class="ma-2"
+            color="primary"
+            text-color="white"
+            @click.native="googleSignUp"
+          >
+            Sign With Google
           </v-btn>
           <v-btn
             class="ma-2"
             color="primary"
             text-color="white"
+            @click.native="facebookSignUp"
           >
-            Reset Password
-          </v-btn>
+            Sign With Facebook
+          </v-btn> -->
         </v-form>
         </v-col>
       </v-card>
@@ -35,6 +48,7 @@
   </div>
 </template>
 <script>
+
 export default {
   data() {
     return {
@@ -49,6 +63,34 @@ export default {
         (v) => v.length >= 6 || "Password must be at least 6 characters",
       ],
     };
+  },
+  methods: {
+  //   emailLogin () {
+  //     this.$store.dispatch('signInWithEmail', {
+  //       email: this.email,
+  //       password: this.password
+  //     }).then(() => {
+  //       this.$router.push('/')
+  //       this.email = ''
+  //       this.password = ''
+  //     }).catch((e) => {
+  //       console.log(e.message);
+  //     })
+  //   },
+  //   googleSignUp () {
+  //     this.$store.dispatch('signInWithGoogle').then(() => {
+  //       console.log('inside then statement on login');
+  //     }).catch((e) => {
+  //       console.log(e.message);
+  //     })
+  //   },
+  //   facebookSignUp () {
+  //     this.$store.dispatch('signInWithFB').then(() => {
+  //       console.log('inside then statement on login');
+  //     }).catch((e) => {
+  //       console.log(e.message);
+  //     })
+  //   },
   },
 };
 </script>
