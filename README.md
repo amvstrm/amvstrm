@@ -62,7 +62,7 @@ We will providing this tutorial on how to contribute amvstrm and any project. [T
 
 ## Credit
 
-NYT92 © 2022
+AMVSTRM/NYT92 © 2022
 
 ### Other Credit to
 
@@ -74,4 +74,4 @@ NYT92 © 2022
 
 # License
 
-This Project is fall under license of BSD-3-Clause. [Read More](https://github.com/amvstrm/amvstrm/blob/master/LICENSE)
+This Project is under the license of BSD-3-Clause. [Read More](https://github.com/amvstrm/amvstrm/blob/master/LICENSE)
