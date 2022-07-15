@@ -3,26 +3,23 @@ Anime Streaming Site Built with Nuxt.js, Vuetify and [AMV APIs](https://github.c
 
 
 ## Features
-- Save Bookmarking in localstorage and *User Account (Comming Soon)* 
-- Authentication *(Comming Soon)*
+- Save Bookmarking in localStorage
 - Search Any Anime
 - No ADs
 - Using Plyr.link and [nsPlayer](https://player.nscdn.ml)
-- Fast and Simple
+- Fast and Simple also Easy To Use
 
 ## ToDos
 
-- Intergrate Authentication and Database to store user bookmarking
+- ***Intergrate Authentication and Database to store user bookmarking*** (Wont Be Added)   
 - Better UI Design
-- Fixing Bug
-- Add more backend feature *(Custom Anime Data)*
-- *Using Docker ?*
+- Add more backend feature *(Custom Anime Data or Using Myanimelist data)*
+- Docker Supported
 - Migrated to Nuxt.js 3 *(Until Nuxt3 and Vuetify 3 is stable)*
 - Fixing SEO on Some Page
 - Merge API and AMVSTRM into a monorepo
 - Using ENV to store every API URLS and Credentials
 - More Translation Words
-- Using MAL Data Using Jikan
 
 ## Deploy
 You can deploy AMVSTRM on Vercel and Netlify
