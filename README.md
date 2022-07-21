@@ -1,6 +1,7 @@
 # AMVSTRM
 Anime Streaming Site Built with Nuxt.js, Vuetify and [AMV APIs](https://github.com/amvstrm/api).
 
+This Website is still in development and there will be bug and css issue.
 
 ## Features
 - Save Bookmarking in localStorage
@@ -16,8 +17,7 @@ Anime Streaming Site Built with Nuxt.js, Vuetify and [AMV APIs](https://github.c
 - Add more backend feature *(Custom Anime Data or Using Myanimelist data)*
 - Docker Supported
 - Migrated to Nuxt.js 3 *(Until Nuxt3 and Vuetify 3 is stable)*
-- Fixing SEO on Some Page
-- Merge API and AMVSTRM into a monorepo
+- Merge API and AMVSTRM to this repo
 - Using ENV to store every API URLS and Credentials
 - More Translation Words
 
