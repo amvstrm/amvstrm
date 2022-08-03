@@ -1,13 +1,13 @@
 # AMVSTRM
 Anime Streaming Site Built with Nuxt.js, Vuetify and [AMV APIs](https://github.com/amvstrm/api).
 
-This Website is still in development and there will be bug and css issue.
+This Website is still in development and there will be bug and css issue. There will be better readme documentation soon. We still working on improving the speed and code + the API.
 
 ## Features
 - Save Bookmarking in localStorage
 - Search Any Anime
-- No ADs
-- Using Plyr.link and [nsPlayer](https://player.nscdn.ml)
+- No ADs + No ADs Popup on the video player
+- Using Plyr.link and [nsPlayer](https://player.nscdn.ml) as the video player
 - Fast and Simple also Easy To Use
 
 ## ToDos
@@ -17,9 +17,9 @@ This Website is still in development and there will be bug and css issue.
 - Add more backend feature *(Custom Anime Data or Using Myanimelist data)*
 - Docker Supported
 - Migrated to Nuxt.js 3 *(Until Nuxt3 and Vuetify 3 is stable)*
-- Merge API and AMVSTRM to this repo
-- Using ENV to store every API URLS and Credentials
-- More Translation Words
+- Merge API and AMVSTRM to this repo (monorepo)
+- Using ENV to store every API URLS
+- More Site Improvement
 
 ## Deploy
 You can deploy AMVSTRM on Vercel and Netlify
@@ -35,6 +35,8 @@ You can deploy AMVSTRM on Vercel and Netlify
 [![Deploy with Vercel](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/amvstrm/amvstrm)
 
 [Preview For Netlify](https://amvstrm.netlify.app)
+
+**DOCKER + PROCFILE WILL BE COMMING SOON...**
 
 ## Too Late No One At Home Now / Alternative Exists...
 
