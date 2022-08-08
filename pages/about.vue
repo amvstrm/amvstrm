@@ -10,7 +10,7 @@
           <br />
           <strong
             >Beware : We do not store copyright material in our server. We only
-            get those data from user submissions and websites</strong
+            get those data from 3rd party sources.</strong
           >
           <br />
         </p>
@@ -97,14 +97,21 @@
       <v-card-title>
         <span class="headline">Status</span>
       </v-card-title>
-      <StatusCard />
+      <v-card-actions>
+        <v-btn
+          href="https://nsdev.checklyhq.com"
+          class="ma-1"
+          target="_blank"
+        >
+          <v-icon>mdi-server</v-icon>
+          Status Check
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </div>
 </template>
 <script>
-import StatusCard from '~/components/StatusCard.vue'
 export default {
-  components: { StatusCard },
   head() {
     return {
       title: 'About',

@@ -1,25 +1,28 @@
 # AMVSTRM
-Anime Streaming Site Built with Nuxt.js, Vuetify and [Gogoanime API](https://api.amvstr.ml).
+Anime Streaming Site Built with Nuxt.js, Vuetify and [AMV APIs](https://github.com/amvstrm/api).
 
-This Website is still in development and there will be bug and css issue. There will be better readme documentation soon. We still working on improving the speed and code + the API.
 
 ## Features
-- Save Bookmarking in localStorage
+- Save Bookmarking in localstorage and *User Account (Comming Soon)* 
+- Authentication *(Comming Soon)*
 - Search Any Anime
-- No ADs + No ADs Popup on the video player
-- Using Plyr.link and [nsPlayer](https://player.nscdn.ml) as the video player
-- Fast and Simple also Easy To Use
+- No ADs
+- Using Plyr.link and [nsPlayer](https://player.nscdn.ml)
+- Fast and Simple
 
 ## ToDos
 
-- ***Intergrate Authentication and Database to store user bookmarking*** (Wont Be Added)   
+- Intergrate Authentication and Database to store user bookmarking
 - Better UI Design
-- Add more backend feature *(Custom Anime Data or Using Myanimelist data)*
-- Docker Supported
+- Fixing Bug
+- Add more backend feature *(Custom Anime Data)*
+- *Using Docker ?*
 - Migrated to Nuxt.js 3 *(Until Nuxt3 and Vuetify 3 is stable)*
-- Merge API and AMVSTRM to this repo (monorepo)
-- Using ENV to store every API URLS
-- More Site Improvement
+- Fixing SEO on Some Page
+- Merge API and AMVSTRM into a monorepo
+- Using ENV to store every API URLS and Credentials
+- More Translation Words
+- Using MAL Data Using Jikan
 
 ## Deploy
 You can deploy AMVSTRM on Vercel and Netlify
@@ -35,8 +38,6 @@ You can deploy AMVSTRM on Vercel and Netlify
 [![Deploy with Vercel](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/amvstrm/amvstrm)
 
 [Preview For Netlify](https://amvstrm.netlify.app)
-
-**DOCKER + PROCFILE WILL BE COMMING SOON...**
 
 ## Too Late No One At Home Now / Alternative Exists...
 
@@ -61,7 +62,11 @@ We will providing this tutorial on how to contribute amvstrm and any project. [T
 
 ## Credit
 
+<<<<<<< HEAD
+NYT92 © 2022
+=======
 AMVSTRM/NYT92 © 2022
+>>>>>>> 6b69caa57f6f43c6a850be154131d0f7c11f051c
 
 ### Other Credit to
 
@@ -73,4 +78,8 @@ AMVSTRM/NYT92 © 2022
 
 # License
 
+<<<<<<< HEAD
+This Project is fall under license of BSD-3-Clause. [Read More](https://github.com/amvstrm/amvstrm/blob/master/LICENSE)
+=======
 This Project is under the license of BSD-3-Clause. [Read More](https://github.com/amvstrm/amvstrm/blob/master/LICENSE)
+>>>>>>> 6b69caa57f6f43c6a850be154131d0f7c11f051c

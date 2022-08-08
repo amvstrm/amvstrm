@@ -9,24 +9,35 @@
     >
       {{ $t('alert100bookmark') }}
     </v-alert>
-    <v-card class="ma-4" dark>
-      <v-col class="pa-5">
-        <v-row class="align-start">
-          <v-col cols="auto">
-            <div>
-              <img
-                :src="info.img"
-                :alt="info.id + '_img'"
-                style="border-radius: 4px; width: 200px; height: 100%"
-              />
-            </div>
+    <!-- <v-row class="align-start">
+          <v-col cols="auto" class="mr-4">
+            <img
+              :src="info.img"
+              :alt="info.anime_id + '_img'"
+              style="border-radius: 4px; width: 200px; height: 100%"
+            />
+            <v-btn
+              v-if="bookmarkNoExist"
+              color="yellow darken-2"
+              outlined
+              @click="addBookmarks(info.anime_id, info.img, info.title)"
+            >
+              <v-icon>mdi-bookmark</v-icon>
+              Bookmark
+            </v-btn>
+            <v-btn
+              v-if="bookmarkExist"
+              color="grey darken-2"
+              outlined
+              @click="removeBookmarks(info.anime_id)"
+            >
+              <v-icon>mdi-bookmark-outline</v-icon>
+              Unbookmark
+            </v-btn>
           </v-col>
           <v-col class="pa-2" cols="10" md="9" sm="9">
-            <div>
-              <h1>{{ info.title }}</h1>
-            </div>
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <p v-html="info.synopsis"></p>
+            <h1>{{ info.title }}</h1>
+            <p>{{ info.synopsis }}</p>
             <p class="mt-3">
               {{ $t('info.release') }} : {{ info.released }}
               <br />
@@ -34,9 +45,10 @@
               <br />
               {{ $t('info.other_name') }} : {{ info.otherName }}
               <br />
+              {{ $t('info.totalep') }} : {{ info.totalEpisodes }}
+              <br />
               {{ $t('info.rating') }} : {{ info.rating }} / 10
             </p>
-
             <p>
               {{ $t('info.genres') }} :
               <router-link
@@ -48,22 +60,72 @@
                 <span v-if="index < info.genres.length - 1">,</span>
               </router-link>
             </p>
-
-            <v-btn
-              outlined
-              color="warning"
-              :disabled="b_add == true"
-              @click="bookmark_add"
-            >
-              <v-icon>mdi-bookmark</v-icon>
-              {{ $t('info.bookmark') }}
-            </v-btn>
-            <v-btn outlined color="primary" :href="info.mal_url">
-              MyAnimeList
-            </v-btn>
           </v-col>
-        </v-row>
-      </v-col>
+        </v-row> -->
+    <!-- make the img go overlay on the banner with text -->
+    <div class="header">
+      <div class="banner">
+        <v-img :src="info.img" height="210px" style="filter: blur(1px)" />
+        <div class="container">
+          <div class="overlapbanner mx-5">
+            <img
+              class="img"
+              :src="info.img"
+              alt="img"
+              style="position: static"
+            />
+            <div class="bookmarkbtnaction">
+              <v-btn
+                v-if="bookmarkNoExist"
+                color="yellow darken-2"
+                outlined
+                :disabled="bklimit"
+                @click="addBookmarks(info.anime_id, info.img, info.title)"
+              >
+                <v-icon>mdi-bookmark</v-icon>
+                {{ $t('bookmark') }}
+              </v-btn>
+              <v-btn
+                v-if="bookmarkExist"
+                color="grey darken-1"
+                outlined
+                @click="removeBookmarks(info.anime_id)"
+              >
+                <v-icon>mdi-bookmark-outline</v-icon>
+                {{ $t('unbookmark') }}
+              </v-btn>
+            </div>
+          </div>
+          <div class="content mx-5">
+            <h1 class="heading">{{ info.title }}</h1>
+            <p>{{ info.synopsis }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <v-card class="ma-4 pa-5">
+      <p class="mt-3">
+        {{ $t('info.release') }} : {{ info.released }}
+        <br />
+        {{ $t('info.status') }} : {{ info.status }}
+        <br />
+        {{ $t('info.other_name') }} : {{ info.otherName }}
+        <br />
+        {{ $t('info.totalep') }} : {{ info.totalEpisodes }}
+        <br />
+        {{ $t('info.rating') }} : {{ info.rating }} / 10
+      </p>
+      <p>
+        {{ $t('info.genres') }} :
+        <router-link
+          v-for="(item, index) in info.genres"
+          :key="index"
+          :to="'/genres/' + item"
+        >
+          {{ item }}
+          <span v-if="index < info.genres.length - 1">,</span>
+        </router-link>
+      </p>
     </v-card>
     <v-card class="ma-4 pa-4" dark>
       <div class="py-2">
@@ -72,15 +134,20 @@
         <p v-else-if="eplists.length == 0" class="mt-2">
           Episode is not available
         </p>
-        <v-chip-group v-else class="mt-2" column>
-          <v-chip
+        <v-list v-else>
+          <v-list-item
             v-for="(item, index) in eplists"
             :key="index"
             :to="localePath('/watch/' + item.id)"
           >
-            {{ item.id }}
-          </v-chip>
-        </v-chip-group>
+            <v-list-item-content>
+              <v-list-item-title> Episode </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ item.id.split('-episode-')[1] }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
       </div>
     </v-card>
   </div>
@@ -88,14 +155,13 @@
 
 <script>
 import axios from 'axios'
-
 export default {
   async asyncData({ params }) {
-    const info = await axios.get(
-      'https://api.amvstr.ml/api/anime/info/' + params.id
+    const infoo = await axios.get(
+      `https://api.amvstr.ml/api/anime/info/${params.id}`
     )
     return {
-      info: info.data,
+      info: infoo.data,
     }
   },
   data() {
@@ -104,17 +170,18 @@ export default {
       refrshld: false,
       snackbar: false,
       showAlert: false,
-      b_add: false,
+      bklimit: false,
       ratingvalue: 0,
       eplists: [],
+      bookmarkNoExist: true,
+      bookmarkExist: false,
     }
   },
-  fetchOnServer: true,
   async fetch() {
-    const eplist = await this.$axios.$get(
-      'https://api.amvstr.ml/api/anime/episodelist/' + this.info.anime_id
+    const ep = await this.$axios.$get(
+      `https://api.amvstr.ml/api/anime/episodelist/${this.info.anime_id}`
     )
-    this.eplists = eplist.episodes
+    this.eplists = ep.episodes
   },
   head() {
     return {
@@ -148,9 +215,7 @@ export default {
         {
           hid: 'og:description',
           property: 'og:description',
-          content: `${this.info.title} - ${
-            this.info.synopsis.split('Plot Summary:')[1]
-          }`,
+          content: `${this.info.title} - ${this.info.synopsis}`,
         },
         {
           hid: 'og:image',
@@ -175,9 +240,7 @@ export default {
         {
           hid: 'twitter:description',
           name: 'twitter:description',
-          content: `${this.info.title} - ${
-            this.info.synopsis.split('Plot Summary:')[1]
-          }`,
+          content: `${this.info.title} - ${this.info.synopsis}`,
         },
         {
           hid: 'twitter:image',
@@ -189,44 +252,58 @@ export default {
   },
   created() {
     if (process.client) {
-      let bookmarks = JSON.parse(localStorage.getItem('bookmarks'))
-      if (bookmarks == null) {
-        bookmarks = []
+      const bookmarks = JSON.parse(localStorage.getItem('bookmarks'))
+      // go through the bookmarks each and check if the anime is in the bookmarks
+      if (bookmarks) {
+        bookmarks.forEach((item) => {
+          if (item.id === this.info.anime_id) {
+            this.bookmarkNoExist = false
+            this.bookmarkExist = true
+          }
+        })
+      } else {
+        this.bookmarkNoExist = true
+        this.bookmarkExist = false
       }
-      bookmarks.forEach((item) => {
-        if (item.id === this.info.anime_id) {
-          this.b_add = true
-        }
-      })
     }
   },
   methods: {
-    bookmark_add() {
-      let bookmarks = JSON.parse(localStorage.getItem('bookmarks'))
-      if (bookmarks == null) {
-        bookmarks = []
-      }
-      let exist = false
-      bookmarks.forEach((item) => {
-        if (item.id === this.info.anime_id) {
-          exist = true
-        }
-      })
-      if (exist) {
-        this.b_add = true
-        this.snackbar = true
-      } else if (bookmarks.length >= 100) {
-        this.showAlert = true
-      } else {
+    addBookmarks(id, img, title) {
+      if (process.client) {
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || []
         bookmarks.push({
-          id: this.info.anime_id,
-          title: this.info.title,
-          img: this.info.img,
+          id,
+          title,
+          img,
         })
-        if (process.client) {
+        localStorage.setItem('bookmarks', JSON.stringify(bookmarks))
+        // if bookmarks exceed 100, show alert
+        if (bookmarks.length > 100) {
+          this.showAlert = true
+          this.bklimit = true
+          this.bookmarkExist = false
+          this.bookmarkNoExist = false
+          // prevent from adding more than 100 bookmarks
+          // remove the bookmark that was recently added during 100 bookmarks limit
+          bookmarks.pop()
           localStorage.setItem('bookmarks', JSON.stringify(bookmarks))
+        } else {
+          this.bookmarkExist = true
+          this.bookmarkNoExist = false
         }
-        this.b_add = true
+      }
+    },
+    removeBookmarks(id) {
+      if (process.client) {
+        const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || []
+        bookmarks.forEach((item, index) => {
+          if (item.id === id) {
+            bookmarks.splice(index, 1)
+          }
+        })
+        localStorage.setItem('bookmarks', JSON.stringify(bookmarks))
+        this.bookmarkExist = false
+        this.bookmarkNoExist = true
       }
     },
   },
@@ -234,11 +311,61 @@ export default {
 </script>
 
 <style>
-.embed-responsive {
-  height: 480px;
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.heading {
+  line-height: 1.2;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+.container {
+  display: grid;
+  grid-template-columns: 200px auto;
+  position: relative;
+}
+.banner {
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.overlapbanner {
+  position: relative;
+  margin-top: -100px;
+}
+.img {
+  background-color: rgba(212, 230, 245, 0.5);
+  border-radius: 4px;
+  box-shadow: 0 0 29px rgba(49, 54, 68, 0.25);
   width: 100%;
 }
-.txtbrk {
-  word-break: break-all;
+.bookmarkbtnaction {
+  display: flex;
+  flex-direction: column;
+  width: auto;
+}
+@media (max-width: 800px) {
+  .header{
+    display:block;
+  }
+  .container {
+    grid-template-columns: 1fr;
+  }
+  .img {
+    width: 200px;
+  }
+  .heading {
+    line-height: 1.2;
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+  .bookmarkbtnaction {
+    position: initial;
+  }
+  .overlapbanner {
+    margin-right: 20px;
+    margin-left: 20px;
+  }
 }
 </style>

@@ -10,14 +10,14 @@
             prepend-icon="mdi-link"
             readonly
           ></v-text-field>
-          <v-btn color="primary" @click="copytoClipboard">
+          <v-btn class="ma-2" color="primary" @click="copytoClipboard">
             {{ btntxtcopy }}
           </v-btn>
-          <v-btn color="primary" @click="sharetoSocialfb">
+          <v-btn class="ma-2" color="primary" @click="sharetoSocialfb">
             <v-icon>mdi-facebook</v-icon>
             Facebook
           </v-btn>
-          <v-btn color="primary" @click="sharetoSocialtwt">
+          <v-btn class="ma-2" color="primary" @click="sharetoSocialtwt">
             <v-icon>mdi-twitter</v-icon>
             Twitter
           </v-btn>
@@ -26,18 +26,19 @@
     </v-dialog>
     <v-dialog v-model="episodedialog" width="500" height="400">
       <v-card class="pa-5">
-        <h2 class="pa-2">
-          {{ $t('episode') }}
-        </h2>
+        <h2 class="pa-2">{{ $t('episode_all') }}</h2>
         <v-list>
           <v-list-item
             v-for="(item, index) in episode_array"
             :key="index"
-            :to="localePath(`/watch/${item.id}`)"
+            :to="localePath('/watch/' + item.id)"
           >
-            <v-list-item-title>
-              {{ item.id }}
-            </v-list-item-title>
+            <v-list-item-content>
+              <v-list-item-title> {{ $t('episode') }} </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ item.id.split('-episode-')[1] }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
           </v-list-item>
         </v-list>
       </v-card>
@@ -60,21 +61,25 @@
               label="nsPlayer (Legacy)"
               color="primary"
             ></v-radio>
-             <v-radio
+            <v-radio
               :value="2"
               label="External (GOGOLOAD)"
               color="primary"
             ></v-radio>
           </v-radio-group>
-          <p v-if="iframe_type === 2">
-            External player contain ADs from gogoload, Please use ADs Blocker and Beware of those ADs.
-          </p>
+          <div v-if="iframe_type === 2">
+            External player may contain ads. We recommend using Plyr/nsPlayer
+            and External using ads blocker instead.
+            <v-checkbox
+              v-model="putsandbox"
+              label="Enable Sandbox (Won't Work For Google Chrome)"
+              color="primary"
+            ></v-checkbox>
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" @click="saveVidSettingAction">
-            Save
-          </v-btn>
+          <v-btn color="primary" @click="saveVidSettingAction"> Save </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -100,7 +105,7 @@
           <v-col cols="auto">
             <v-btn
               class="mr-1"
-              color="primary"
+              color="green darken-2"
               dark
               @click="episodedialog = true"
             >
@@ -109,24 +114,15 @@
             </v-btn>
             <v-btn
               elevation="2"
-              fab
-              x-small
               :href="'https://api-server-2.amvstr.ml/api/download/' + paramsid"
               target="_blank"
             >
               <v-icon>mdi-download</v-icon>
+              Download
             </v-btn>
-            <v-btn
-              elevation="2"
-              fab
-              href="#cmt"
-              x-small
-              @click="showDisqus = true"
-            >
-              <v-icon>mdi-comment</v-icon>
-            </v-btn>
-            <v-btn elevation="2" fab x-small @click="sharedialog = true">
+            <v-btn elevation="2" @click="sharedialog = true">
               <v-icon>mdi-share</v-icon>
+              Share
             </v-btn>
             <v-btn elevation="2" fab x-small @click="iframeoptions = true">
               <v-icon>mdi-cog</v-icon>
@@ -135,8 +131,8 @@
         </v-row>
       </v-card>
     </v-col>
-    <v-col v-if="showDisqus">
-      <v-card id="cmt" class="ma-2 pa-2">
+    <v-col>
+      <v-card class="ma-2 pa-2">
         <div class="ma-4">
           <Disqus />
         </div>
@@ -149,67 +145,55 @@ import axios from 'axios'
 
 export default {
   async asyncData({ params }) {
-    const infoo = await axios.get(
-      `https://api.amvstr.ml/api/anime/info/${params.id.split('-episode-')[0]}`
-    )
     const paramsid = params.id
+    // const infoo = await axios.get(`/api/anime/info/${params.id.split('-episode-')[0]}`)
     const vidcdn = await axios.get(
       `https://api.amvstr.ml/api/stream/play?id=${paramsid}`
     )
+    const eplist = await axios.get(
+      `https://api.amvstr.ml/api/anime/episodelist/${
+        paramsid.split('-episode-')[0]
+      }`
+    )
     return {
-      info: infoo.data,
+      info: eplist.data,
       vidcdn: vidcdn.data,
+      episode_array: eplist.data.episodes,
       paramsid,
     }
   },
   data() {
     return {
-      info: null,
       episode_array: [],
       refrshld: false,
       vidcdn: null,
       overlay: false,
       ephere: null,
+      info: null,
       paramsid: '',
-      playerurl : `https://api.amvstr.ml/api/`,
-      showDisqus: false,
       episodedialog: false,
       iframeoptions: false,
       iframe_type: 0,
       iframe_src: '',
       link: '',
+      putsandbox: false,
       sharedialog: false,
+      sandboxattr: '',
       btntxtcopy: 'Copy',
+      btnclicked: 0,
       sharetoSocialfb: () => {
-        // fb share
         const url = this.link
         const title = this.info.title
-        // url encode
         const fb = `https://www.facebook.com/sharer/sharer.php?u=${url}&t=${title}`
         window.open(fb, '_blank')
       },
       sharetoSocialtwt: () => {
-        // twt share
         const url = this.link
         const title = this.info.title
         const twt = `https://twitter.com/intent/tweet?text=${title}&url=${url}`
         window.open(twt, '_blank')
       },
     }
-  },
-  fetchOnServer: false,
-  async fetch() {
-    // const vidcdn = await this.$axios.$get(
-    //   `https://api.amvstr.ml/api/stream/play?id=${this.$route.params.id}`
-    // )
-    // this.vidcdn = vidcdn
-    const eplist = await this.$axios.$get(
-      `https://api.amvstr.ml/api/anime/episodelist/${
-        this.paramsid.split('-episode-')[0]
-      }`
-    )
-    this.episode_array = eplist.episodes
-    // this.info = infoo.data;
   },
   head() {
     return {
@@ -237,21 +221,21 @@ export default {
         {
           hid: 'og:title',
           property: 'og:title',
-          content: `Watch ${this.info.title} Episode ${
+          content: `Watch ${this.vidcdn.title} Episode ${
             this.paramsid.split('-episode-')[1]
           } On amvstr.ml | amvstrm`,
         },
         {
           hid: 'og:description',
           property: 'og:description',
-          content: `Watch and Stream ${this.info.title} Episode ${
+          content: `Watch and Stream ${this.vidcdn.title} Episode ${
             this.paramsid.split('-episode-')[1]
           } Right Now On amvstr.ml`,
         },
         {
           hid: 'og:image',
           property: 'og:image',
-          content: this.info.img,
+          content: `https://gogocdn.net/cover/${this.info.id}.png`,
         },
         // <!-- Twitter -->
         {
@@ -281,30 +265,25 @@ export default {
         {
           hid: 'twitter:image',
           name: 'twitter:image',
-          content: this.info.img,
+          content: `https://gogocdn.net/cover/${this.info.id}.png`,
         },
       ],
     }
   },
+  // async beforeMount() {
+  //   await this.fetchdata()
+  // },
   async mounted() {
-    await this.storelastOpenAnime();
-    await this.defaultVidPlayer();
+    await this.storelastOpenAnime()
+    await this.defaultVidPlayer()
   },
   created: function () {
-    this.showDisqusCMT()
     this.share()
   },
   methods: {
-    refrsh() {
-      this.refrshld = true
-      window.location.reload()
-    },
-    showDisqusCMT() {
-      this.showDisqus = false
-    },
     share() {
-      this.link = `https://amvstr.ml/watch/${
-        this.paramsid
+      this.link = `${
+        window.location.href
       }?utm_source=shared_url&utm_medium=${encodeURIComponent(
         this.info.title
       )}&utm_campaign=${encodeURIComponent(
@@ -313,14 +292,22 @@ export default {
     },
     copytoClipboard() {
       if (process.client) {
-        navigator.clipboard.writeText(this.link)
+        const link = `${
+          window.location.href
+        }?utm_source=shared_url&utm_medium=${encodeURIComponent(
+          this.info.title
+        )}&utm_campaign=${encodeURIComponent(
+          this.info.title + ' Episode ' + this.paramsid.split('-episode-')[1]
+        )}`
+        navigator.clipboard.writeText(link)
         this.btntxtcopy = 'Copied!'
       }
     },
     storelastOpenAnime() {
       if (process.client) {
         const data = JSON.stringify({
-          title: this.info.title + ' Episode ' + this.paramsid.split('-episode-')[1],
+          title:
+            this.info.title + ' Episode ' + this.paramsid.split('-episode-')[1],
           id: this.paramsid,
           episode: this.paramsid.split('-episode-')[1],
         })
@@ -328,41 +315,40 @@ export default {
       }
     },
     saveVidSettingAction() {
-      if (this.iframe_type === 0){
+      if (this.iframe_type === 0) {
         this.iframe_src = this.vidcdn.url
         this.iframeoptions = false
-      }
-      else if (this.iframe_type === 1){
+        this.putsandbox = false
+      } else if (this.iframe_type === 1) {
         this.iframe_src = this.vidcdn.nspl_url
         this.iframeoptions = false
-      }
-      else if (this.iframe_type === 2){
-        const iframeurl = axios.get(`https://api.amvstr.ml/api/stream/iframe/${this.paramsid}`)
-        iframeurl.then(res => {
-          this.iframe_src = res.data.servers[0].iframe
-        })
-        this.iframeoptions = false
+        this.putsandbox = false
+      } else if (this.iframe_type === 2) {
+        const iframeurl = axios.get(
+          `https://api.amvstr.ml/api/stream/iframe/${this.paramsid}`
+        )
+        if (this.putsandbox === false) {
+          iframeurl.then((res) => {
+            this.iframe_src = `//${res.data.servers[0].iframe}`
+          })
+
+          this.iframeoptions = false
+        } else if (this.putsandbox === true) {
+          iframeurl.then((res) => {
+            this.iframe_src = `//${res.data.servers[0].iframe}`
+          })
+          this.iframeoptions = false
+          if (process.client) {
+            const iframe = document.getElementById('ifrencr')
+            iframe.sandbox =
+              'allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation'
+          }
+        }
       }
     },
     defaultVidPlayer() {
       this.iframe_src = this.vidcdn.url
-    }
+    },
   },
 }
 </script>
-<style>
-.embed {
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 16 / 9;
-}
-@media screen and (max-width: 600px) {
-  .embed {
-    overflow: hidden;
-    width: 100%;
-    height: 120%;
-    margin-bottom: 2rem;
-  }
-}
-</style>

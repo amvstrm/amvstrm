@@ -1,8 +1,12 @@
 <template>
   <v-app dark class="bg-sze">
     <div class="centerctn">
+      <button @click="playMikuSound">
+        <img src="../static/leek.png" alt="credit_custom-cursor.com_hatsune-miku-and-leek" width="45px">
+      </button>
       <h1 v-if="error.statusCode === 404" class="textsha">
       {{ pageNotFound }}
+      
     </h1>
     <h1 v-else-if="error.statusCode === 500" class="textsha">
       {{ serverError }}
@@ -31,6 +35,7 @@ export default {
       serverError: '500 Server Error, Please Contact to Adminitrator',
       bgimg: null,
       info: null,
+      countclick: 0,
     }
   },
   head() {
@@ -39,6 +44,32 @@ export default {
     return {
       title,
     }
+  },
+  mounted() {
+    const audiopreload = new Audio('https://d2.nscdn.ml/file/d2directdrives/amvstrm/okaimono.wav')
+    audiopreload.preload = 'auto'
+  },
+  methods: {
+    playMikuSound() {
+      // eslint-disable-next-line no-console
+      console.log(this.countclick++)
+      if (this.countclick === 50){
+        const website = {
+          1: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+          2: '/',
+          3: 'https://ចុយម្រាយ.weebly.com',
+          4: 'https://youtu.be/WhQFNvgeOZQ?t=30',
+          5: 'https://kdmh.nyt92.repl.co',
+          6: 'https://www.youtube.com/watch?v=OBPsQtObLR0',
+          7: 'https://youtu.be/wuTczgBtwRM?t=10',
+          8: 'https://www.youtube.com/watch?v=tu3AYKNJQaE',
+        }
+        const random = Math.floor(Math.random() * Object.keys(website).length) + 1
+        window.location.href = website[random]  
+      }
+      const audio = new Audio('https://d2.nscdn.ml/file/d2directdrives/amvstrm/okaimono.wav')
+      audio.play()
+    },
   },
 }
 </script>
@@ -86,4 +117,6 @@ export default {
   color: #fff;
   text-shadow: 0 0 5px #000;
 }
+
+
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="ma-5">All Popular Anime</h2>
+    <h2 class="ma-5">{{ $t("popularfr") }}</h2>
     <div class="grid-ctn ma-5">
       <div v-for="data in popular" :key="data.id" class="grid-item mx-5">
         <AnimeCard
@@ -15,6 +15,7 @@
       <p>Page: {{ page }}</p>
       <v-pagination
         v-model="page"
+        color="green darken-2"
         class="my-4"
         :length="length"
         :total-visible="10"
@@ -71,7 +72,7 @@ export default {
   },
   methods: {
     getPopular: function () {
-      axios.get(`${process.env.API_URL2}/popular/${this.page}`).then((res) => {
+      axios.get(`https://api-server-2.amvstr.ml/api/popular/${this.page}`).then((res) => {
         this.popular = res.data.popular
       })
     },
@@ -117,7 +118,7 @@ export default {
     height: 12rem;
   }
   .grid-ctn {
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
 }
 </style>

@@ -10,7 +10,7 @@
         <v-list-item>
           <v-list-item-content>
             <router-link to="/" style="display: flex">
-              amvstrm BETA
+              <img src="../static/logo.png" alt="logo" width="50%">
             </router-link>
             <v-list-item-subtitle> Free Anime Contents </v-list-item-subtitle>
           </v-list-item-content>
@@ -41,34 +41,17 @@
       <v-app-bar app dark absolute>
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
         <v-col>
-          <router-link :to="localePath('/')">
-            <!-- <img src="../static/logo.svg" height="120" width="120" alt="logo" /> -->
-            amvstr.ml BETA
+          <router-link :to="localePath('/')" style="display: flex">
+            <img src="../static/logo.png" alt="logo" width="100px">
           </router-link>
         </v-col>
         <v-spacer></v-spacer>
-        <v-col>
+        <v-col class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
           <SearchBar />
         </v-col>
       </v-app-bar>
       <v-main>
-        <v-snackbar v-model="showBanner">
-          <v-icon slot="icon" color="warning" size="36">
-            mdi-information
-          </v-icon>
-          Website/API is under construction. There will be 404/500 errors occurred. 
-          <template #action="{ attrs }">
-            <v-btn
-              text
-              color="primary"
-              v-bind="attrs"
-              @click="showBanner = false"
-            >
-              Ok
-            </v-btn>
-          </template>
-        </v-snackbar>
-        <Nuxt keep-alive />
+        <Nuxt />
       </v-main>
       <v-footer
         app
@@ -87,17 +70,17 @@
         "
       >
         <v-col cols="auto">
-          <span>{{ $t('copyright') }} {{ year }}</span
-          ><br />
+          <span>{{ $t('copyright') }} {{ year }}</span>
+          <br />
           <span style="opacity: 50%; font-size: 0.8em">
             Disclaimer : We do not store data in our database. We get data from
-            3rd party sites and other site only. Our Website and Domain is
-            Protected by Cloudflare.
+            3rd party sites and other site only. Our Website and Domain are
+            protected by Cloudflare.
           </span>
         </v-col>
         <v-col cols="auto">
-          <LangSwitch />
-          <v-chip label to="/about"> About </v-chip>
+          <v-chip label href="https://docs.amvstr.ml/help"> {{$t('help')}} </v-chip>
+          <v-chip label :to="localePath('/about')"> About </v-chip>
           <v-chip
             v-if="showGoTop"
             elevation="4"
@@ -107,6 +90,9 @@
           >
             <v-icon>mdi-chevron-up-circle-outline</v-icon>
           </v-chip>
+        </v-col>
+        <v-col cols="auto" class="text-center">
+          <LangSwitch/>
         </v-col>
       </v-footer>
     </div>

@@ -2,51 +2,13 @@
 <template>
   <div class="ma-4">
     <LastPlayVid />
-    <!-- <v-carousel
-      v-model="cmodel"
-      hide-delimiters
-      show-arrows-on-hover
-      :progress="true"
-      height="auto"
-      progress-color="white"
-    >
-      <v-carousel-item v-for="data in popular" :key="data.id">
-        <router-link :to="localePath('/anime/' + data.id)">
-          <v-row
-            class="align-center justify-center align-center bg-drop"
-            :style="{
-              backgroundImage: `url(${data.img})`,
-            }"
-          >
-            <v-col cols="auto" class="ma-5">
-              <img
-                class="img-carousel"
-                :src="data.img"
-                alt="img_carousel"
-                style="border-radius: 4px"
-              />
-            </v-col>
-            <v-col cols="auto" class="ma-5">
-              <h3 class="txtovf" style="text-shadow: 1px 1px 2px black">
-                {{ data.title }}
-              </h3>
-              <p style="text-shadow: 1px 1px 2px black">
-                  {{ data.subOrDub }}
-                </p>
-                <p style="text-shadow: 1px 1px 2px black">
-                  Episode {{ data.episode }}
-                </p>
-              <v-btn class="mb-5" dark color="success darken-3">
-                  {{ $t('watchnow') }}
-                  <v-icon>mdi-play</v-icon>
-                </v-btn>
-            </v-col>
-          </v-row>
-        </router-link>
-      </v-carousel-item>
-    </v-carousel> -->
     <div class="my-5">
       <h1>Welcome !!!</h1>
+      <p>
+        amvstrm Version 1.0.0 is now finished!! 
+        <br />
+        Check out the changelogs <a href="https://docs.amvstr.ml/" style="color: green;">Here</a>
+      </p>
     </div>
     <div class="my-5">
       <h2>{{ $t('recentfr') }}</h2>
@@ -57,21 +19,21 @@
           grow
           hide-slider
           show-arrows
-          color="primary"
+          color="green"
         >
           <v-tab href="#subanime"> Sub </v-tab>
           <v-tab href="#dubanime"> Dub </v-tab>
           <v-tab href="#cnanime"> Chinese </v-tab>
           <v-tab href="#all"> All </v-tab>
         </v-tabs>
-        <v-tabs-items v-model="animetab" class="bgtransp" touchless>
-          <div v-if="$fetchState.pending">
-            <LoadingFetch />
-          </div>
-          <div v-else-if="$fetchState.error">
-            <p>Data is not available</p>
-          </div>
-          <div v-else>
+        <div v-if="$fetchState.pending">
+          <LoadingFetch />
+        </div>
+        <div v-else-if="$fetchState.error">
+          <h3>Not Available!</h3>
+        </div>
+        <v-tabs-items v-else v-model="animetab" class="bgtransp" touchless>
+          <div>
             <v-tab-item value="subanime">
               <v-col class="media-scrolling">
                 <div v-for="data in recent" :key="data.id">
@@ -89,7 +51,8 @@
                       :episode="data.episode"
                       :episodeid="data.episode_id"
                       :subordub="data.subOrDub"
-                  /></v-lazy>
+                    />
+                  </v-lazy>
                 </div>
               </v-col>
             </v-tab-item>
@@ -173,7 +136,7 @@
       <div v-if="$fetchState.pending">
         <LoadingFetch />
       </div>
-      <v-row>
+      <v-row v-else>
         <v-col class="media-scrolling">
           <div v-for="data in popular" :key="data.id">
             <v-lazy
@@ -210,7 +173,7 @@
               <v-btn dark v-bind="attrs" v-on="on"> More </v-btn>
             </template>
             <v-card style="overflow-x: hidden; overflow-y: hidden">
-              <v-toolbar dark color="primary">
+              <v-toolbar dark color="green darken-2">
                 <v-btn icon dark @click="topair_more = false">
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
@@ -271,7 +234,7 @@
       <div v-if="$fetchState.pending">
         <LoadingFetch />
       </div>
-      <div class="media-scrolling">
+      <div v-else class="media-scrolling">
         <div v-for="data in newseason" :key="data.id">
           <v-lazy
             v-model="isActive"
@@ -316,22 +279,12 @@ export default {
     }
   },
   async fetch() {
-    const recent = await this.$axios.$get(
-      `${process.env.API_URL2}/recentrelease/1`
-    )
-    const recentdub = await this.$axios.$get(
-      `${process.env.API_URL2}/recentrelease/dub/1`
-    )
-    const recentcn = await this.$axios.$get(
-      `${process.env.API_URL2}/recentrelease/cn/1`
-    )
-    const recentall = await this.$axios.$get(
-      `${process.env.API_URL2}/recentrelease/all/1`
-    )
-    const newseason = await this.$axios.$get(
-      `${process.env.API_URL2}/newseasons/1`
-    )
-    const popular = await this.$axios.$get(`${process.env.API_URL2}/popular/1`)
+    const recent = await this.$axios.$get(`/api/recentrelease/1`)
+    const recentdub = await this.$axios.$get(`/api/recentrelease/dub/1`)
+    const recentcn = await this.$axios.$get(`/api/recentrelease/cn/1`)
+    const recentall = await this.$axios.$get(`/api/recentrelease/all/1`)
+    const newseason = await this.$axios.$get(`/api/newseasons/1`)
+    const popular = await this.$axios.$get(`/api/popular/1`)
     this.recent = recent.anime
     this.recentdub = recentdub.anime
     this.recentcn = recentcn.anime
@@ -419,7 +372,7 @@ export default {
   methods: {
     getTopOngoing: function () {
       axios
-        .get(`${process.env.API_URL2}/topairing?p=${this.airpage}`)
+        .get(`${process.env.API_URL}/api/topairing?p=${this.airpage}`)
         .then((res) => {
           this.topairing = res.data.topairing
         })
@@ -432,15 +385,6 @@ export default {
 </script>
 
 <style scoped>
-.bgtransp {
-  background-color: transparent;
-}
-.bg-drop {
-  background-size: cover;
-  background-position: center;
-  box-shadow: 0px -120px 5rem 90px rgba(0, 0, 0, 0.75) inset;
-  backdrop-filter: blur(10px);
-}
 .media-scrolling {
   --_spacer: 1rem;
   display: grid;

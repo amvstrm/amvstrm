@@ -50,11 +50,9 @@
     </div>
     <div class="grid-ctn ma-4">
       <!-- show div when bookmarks is empty -->
-      <div v-if="bookmarklist == 0"  style="height:600px">
+      <div v-if="bookmarklist == 0" style="height: 600px">
         <div class="text-center">
-          <v-icon color="grey--text" size="100">
-            mdi-bookmark-outline
-          </v-icon>
+          <v-icon color="grey--text" size="100"> mdi-bookmark-outline </v-icon>
           <h2>No Bookmarks</h2>
         </div>
       </div>
@@ -67,16 +65,15 @@
           @clickdata="removeBookmark(data.id)"
         />
       </div>
-      
     </div>
     <div class="ma-5">
-      <v-btn class="mr-2" elevation="4" color="red" @click="saveBookmark">
-        <v-icon>mdi-export</v-icon>
-        Export
-      </v-btn>
       <v-btn class="mr-2" elevation="4" color="blue" @click="importBookmark">
         <v-icon>mdi-import</v-icon>
         Import
+      </v-btn>
+      <v-btn class="mr-2" elevation="4" color="red" @click="saveBookmark">
+        <v-icon>mdi-export</v-icon>
+        Export
       </v-btn>
       <v-btn
         class="mr-2 my-2"
@@ -98,7 +95,6 @@
 </template>
 <script>
 import Validator from 'jsonschema'
-
 export default {
   data() {
     return {
@@ -144,6 +140,7 @@ export default {
         this.$cookies.set('dialog', false, {
           path: '/bookmarks',
           maxAge: 60 * 60 * 24 * 7,
+          expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000),
         })
         this.dialog = false
       }
@@ -324,7 +321,7 @@ export default {
     height: 12rem;
   }
   .grid-ctn {
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
 }
 </style>

@@ -6,18 +6,27 @@
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
-    "generate": "nuxt generate"
+    "generate": "nuxt generate",
+    "server": "nodemon server/index.js"
+  },
+  "config": {
+    "nuxt": {
+      "host": "0.0.0.0",
+      "port": "80"
+    }
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/i18n": "^7.2.2",
     "@nuxtjs/pwa": "^3.3.5",
+    "amvstrmapis": "file:amvstrmapis-1.0.0.tgz",
     "axios": "^0.27.2",
     "cookie-universal-nuxt": "^2.2.1",
     "core-js": "^3.19.3",
+    "cors": "^2.8.5",
+    "deta": "^1.1.0",
     "fs": "^0.0.1-security",
-    "js-cookie": "^3.0.1",
     "jsonschema": "^1.4.1",
     "lodash.debounce": "^4.0.8",
     "nodejs-base64": "^2.0.0",
@@ -35,6 +44,7 @@
     "@nuxtjs/eslint-config": "^10.0.0",
     "@nuxtjs/eslint-module": "^3.1.0",
     "@nuxtjs/vuetify": "^1.12.3",
+    "cheerio": "^1.0.0-rc.10",
     "eslint": "^8.18.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-nuxt": "^3.2.0",

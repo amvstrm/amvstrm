@@ -15,6 +15,72 @@ export default {
       { name: 'robots', content: 'index, follow' },
       { name: 'canonical', content: 'https://amvstr.ml' },
       { name: 'referrer', content: 'origin' },
+      {
+        hid: 'description',
+        name: 'description',
+        content:
+          'amvstrm, also known as Anime/Movie/Video Streaming is an open-source website that lets you watch anime for free without being disturbed by pop-up adverts.',
+      },
+      {
+        hid: 'keywords',
+        name: 'keywords',
+        content:
+          'anime, amvstreaming, free anime, amvstrm, amvstr, amvstrm.ml, amvstrm anime',
+      },
+      // og
+      {
+        hid: 'og:type',
+        property: 'og:type',
+        content: 'website',
+      },
+      {
+        hid: 'og:url',
+        property: 'og:url',
+        content: 'https://amvstr.ml/',
+      },
+      {
+        hid: 'og:title',
+        property: 'og:title',
+        content: 'Home | amvstrm',
+      },
+      {
+        hid: 'og:description',
+        property: 'og:description',
+        content:
+          'amvstrm, also known as Anime/Movie/Video Streaming is an open-source website that lets you watch anime for free without being disturbed by pop-up adverts.',
+      },
+      {
+        hid: 'og:image',
+        property: 'og:image',
+        content: 'seoimg.png',
+      },
+      // twitter
+      {
+        hid: 'twitter:card',
+        name: 'twitter:card',
+        content: 'summary_large_image',
+      },
+      {
+        hid: 'twitter:url',
+        name: 'twitter:url',
+        content: 'https://amvstr.ml/',
+      },
+      {
+        hid: 'twitter:title',
+        name: 'twitter:title',
+        content: 'Home | amvstrm',
+      },
+      {
+        hid: 'twitter:description',
+        name: 'twitter:description',
+        content:
+          'amvstrm, also known as Anime/Movie/Video Streaming is an open-source website that lets you watch anime for free without being disturbed by pop-up adverts.',
+      },
+      {
+        hid: 'twitter:image',
+        name: 'twitter:image',
+        content: '/seoimg.png',
+      },
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
@@ -42,7 +108,7 @@ export default {
     color: '#3B8070',
     background: '#191919'
   },
-  
+
   // Auto import components: https://go.nuxtjs.dev/config-components
   // components: true,
   components: true,
@@ -78,6 +144,7 @@ export default {
     },
     workbox: {
       autoRegister: true,
+      offlinePage: '/offline.html',
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/.*\.googleapis\.com\/fonts\/.*/,
@@ -131,13 +198,39 @@ export default {
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
-          success: colors.green.accent3
+          success: colors.green.accent3,
+          green: '#7DE38D',
         }
       }
     }
   },
+  // serverMiddleware: {
+  //   '/api': '~/server'
+  // },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          chunks: 'all',
+          name: 'vendor'
+        }
+      }
+    },
+    minimize: true,
+  },
+  webpack: {
+    ignored: /node_modules/
+  },
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     // extractCSS: true,
+    splitChunks: {
+      layouts: true,
+      pages: true,
+      vendor: true,
+      styles: true,
+    },
   }
+
 }

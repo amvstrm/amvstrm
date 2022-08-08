@@ -59,7 +59,7 @@ export default {
   methods: {
     getMovie: function () {
       axios
-        .get(`${process.env.API_URL2}/genre/${this.$route.params.genre}/1`)
+        .get(`${process.env.API_URL}/api/genre/${this.$route.params.genre}/1`)
         .then((res) => {
           this.genre = res.data.anime
         })
@@ -76,26 +76,14 @@ export default {
 </script>
 <style>
 .media-container {
-  height: 16rem !important;
+  height: 16rem ;
   width: 11rem;
-  display: flex;
+  display: flex !important;
   padding: 1rem;
   align-items: flex-start;
   justify-content: flex-end;
   flex-direction: column;
   padding-top: 1rem;
-}
-@media screen and (max-width: 600px) {
-  .media-container {
-    width: 9.5rem;
-    height: 14rem;
-  }
-  .grid-ctn {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-  }
 }
 .grid-ctn {
   display: grid;
@@ -106,5 +94,23 @@ export default {
 }
 .grid-item {
   margin-bottom: 20px;
+}
+@media screen and (max-width: 600px) {
+  .media-container {
+    width: 9.5rem;
+    height: 14rem;
+  }
+  .grid-ctn {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+@media screen and (max-width: 400px) {
+  .media-container {
+    width: 8rem;
+    height: 12rem;
+  }
+  .grid-ctn {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
 }
 </style>

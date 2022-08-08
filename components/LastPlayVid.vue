@@ -1,7 +1,7 @@
 <template>
   <v-alert
-    v-if="showBanner"
-    color="grey"
+    v-show="showBanner"
+    color="green darken-2"
     dismissible
     elevation="4"
     text
@@ -9,7 +9,7 @@
   >
     <h5>Continue Watching :</h5>
     <p>
-      <router-link :to="'/watch/' + id">
+      <router-link :to="localePath('/watch/' + id)">
         {{ title }}
       </router-link>
     </p>
