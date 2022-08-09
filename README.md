@@ -1,7 +1,7 @@
 # AMVSTRM
 Anime Streaming Site Built with Nuxt.js, Vuetify and [Gogoanime API](https://api.amvstr.ml).
 
-This Website is still in development and there will be bug and css issue. There will be better readme documentation soon. We still working on improving the speed and code + the API.
+This Website is still now ready and There will be better readme documentation soon. We still working on improving the speed and code + the API.
 
 ## Features
 - Save Bookmarking in localStorage
