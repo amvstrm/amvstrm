@@ -1,49 +1,31 @@
-# AMVSTRM
-Anime Streaming Site Built with Nuxt.js, Vuetify and [Gogoanime API](https://api.amvstr.ml).
 
-This Website is still now ready and There will be better readme documentation soon. We still working on improving the speed and code + the API.
+![android-chrome-192x192.png](https://github.com/amvstrm/amvstrm/blob/master/static/android-chrome-192x192.png?raw=true)  
+**The Open Source/Alternative Anime Streaming Site...**
+
+*All Tutorial and Information are move to [amvstrm Documentation Website](https://docs.amvstr.ml)*
+
+![](https://api.checklyhq.com/v1/badges/checks/41569fa5-c1bd-4bee-a1c1-1ac2650f8272?style=flat&theme=default&responseTime=true)
+# AMVSTRM
+Anime Streaming Single Page Application Site Built with Nuxt.js, Vuetify and [Gogoanime API](https://api.amvstr.ml).
 
 ## Features
-- Save Bookmarking in localStorage
+- Save Bookmarking Anime to localStorage
 - Search Any Anime
-- No ADs + No ADs Popup on the video player
-- Using Plyr.link and [nsPlayer](https://player.nscdn.ml) as the video player
-- Fast and Simple also Easy To Use
-
-## ToDos
-
-- ***Intergrate Authentication and Database to store user bookmarking*** (Wont Be Added)   
-- Better UI Design
-- Add more backend feature *(Custom Anime Data or Using Myanimelist data)*
-- Docker Supported
-- Migrated to Nuxt.js 3 *(Until Nuxt3 and Vuetify 3 is stable)*
-- Merge API and AMVSTRM to this repo (monorepo)
-- Using ENV to store every API URLS
-- More Site Improvement
+- No Ads Popup on the video player
+- Using Plyr.link and [nsPlayer](https://player.nscdn.ml) as the video player with no Ads (with additional goload embed)
+- Fast and Simple To Use
 
 ## Deploy
-You can deploy AMVSTRM on Vercel and Netlify
+You can deploy AMVSTRM on Vercel as SPA
 
 **Vercel**
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/amvstrm/amvstrm)
 
-[Preview For Vercel](https://amvstrm-nyt92.vercel.app)
-
-**Netlify**
-
-[![Deploy with Vercel](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/amvstrm/amvstrm)
-
-[Preview For Netlify](https://amvstrm.netlify.app)
-
-**DOCKER + PROCFILE WILL BE COMMING SOON...**
-
 ## Too Late No One At Home Now / Alternative Exists...
 
-We know... and We just doing this for fun and also making this easier for people to watch anime without ADs. Most of their website wont let us access their sources like media player, etc. We use data from gogoanime and *MAL (Possible Soon)* that how we created this site. We have a lots of plan to add more [features](#todos) but we just dont have time. 
+We know... and We just doing this for fun and also making this easier for people to watch anime without ADs. We use data from gogoanime and *MAL (Possible Soon)* that how we created this site. We have a lots of plan to add more once we start working on our V2 version. 
 
-- ***Is this the Animixplay Alternative?** Maybe (Custom Data)*
-- ***Is this gonna be popular?** Still thinks about it*
 ## Contributing
 Contributing can help us making our website more secure and fast. If you want to make this website better and help fixing bugs yes you can.
 Before contributing this project, 
@@ -55,12 +37,15 @@ You will be required to learn and better understanding on :
 - Javascript *(Most Important)*
 We will providing this tutorial on how to contribute amvstrm and any project. [Tutorial](https://github.com/firstcontributions/first-contributions)
 ## Credit
-AMVSTRM/NYT92 © 2022
+amvstrm/NYT92 © 2022
+Made With 💖 From **🇰🇭**
 ### Other Credit to
 - Team of Nuxt.js 
 - Evan You / Vue.js 
 - Team of Vuetify
 - ChrisMichaelPerezSantiago/gogoanime (API)
 - riimuru/gogoanime (API)
+
 # License
 This Project is under the license of BSD-3-Clause. [Read More](https://github.com/amvstrm/amvstrm/blob/master/LICENSE)
+
