@@ -47,5 +47,5 @@ Made With 💖 From **🇰🇭**
 - riimuru/gogoanime (API)
 
 # License
-This Project is under the license of BSD-3-Clause. [Read More](https://github.com/amvstrm/amvstrm/blob/master/LICENSE)
+This Project is under the license of GPL-3 . [Read More](https://github.com/amvstrm/amvstrm/blob/master/LICENSE)
 
