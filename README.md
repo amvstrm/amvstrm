@@ -5,22 +5,21 @@
 *All Tutorial and Information are move to [amvstrm Documentation Website](https://docs.amvstr.ml)*
 
 ![](https://api.checklyhq.com/v1/badges/checks/41569fa5-c1bd-4bee-a1c1-1ac2650f8272?style=flat&theme=default&responseTime=true)
+
 # AMVSTRM
+
 Anime Streaming Single Page Application Site Built with Nuxt.js, Vuetify and [Gogoanime API](https://api.amvstr.ml).
+
+> We are planning to upgrade our app to nuxt 3 and rework the whole website for better UI, performance and SEO + [API](https://github.com/amvstrm/api)
 
 ## Features
 - Save Bookmarking Anime to localStorage
 - Search Any Anime
 - No Ads Popup on the video player
 - Using Plyr.link and [nsPlayer](https://player.nscdn.ml) as the video player with no Ads (with additional goload embed)
+- i18n ENG/KHMER
+- SEO (Not working on SSR when on prod)
 - Fast and Simple To Use
-
-## Deploy
-You can deploy AMVSTRM on Vercel as SPA
-
-**Vercel**
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/amvstrm/amvstrm)
 
 ## Too Late No One At Home Now / Alternative Exists...
 
