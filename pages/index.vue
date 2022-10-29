@@ -1,0 +1,195 @@
+<template>
+  <div>
+    <v-sheet>
+      <v-alert
+        color="white"
+        dismissible
+        elevation="4"
+        text
+        icon="mdi-information"
+        transition="slide-y-transition"
+        transition-duration="300"
+      >
+        <h4>Important announcement!</h4>
+        <p>
+          amvstrm will be switching to new API route and there will be a new route with the v1 tag "/api/v1" from now on. 
+          Any archived website with this new change will no longer worked.
+        </p>
+      </v-alert>
+    </v-sheet>
+    <v-tabs v-model="animetab" grow show-arrows color="green-darken1">
+      <v-tab href="#recent"> Recent Anime </v-tab>
+      <v-tab href="#popular"> Popular Anime </v-tab>
+      <v-tab href="#upcoming"> Upcoming Anime </v-tab>
+    </v-tabs>
+    <div v-if="$fetchState.pending" class="tw-h-[100vh]">
+      <LoadingFetch />
+    </div>
+    <div v-else-if="$fetchState.error" class="tw-h-[100vh]">
+      <h3>Data not available!</h3>
+    </div>
+    <v-tabs-items v-else v-model="animetab" class="bgtransp" touchless>
+      <div>
+        <v-tab-item value="recent">
+          <div
+            class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
+          >
+            <div v-for="data in recentall" :key="data.id">
+              <!-- <PlayCard
+                class="media-container"
+                :img="data.img"
+                :title="data.title"
+                :episode="data.episode"
+                :episodeid="data.episode_id"
+                :subordub="data.subOrDub"
+              /> -->
+              <AnimeCard
+                :imagesrc="data.img"
+                :title="data.title"
+                :text="'Episode ' + data.episode"
+                :path="localePath('/watch/' + data.episode_id)"
+              />
+            </div>
+            <div class="d-flex align-center"></div>
+          </div>
+        </v-tab-item>
+        <v-tab-item value="popular">
+          <div
+            class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
+          >
+            <div v-for="data in popular" :key="data.id">
+              <AnimeCard
+                :imagesrc="data.img"
+                :title="data.title"
+                :path="localePath('/anime/' + data.id)"
+              />
+            </div>
+          </div>
+        </v-tab-item>
+        <v-tab-item value="upcoming">
+          <div
+            class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
+          >
+            <div v-for="data in newseason" :key="data.id">
+              <AnimeCard
+                :imagesrc="data.img"
+                :title="data.title"
+                :path="localePath('/anime/' + data.id)"
+              />
+            </div>
+          </div>
+        </v-tab-item>
+      </div>
+    </v-tabs-items>
+    <div class="tw-sticky tw-z-[1] tw-bottom-1">
+      <LastPlayVid />
+    </div>
+  </div>
+</template>
+<script>
+export default {
+  data() {
+    return {
+      recentall: null,
+      topairing: null,
+      popular: null,
+      newseason: null,
+      cmodel: 0,
+      animetab: null,
+    }
+  },
+  async fetch() {
+    const recentall = await this.$axios.$get(`/api/v1/recentrelease/all/1`)
+    const newseason = await this.$axios.$get(`/api/v1/newseasons/1`)
+    const popular = await this.$axios.$get(`/api/v1/popular/1`)
+    this.recentall = recentall.anime
+    this.popular = popular.popular
+    this.newseason = newseason.anime
+  },
+  head() {
+    return {
+      title: 'Home',
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content:
+            'amvstrm, also known as Anime/Movie/Video Streaming is an open-source website that lets you watch anime for free without being disturbed by pop-up adverts.',
+        },
+        {
+          hid: 'keywords',
+          name: 'keywords',
+          content:
+            'anime, amvstreaming, free anime, amvstrm, amvstr, amvstrm.ml, amvstrm anime',
+        },
+        // og
+        {
+          hid: 'og:type',
+          property: 'og:type',
+          content: 'website',
+        },
+        {
+          hid: 'og:url',
+          property: 'og:url',
+          content: 'https://amvstr.ml/',
+        },
+        {
+          hid: 'og:title',
+          property: 'og:title',
+          content: 'Home | amvstrm',
+        },
+        {
+          hid: 'og:description',
+          property: 'og:description',
+          content:
+            'amvstrm, also known as Anime/Movie/Video Streaming is an open-source website that lets you watch anime for free without being disturbed by pop-up adverts.',
+        },
+        {
+          hid: 'og:image',
+          property: 'og:image',
+          content: 'seoimg.png',
+        },
+        // twitter
+        {
+          hid: 'twitter:card',
+          name: 'twitter:card',
+          content: 'summary_large_image',
+        },
+        {
+          hid: 'twitter:url',
+          name: 'twitter:url',
+          content: 'https://amvstr.ml/',
+        },
+        {
+          hid: 'twitter:title',
+          name: 'twitter:title',
+          content: 'Home | amvstrm',
+        },
+        {
+          hid: 'twitter:description',
+          name: 'twitter:description',
+          content:
+            'amvstrm, also known as Anime/Movie/Video Streaming is an open-source website that lets you watch anime for free without being disturbed by pop-up adverts.',
+        },
+        {
+          hid: 'twitter:image',
+          name: 'twitter:image',
+          content: '/seoimg.png',
+        },
+      ],
+    }
+  },
+  fetchOnServer: false,
+}
+</script>
+
+<style>
+.xs-grid-cols-2 {
+  display: grid;
+}
+@media screen and (max-width: 768px) {
+  .xs-grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+</style>

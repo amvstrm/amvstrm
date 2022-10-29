@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: auto;
+}
+
+html body .v-application a {
+  color: white;
+  text-decoration: none;
+}

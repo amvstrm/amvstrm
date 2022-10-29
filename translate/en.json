@@ -1,0 +1,52 @@
+{
+  "about_description": "AMVStrm or Anime/Movie/Video Streaming is a gogo based website that allows you to watch anime online for free with no ads and annoying popup.",
+  "about_title": "About AMVStreaming",
+  "about":"About",
+  "contact-donation-title": "Contact / Donation",
+  "contact_description": "If you have any questions, please contact us at",
+  "privacy_policy": "Privacy Policy",
+  "search": "Search",
+  "search_no_results": "No results found",
+  "search_results": "Search results",
+  "search_more": "Search more",
+  "menu": {
+    "home": "Home",
+    "about": "About",
+    "popular": "Popular",
+    "genres": "Genres",
+    "movies": "Movies",
+    "bookmark": "Bookmarks"
+  },
+  "copyright": "Copyright © amvstr.ml KAMPUCHEA",
+  "page": "Page",
+  "help": "Help",
+  "episode": "Episode",
+  "popularfr": "Popular Anime",
+  "recentfr": "Recent Anime",
+  "movieanime": "Anime Movies",
+  "bookmark_desc": "Your Bookmarks Anime",
+  "bookmark":"Bookmark",
+  "bookmark_remove":"Remove Bookmark",
+  "unbookmark":"Unbookmark",
+  "episode_all": "All Episodes",
+  "features": {
+    "title": "Features",
+    "li1": "Watch anime online for free",
+    "li2": "Bookmarking features that allows you to save anime to lists locally and watch them later.",
+    "li3": "No ADs and Free."
+  },
+  "langswtch": "Change Languages",
+  "info": {
+    "status": "Status",
+    "release": "Released In",
+    "other_name": "Other Names",
+    "genres": "Genres",
+    "rating": "Rating",
+    "totalep": "Total Episodes"
+  },
+  "alert100bookmark": "You have max out your bookmark list. Please delete some bookmark to add new one.",
+  "ongoing": "Ongoing Anime",
+  "upcoming": "Upcoming Anime",
+  "donation_desc": "Even though its free, no ads and open-source website, donation is the most important for us so we can keep our servers up and running 24/7 with no interupption. 1$ can keep our server up and running for a week or a month.",
+  "translation_desc": "Help us translate our website in Khmer language, So Our Cambodian visitor who does not know understands english well and help them a lot. We will add other language soon (es, ru, id, ph, ...)."
+}
