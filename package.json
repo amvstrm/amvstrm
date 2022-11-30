@@ -27,7 +27,7 @@
     "jsonschema": "^1.4.1",
     "lodash.debounce": "^4.0.8",
     "nodejs-base64": "^2.0.0",
-    "nuxt": "^2.15.8",
+    "nuxt": "^3.0.0",
     "ufo": "^0.8.4",
     "vue": "^2.6.14",
     "vue-disqus": "^4.0.1",
