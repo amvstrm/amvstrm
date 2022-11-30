@@ -221,12 +221,12 @@ export default {
             if (result.errors.length > 0) {
               this.infotitle = 'Error'
               this.infomsg =
-                'Invalid data. Please check your file and make sure it is correct.'
+                'Invalid data. Please check your file and data to make sure it is correct.'
               this.errorhdialog = true
             } else if (data.bookmarks.length > 100) {
               this.infotitle = 'Error'
               this.infomsg =
-                'You can only import up to 100 bookmarks. Please remove some bookmarks before importing.'
+                'You can only import up to 100 bookmarks. Please remove some of the bookmarked anime before importing.'
               this.errorhdialog = true
             } else {
               this.bookmarks = data.bookmarks

@@ -1,26 +1,9 @@
 <template>
   <div>
-    <v-sheet>
-      <v-alert
-        color="white"
-        dismissible
-        elevation="4"
-        text
-        icon="mdi-information"
-        transition="slide-y-transition"
-        transition-duration="300"
-      >
-        <h4>Important announcement!</h4>
-        <p>
-          amvstrm will be switching to new API route and there will be a new route with the v1 tag "/api/v1" from now on. 
-          Any archived website with this new change will no longer worked.
-        </p>
-      </v-alert>
-    </v-sheet>
     <v-tabs v-model="animetab" grow show-arrows color="green-darken1">
-      <v-tab href="#recent"> Recent Anime </v-tab>
-      <v-tab href="#popular"> Popular Anime </v-tab>
-      <v-tab href="#upcoming"> Upcoming Anime </v-tab>
+      <v-tab href="#recent"> {{ $t('recentfr') }} </v-tab>
+      <v-tab href="#popular"> {{ $t('popularfr') }} </v-tab>
+      <v-tab href="#upcoming"> {{ $t('upcoming') }} </v-tab>
     </v-tabs>
     <div v-if="$fetchState.pending" class="tw-h-[100vh]">
       <LoadingFetch />

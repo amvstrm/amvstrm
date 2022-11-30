@@ -8,7 +8,7 @@
         <AnimeCard
           :imagesrc="data.img"
           :title="data.title"
-          :path="localePath('/watch/' + data.id)"
+          :path="localePath('/anime/' + data.id)"
         />
       </div>
     </div>

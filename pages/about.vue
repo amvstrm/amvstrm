@@ -6,7 +6,9 @@
       </v-card-title>
       <v-card-text>
         <p>
-          {{ $t('about_description') }}
+          amvstrm is an anime streaming site website build with Nuxtjs SPA and
+          amvstrm's API with i18n and bookmarker to bookmarked anime to
+          localstorage. It is fast and easy to deploy to the web.
           <br />
           <strong
             >Beware : We do not store copyright material in our server. We only
@@ -16,27 +18,30 @@
         </p>
         <h3 class="mb-1">{{ $t('features.title') }}</h3>
         <ul>
+          <li>Bookmarked any anime to localStorage</li>
+          <li>Search any anime from gogoanime</li>
           <li>
-            <p>{{ $t('features.li1') }}</p>
+            No Ads on the video player Using Plyr.link and nsPlayer as the video
+            player embed with no ads (with additional goload embed)
           </li>
-          <li>
-            <p>
-              {{ $t('features.li2') }}
-            </p>
-          </li>
-          <li>
-            <p>{{ $t('features.li3') }}</p>
-          </li>
+          <li>i18n switcher (ENG/KHMER)</li>
+          <li>Fast and simple to deploy</li>
         </ul>
       </v-card-text>
-      <v-btn href="https://github.com/amvstrm/amvstrm" class="ma-1">
-        <v-icon>mdi-github</v-icon>
-        Github
-      </v-btn>
-      <v-btn href="/privacy" class="ma-1">
-        <v-icon>mdi-lock</v-icon>
-        {{ $t('privacy_policy') }}
-      </v-btn>
+      <v-card-actions>
+        <v-btn href="https://docs.amvstr.ml">
+          <v-icon>mdi-information</v-icon>
+          Help
+        </v-btn>
+        <v-btn href="https://github.com/amvstrm/amvstrm">
+          <v-icon>mdi-github</v-icon>
+          Github
+        </v-btn>
+        <v-btn href="/privacy">
+          <v-icon>mdi-lock</v-icon>
+          {{ $t('privacy_policy') }}
+        </v-btn>
+      </v-card-actions>
     </v-card>
     <v-card class="pa-5" width="700px">
       <v-card-title>
@@ -88,7 +93,7 @@
           {{ $t('translation_desc') }}
         </p>
       </v-card-text>
-      <v-btn href="https://github.com/amvstrm/translation" class="ma-1">
+      <v-btn href="https://github.com/amvstrm/translation" class="ma-2">
         <v-icon>mdi-web</v-icon>
         Help us translate!
       </v-btn>
@@ -98,11 +103,7 @@
         <span class="headline">Status</span>
       </v-card-title>
       <v-card-actions>
-        <v-btn
-          href="https://nsdev.checklyhq.com"
-          class="ma-1"
-          target="_blank"
-        >
+        <v-btn href="https://nsdev.checklyhq.com" class="ma-1" target="_blank">
           <v-icon>mdi-server</v-icon>
           Status Check
         </v-btn>

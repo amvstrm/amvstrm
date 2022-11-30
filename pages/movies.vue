@@ -8,7 +8,7 @@
         <AnimeCard
           :imagesrc="data.img"
           :title="data.title"
-          :path="localePath('/watch/' + data.id)"
+          :path="localePath('/anime/' + data.id)"
         />
       </div>
     </div>
@@ -75,7 +75,7 @@ export default {
   methods: {
     getMovie: async function()  {
       const data = await this.$axios.$get(`https://api.amvstr.ml/api/v1/movies/${this.page}`);
-      this.popular = data.movie;
+      this.movie = data.movies;
     },
     onPageChange() {
       this.getMovie()

@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-xl-16 mx-lg-16 mx-md-8 mx-sm-4 mx-xs-2">
+  <div class="mx-xl-16 mx-lg-16 mx-md-8 mx-sm-4 mx-xs-2 pheight">
     <v-card>
       <v-card-title style="font-size: 24px">{{ $t('search') }}</v-card-title>
       <v-card-text>

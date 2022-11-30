@@ -1,10 +1,6 @@
 <template>
   <div>
-    <v-menu
-      transition="scale-transition"
-      offset-y
-      offset-x
-    >
+    <v-menu transition="scale-transition" offset-y offset-x>
       <template #activator="{ on, attrs }">
         <v-text-field
           v-model="search"
@@ -69,7 +65,6 @@ export default {
         ]
       } else if (this.searchResults.length > 0) {
         this.nosearchResults = true
-
       }
     }, 500),
     onQueryChange(event) {

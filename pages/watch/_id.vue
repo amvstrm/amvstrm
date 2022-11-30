@@ -62,7 +62,14 @@
               color="primary"
             ></v-radio>
           </v-radio-group>
-          <div v-if="iframe_type === 2">
+          <div v-if="(iframe_type === 0 || iframe_type === 1)">
+            <v-checkbox
+              v-model="switchtobackup"
+              label="Backup stream"
+              color="primary"
+            ></v-checkbox>
+          </div>
+          <div v-else-if="iframe_type === 2">
             <v-icon>mdi-flask-empty</v-icon>
             (EXPERIMENTAL OPTION) External player may contain ads. We recommend
             using Plyr/nsPlayer or Using ads blocker while watching.
@@ -72,10 +79,7 @@
               color="primary"
             ></v-checkbox>
           </div>
-          <v-btn 
-            href="https://docs.amvstr.ml/help/video-player"
-            color="blue"
-          >
+          <v-btn href="https://docs.amvstr.ml/help/video-player" color="blue">
             <v-icon>mdi-help</v-icon>
             {{ $t('help') }}
           </v-btn>
@@ -101,7 +105,7 @@
       <v-card>
         <v-row justify="space-between" class="ma-2 align-center">
           <v-col cols="auto" flex>
-            <router-link :to="localePath(`/anime/${vidcdn.id}`)">
+            <router-link :to="localePath(`/anime/${paramsid.split('-episode-')[0]}`)">
               <h3>{{ info.title }}</h3>
             </router-link>
           </v-col>
@@ -113,11 +117,11 @@
               @click="episodedialog = true"
             >
               {{ $t('episode') }}
-              {{ vidcdn.episode }}
+              {{ vidcdn.episodes }}
             </v-btn>
             <v-btn
               elevation="2"
-              :href="'https://api-server-2.amvstr.ml/api/download/' + paramsid"
+              :href="'https://api.amvstr.ml/api/v1/download/' + paramsid"
               target="_blank"
               color="blue"
             >
@@ -153,7 +157,7 @@ export default {
     const paramsid = params.id
     // const infoo = await axios.get(`/api/anime/info/${params.id.split('-episode-')[0]}`)
     const vidcdn = await axios.get(
-      `https://api.amvstr.ml/api/v1/stream/play?id=${paramsid}`
+      `https://api.amvstr.ml/api/v2/stream?id=${paramsid}`
     )
     const eplist = await axios.get(
       `https://api.amvstr.ml/api/v1/anime/episodelist/${
@@ -182,6 +186,7 @@ export default {
       iframe_src: '',
       link: '',
       putsandbox: false,
+      switchtobackup : false,
       sharedialog: false,
       sandboxattr: '',
       btntxtcopy: 'Copy',
@@ -227,14 +232,14 @@ export default {
         {
           hid: 'og:title',
           property: 'og:title',
-          content: `Watch ${this.vidcdn.title} Episode ${
+          content: `Watch ${this.vidcdn.id} Episode ${
             this.paramsid.split('-episode-')[1]
           } On amvstr.ml | amvstrm`,
         },
         {
           hid: 'og:description',
           property: 'og:description',
-          content: `Watch and Stream ${this.vidcdn.title} Episode ${
+          content: `Watch and Stream ${this.vidcdn.id} Episode ${
             this.paramsid.split('-episode-')[1]
           } Right Now On amvstr.ml`,
         },
@@ -310,26 +315,29 @@ export default {
     },
     saveVidSettingAction() {
       if (this.iframe_type === 0) {
-        this.iframe_src = this.vidcdn.url
+        this.iframe_src = this.vidcdn.plyr.main
         this.iframeoptions = false
         this.putsandbox = false
+        if (this.switchtobackup === true){
+          this.iframe_src = this.vidcdn.plyr.backup
+        } else {
+          this.iframe_src = this.vidcdn.plyr.main
+        }
       } else if (this.iframe_type === 1) {
-        this.iframe_src = this.vidcdn.nspl_url
+        this.iframe_src = this.vidcdn.nspl.main
         this.iframeoptions = false
         this.putsandbox = false
+        if (this.switchtobackup === true){
+          this.iframe_src = this.vidcdn.nspl.backup
+        } else {
+          this.iframe_src = this.vidcdn.nspl.main
+        }
       } else if (this.iframe_type === 2) {
-        const iframeurl = axios.get(
-          `https://api.amvstr.ml/api/stream/iframe/${this.paramsid}`
-        )
         if (this.putsandbox === false) {
-          iframeurl.then((res) => {
-            this.iframe_src = `//${res.data.servers[0].iframe}`
-          })
+          this.iframe_src = this.vidcdn.iframe
           this.iframeoptions = false
         } else if (this.putsandbox === true) {
-          iframeurl.then((res) => {
-            this.iframe_src = `//${res.data.servers[0].iframe}`
-          })
+          this.iframe_src = this.vidcdn.iframe
           this.iframeoptions = false
           if (process.client) {
             const iframe = document.getElementById('ifrencr')
@@ -340,7 +348,7 @@ export default {
       }
     },
     defaultVidPlayer() {
-      this.iframe_src = this.vidcdn.url
+      this.iframe_src = this.vidcdn.plyr.main
     },
   },
 }
