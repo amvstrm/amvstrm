@@ -2,21 +2,23 @@
   <div style="display: flex; flex-direction: column; align-items: center">
     <v-card class="pa-5" width="700px">
       <v-card-title>
-        <span class="headline">{{ $t('about_title') }}</span>
+        {{ $t('about_title') }}
       </v-card-title>
       <v-card-text>
         <p>
-          amvstrm is an anime streaming site website build with Nuxtjs SPA and
+          amvstrm is an anime streaming site website build with Nuxt.js 2 SPA and
           amvstrm's API with i18n and bookmarker to bookmarked anime to
           localstorage. It is fast and easy to deploy to the web.
           <br />
-          <strong
-            >Beware : We do not store copyright material in our server. We only
-            get those data from 3rd party sources.</strong
-          >
+          <span>rip animixplay! 😭</span>
+          <br />
+          <strong>
+            Disclaimer : We do not store copyright material in our server. We only scrape
+            those data from 3rd party sources.
+          </strong>
           <br />
         </p>
-        <h3 class="mb-1">{{ $t('features.title') }}</h3>
+        <h2 class="mb-1">{{ $t('features.title') }}</h2>
         <ul>
           <li>Bookmarked any anime to localStorage</li>
           <li>Search any anime from gogoanime</li>
@@ -27,25 +29,33 @@
           <li>i18n switcher (ENG/KHMER)</li>
           <li>Fast and simple to deploy</li>
         </ul>
+        <h2 class="my-2">Official amvstrm's website</h2>
+        <p>This is our official website and beware any of those fake websites. We do not put ads and make money from it.</p>
+        <ul>
+          <li>amvstr.ml</li>
+          <li>www2.amvstr.ml (Privacy friendly)</li>
+        </ul>
       </v-card-text>
       <v-card-actions>
-        <v-btn href="https://docs.amvstr.ml">
+        <div class="tw-flex tw-flex-col tw-items-start">
+        <v-btn class="mb-1" href="https://docs.amvstr.ml">
           <v-icon>mdi-information</v-icon>
           Help
         </v-btn>
-        <v-btn href="https://github.com/amvstrm/amvstrm">
+        <v-btn class="mb-1" href="https://github.com/amvstrm/amvstrm">
           <v-icon>mdi-github</v-icon>
           Github
         </v-btn>
-        <v-btn href="/privacy">
+        <v-btn class="mb-1" href="/privacy">
           <v-icon>mdi-lock</v-icon>
           {{ $t('privacy_policy') }}
         </v-btn>
+      </div>
       </v-card-actions>
     </v-card>
     <v-card class="pa-5" width="700px">
       <v-card-title>
-        <span class="headline">{{ $t('contact-donation-title') }}</span>
+        {{ $t('contact-donation-title') }}
       </v-card-title>
       <v-card-text>
         <p>
@@ -64,12 +74,12 @@
           <strong>Donation :</strong><br />
           <a
             class="donate-with-crypto"
-            href="https://commerce.coinbase.com/checkout/dc5b4ea2-257e-4224-a2f5-234f019d43d0"
+            href="https://l.aslnk.ml/amvstrm.donate.coinbase"
           >
             Coinbase (nsDev/NYT92)
           </a>
           <br />
-          <a href="https://liberapay.com/amvstrm"> Liberapay (amvstrm) </a>
+          <a href="https://l.aslnk.ml/amvstrm.donate.liberapay"> Liberapay (amvstrm) </a>
         </p>
         <p>
           {{ $t('donation_desc') }}
@@ -86,26 +96,12 @@
     </v-card>
     <v-card class="pa-5" width="700px">
       <v-card-title>
-        <span class="headline">Translation (🇰🇭)</span>
-      </v-card-title>
-      <v-card-text>
-        <p>
-          {{ $t('translation_desc') }}
-        </p>
-      </v-card-text>
-      <v-btn href="https://github.com/amvstrm/translation" class="ma-2">
-        <v-icon>mdi-web</v-icon>
-        Help us translate!
-      </v-btn>
-    </v-card>
-    <v-card class="pa-5" width="700px">
-      <v-card-title>
-        <span class="headline">Status</span>
+        Status
       </v-card-title>
       <v-card-actions>
-        <v-btn href="https://nsdev.checklyhq.com" class="ma-1" target="_blank">
+        <v-btn href="https://nsdev.checkly-dashboards.com" class="ma-1" target="_blank">
           <v-icon>mdi-server</v-icon>
-          Status Check
+          Check status
         </v-btn>
       </v-card-actions>
     </v-card>

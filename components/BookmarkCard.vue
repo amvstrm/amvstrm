@@ -46,6 +46,11 @@ export default {
       required: false,
       default: '',
     },
+    imagealt: {
+      type: String,
+      required: false,
+      default: 'image',
+    }
   },
   methods: {
     clickdata() {

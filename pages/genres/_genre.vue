@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h2 class="ma-5">{{ $route.params.genre }}</h2>
+    <h2 class="ma-5 tw-flex"><v-btn icon to="/genres">
+      <v-icon>mdi-arrow-left</v-icon>
+    </v-btn> Genre : {{ capitalizeFirstLetter($route.params.genre) }}</h2>
     <div
       class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
     >
@@ -20,15 +22,18 @@ export default {
   data() {
     return {
       genre: null,
+      capitalizeFirstLetter: (s) => {
+        return s.charAt(0).toUpperCase() + s.slice(1)
+      },
     }
   },
   head() {
     return {
-      title: this.$route.params.genre,
+      title: this.capitalizeFirstLetter(this.$route.params.genre),
       meta: [
         {
           name: 'description',
-          content: this.$route.params.genre + ' Genre on amvstr.ml.',
+          content: this.capitalizeFirstLetter(this.$route.params.genre) + ' Genre on amvstr.ml.',
         },
         { name: 'og:image', content: '/seoimg.png' },
         { name: 'og:image:width', content: '1200' },
@@ -36,26 +41,26 @@ export default {
         { name: 'og:image:type', content: 'image/png' },
         { name: 'og:image:alt', content: 'amvstrm' },
         { name: 'og:type', content: 'website' },
-        { name: 'og:title', content: `${this.$route.params.genre} | amvstrm` },
+        { name: 'og:title', content: `${this.capitalizeFirstLetter(this.$route.params.genre)} | amvstrm` },
         {
           name: 'og:description',
-          content: `${this.$route.params.genre} Genre on amvstr.ml.`,
+          content: `${this.capitalizeFirstLetter(this.$route.params.genre)} Genre on amvstr.ml.`,
         },
         { name: 'og:url', content: 'https://amvstrm.com/genres' },
         {
           name: 'og:site_name',
-          content: `${this.$route.params.genre} | amvstrm`,
+          content: `${this.capitalizeFirstLetter(this.$route.params.genre)} | amvstrm`,
         },
         { name: 'og:locale', content: 'en_US' },
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:site', content: 'https://amvstr.ml/genres' },
         {
           name: 'twitter:title',
-          content: `${this.$route.params.genre} | amvstrm`,
+          content: `${this.capitalizeFirstLetter(this.$route.params.genre)} | amvstrm`,
         },
         {
           name: 'twitter:description',
-          content: `${this.$route.params.genre} Genres on amvstr.ml.`,
+          content: `${this.capitalizeFirstLetter(this.$route.params.genre)} Genres on amvstr.ml.`,
         },
       ],
     }
@@ -66,7 +71,9 @@ export default {
   methods: {
     getMovie: function () {
       axios
-        .get(`${process.env.API_URL}/api/v1/genre/${this.$route.params.genre}/1`)
+        .get(
+          `${process.env.API_URL}/api/v1/genre/${this.$route.params.genre}/1`
+        )
         .then((res) => {
           this.genre = res.data.anime
         })

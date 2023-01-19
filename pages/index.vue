@@ -1,24 +1,25 @@
 <template>
   <div>
-    <v-tabs v-model="animetab" grow show-arrows color="green-darken1">
-      <v-tab href="#recent"> {{ $t('recentfr') }} </v-tab>
-      <v-tab href="#popular"> {{ $t('popularfr') }} </v-tab>
-      <v-tab href="#upcoming"> {{ $t('upcoming') }} </v-tab>
-    </v-tabs>
-    <div v-if="$fetchState.pending" class="tw-h-[100vh]">
-      <LoadingFetch />
-    </div>
-    <div v-else-if="$fetchState.error" class="tw-h-[100vh]">
-      <h3>Data not available!</h3>
-    </div>
-    <v-tabs-items v-else v-model="animetab" class="bgtransp" touchless>
-      <div>
-        <v-tab-item value="recent">
-          <div
-            class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
-          >
-            <div v-for="data in recentall" :key="data.id">
-              <!-- <PlayCard
+    <div class="tw-hidden md:tw-block">
+      <v-tabs v-model="animetab" grow show-arrows color="green-darken1">
+        <v-tab href="#recent"> {{ $t('recentfr') }} </v-tab>
+        <v-tab href="#popular"> {{ $t('popularfr') }} </v-tab>
+        <v-tab href="#upcoming"> {{ $t('upcoming') }} </v-tab>
+      </v-tabs>
+      <div v-if="$fetchState.pending" class="tw-h-[100vh]">
+        <LoadingFetch />
+      </div>
+      <div v-else-if="$fetchState.error" class="tw-h-[100vh]">
+        <h3>Data not available!</h3>
+      </div>
+      <v-tabs-items v-else v-model="animetab" class="bgtransp" touchless>
+        <div>
+          <v-tab-item value="recent">
+            <div
+              class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
+            >
+              <div v-for="data in recentall" :key="data.id">
+                <!-- <PlayCard
                 class="media-container"
                 :img="data.img"
                 :title="data.title"
@@ -26,6 +27,54 @@
                 :episodeid="data.episode_id"
                 :subordub="data.subOrDub"
               /> -->
+                <AnimeCard
+                  :imagesrc="data.img"
+                  :title="data.title"
+                  :text="'Episode ' + data.episode"
+                  :path="localePath('/watch/' + data.episode_id)"
+                />
+              </div>
+              <div class="d-flex align-center"></div>
+            </div>
+          </v-tab-item>
+          <v-tab-item value="popular">
+            <div
+              class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
+            >
+              <div v-for="data in popular" :key="data.id">
+                <AnimeCard
+                  :imagesrc="data.img"
+                  :title="data.title"
+                  :path="localePath('/anime/' + data.id)"
+                />
+              </div>
+            </div>
+          </v-tab-item>
+          <v-tab-item value="upcoming">
+            <div
+              class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
+            >
+              <div v-for="data in newseason" :key="data.id">
+                <AnimeCard
+                  :imagesrc="data.img"
+                  :title="data.title"
+                  :path="localePath('/anime/' + data.id)"
+                />
+              </div>
+            </div>
+          </v-tab-item>
+        </div>
+      </v-tabs-items>
+    </div>
+    <div class="tw-block md:tw-hidden">
+      <div class="tw-my-5 tw-mx-5 md:tw-mx-10">
+        <h2 class="tw-my-5">{{ $t('recentfr') }}</h2>
+        <div v-if="$fetchState.pending">
+          <LoadingFetch />
+        </div>
+        <v-row>
+          <v-col class="media-scrolling">
+            <div v-for="data in recentall" :key="data.id">
               <AnimeCard
                 :imagesrc="data.img"
                 :title="data.title"
@@ -33,13 +82,23 @@
                 :path="localePath('/watch/' + data.episode_id)"
               />
             </div>
-            <div class="d-flex align-center"></div>
-          </div>
-        </v-tab-item>
-        <v-tab-item value="popular">
-          <div
-            class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
-          >
+          </v-col>
+        </v-row>
+      </div>
+      <div class="tw-my-5 tw-mx-5 md:tw-mx-10">
+        <v-row justify="space-between">
+          <v-col cols="auto">
+            <h2>{{ $t('popularfr') }}</h2>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn dark to="/popular"> More </v-btn>
+          </v-col>
+        </v-row>
+        <div v-if="$fetchState.pending">
+          <LoadingFetch />
+        </div>
+        <v-row>
+          <v-col class="media-scrolling">
             <div v-for="data in popular" :key="data.id">
               <AnimeCard
                 :imagesrc="data.img"
@@ -47,12 +106,16 @@
                 :path="localePath('/anime/' + data.id)"
               />
             </div>
-          </div>
-        </v-tab-item>
-        <v-tab-item value="upcoming">
-          <div
-            class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4"
-          >
+          </v-col>
+        </v-row>
+      </div>
+      <div class="tw-my-5 tw-mx-5 md:tw-mx-10">
+        <h2 class="tw-my-5">{{ $t('upcoming') }}</h2>
+        <div v-if="$fetchState.pending">
+          <LoadingFetch />
+        </div>
+        <v-row>
+          <v-col class="media-scrolling">
             <div v-for="data in newseason" :key="data.id">
               <AnimeCard
                 :imagesrc="data.img"
@@ -60,10 +123,10 @@
                 :path="localePath('/anime/' + data.id)"
               />
             </div>
-          </div>
-        </v-tab-item>
+          </v-col>
+        </v-row>
       </div>
-    </v-tabs-items>
+    </div>
     <div class="tw-sticky tw-z-[1] tw-bottom-1">
       <LastPlayVid />
     </div>
@@ -167,6 +230,20 @@ export default {
 </script>
 
 <style>
+.media-scrolling {
+  --_spacer: 1rem;
+  display: grid;
+  grid-auto-flow: column;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: inline mandatory;
+  scroll-padding-inline: var(--_spacer, 1rem);
+}
+
+.media-scrolling > * {
+  scroll-snap-align: start;
+}
+
 .xs-grid-cols-2 {
   display: grid;
 }

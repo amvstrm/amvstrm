@@ -1,6 +1,6 @@
 <template>
   <router-link :to="path">
-    <div class="tw-p-2 tw-mx-6 tw-flex tw-flex-col tw-items-center">
+    <div class="tw-p-0 tw-mx-2 md:tw-p-2 md:tw-mx-6 tw-flex tw-flex-col tw-items-center">
       <img class="tw-w-[140px] tw-h-[200px] md:tw-w-[160px] md:tw-h-[240px] tw-rounded-md" :src="imagesrc" :alt="imagealt" />
       <v-skeleton-loader
         v-if="!imagesrc"

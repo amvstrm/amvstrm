@@ -4,7 +4,7 @@
       v-model="showAlert"
       icon="mdi-close"
       text
-      type="red darken-1"
+      color="red darken-1"
       dismissable
     >
       {{ $t('alert100bookmark') }}
@@ -52,28 +52,86 @@
       </div>
     </div>
     <v-card class="ma-4 pa-5">
-      <p class="mt-3">
-        {{ $t('info.release') }} : {{ info.released }}
-        <br />
-        {{ $t('info.status') }} : {{ info.status }}
-        <br />
-        {{ $t('info.other_name') }} : {{ info.otherName }}
-        <br />
-        {{ $t('info.totalep') }} : {{ info.totalEpisodes }}
-      </p>
-      <p>
-        {{ $t('info.genres') }} :
-        <router-link
-          v-for="(item, index) in info.genres"
-          :key="index"
-          :to="'/genres/' + item"
-        >
-          {{ item }}
-          <span v-if="index < info.genres.length - 1">,</span>
-        </router-link>
-      </p>
+      <v-list>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-subtitle>
+              <v-chip
+                :color="
+                  $route.params.id.includes('-dub')
+                    ? 'orange darken-1'
+                    : 'green darken-1'
+                "
+                label
+                text-color="white"
+              >
+                <v-icon left> mdi-label </v-icon>
+                {{ $route.params.id.includes('-dub') ? 'Dub' : 'Sub' }}
+              </v-chip>
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>{{ $t('info.release') }}</v-list-item-title>
+            <v-list-item-subtitle>{{ info.released === 0 || info.released === null ? 'No data' : info.released }}</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>{{ $t('info.status') }}</v-list-item-title>
+            <v-list-item-subtitle>
+              <v-chip v-if="info.status === 'Completed'" color="green darken-1" label>
+                Completed
+              </v-chip>
+              <v-chip v-if="info.status === 'Upcoming'" color="yellow" text-color="black" label>
+                Upcoming
+              </v-chip>
+              <v-chip v-if="info.status === 'Ongoing'" color="red darken-1" text-color="white" label>
+                Ongoing
+              </v-chip>
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>{{ $t('info.other_name') }}</v-list-item-title>
+            <v-list-item-subtitle 
+              v-for="(on, i) in info.otherName.split(',' && ';')" 
+              :key="i">
+              {{ on }}
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>{{ $t('info.totalep') }}</v-list-item-title>
+            <v-list-item-subtitle>{{
+              info.totalEpisodes
+            }}</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item two-line>
+          <v-list-item-content>
+            <v-list-item-title>{{ $t('info.genres') }}</v-list-item-title>
+            <v-list-item-subtitle>
+              <v-chip-group show-arrows>
+                <v-chip
+                  v-for="(item, index) in info.genres"
+                  :key="index"
+                  class="tw-mt-1"
+                  link
+                  :to="'/genres/' + item"
+                >
+                  {{ item }}
+                </v-chip>
+              </v-chip-group>
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
     </v-card>
-    <v-card class="ma-4 pa-4" dark>
+    <v-card class="ma-4 pa-4">
       <div class="py-2">
         <h2 class="tw-text-2xl tw-font-bold tw-mx-1">
           {{ $t('episode_all') }}
@@ -134,9 +192,7 @@ export default {
   head() {
     return {
       title: this.info.title,
-      link: [
-        { rel: 'canonical', href: window.location.href },
-      ],
+      link: [{ rel: 'canonical', href: window.location.href }],
       meta: [
         {
           hid: 'description',
