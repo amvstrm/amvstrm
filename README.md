@@ -2,6 +2,8 @@
 
 **The Open Source/Alternative Anime Streaming Site...**
 
+## V1 will be deprecated soon. Check out [V2](https://github.com/amvstrm/amvstrm/tree/v2) instead. 
+
 _All Tutorial, Info and API docs are move to [amvstrm Documentation Website](https://docs.amvstr.ml) and [API](https://api.amvstr.ml/docs)_
 
 ![](https://api.checklyhq.com/v1/badges/checks/41569fa5-c1bd-4bee-a1c1-1ac2650f8272?style=flat&theme=default&responseTime=true)
@@ -11,8 +13,6 @@ AMVSTRM
 
 Anime Streaming Single Page Application Site Built with Nuxt.js 2, Vuetify and [amvstrm's API](https://api.amvstr.ml).
 
-> V2 is now available at [https://v2.amvstr.ml](https://v2.amvstr.ml) (REPO WILL BE AVAILABLE SOON TOO)
-Features
 --------
 
 *   Bookmarked any anime to localStorage
