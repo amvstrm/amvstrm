@@ -1,55 +1,55 @@
 <script setup>
-import { useDisplay } from "vuetify";
 const env = useRuntimeConfig();
 useHead({
-  title: 'Home'
-})
+  title: "Home",
+});
 const { data: trending, pending: trpd } = useLazyFetch(
   `${env.public.API_URL}/api/${env.public.version}/trending?limit=12`
 );
 const { data: popular, pending: plrpd } = useLazyFetch(
   `${env.public.API_URL}/api/${env.public.version}/popular?limit=12`
 );
-const { mobile } = useDisplay();
-
-
 </script>
 
 <template>
-  <v-carousel
-    hide-delimiters
-    progress="green"
-    :height="mobile ? '150px' : '320px'"
-    :showArrows="mobile ? false : true"
-    cycle=""
-  >
-    <v-carousel-item
-      v-if="popular"
-      v-for="(item, i) in popular.results.results"
-      :key="i"
-      :src="item.cover"
-      cover
-    ></v-carousel-item>
-  </v-carousel>
+  <ClientOnly>
+    <v-carousel
+      class="d-none d-md-block"
+      hide-delimiters
+      progress="green"
+      height="320px"
+      :show-arrows="false"
+      cycle=""
+    >
+      <v-carousel-item
+        v-for="(item, i) in popular.results.results"
+        :key="i"
+        :src="item.cover"
+        cover
+      />
+    </v-carousel>
+  </ClientOnly>
+  <!-- DESKTOP DEVICE -->
   <v-container class="d-lg-block d-sm-none d-none" fluid>
     <v-col>
       <h1>Trending Anime</h1>
-      <div class="loadingBlock" v-if="trpd">
-        <v-progress-circular :size="45" indeterminate></v-progress-circular>
+      <div v-if="trpd" class="loadingBlock">
+        <v-progress-circular :size="45" indeterminate />
       </div>
       <v-container v-else fluid>
         <div class="grid">
           <div
-            class="d-flex justify-center"
             v-for="(d, i) in trending.results.results"
             :key="i"
+            class="d-flex justify-center"
           >
             <AnimeCard
               :id="d.id"
               :title="d.title.userPreferred"
               :imgsrc="d.image"
               :imgalt="d.id"
-              :animeColor="d.color"
+              :anime-color="d.color"
+              :year="d.releaseDate"
             />
           </div>
         </div>
@@ -57,22 +57,23 @@ const { mobile } = useDisplay();
     </v-col>
     <v-col>
       <h1>Popular Anime</h1>
-      <div class="loadingBlock" v-if="plrpd">
-        <v-progress-circular :size="45" indeterminate></v-progress-circular>
+      <div v-if="plrpd" class="loadingBlock">
+        <v-progress-circular :size="45" indeterminate />
       </div>
       <v-container v-else fluid>
         <div class="grid">
           <div
-            class="d-flex justify-center"
             v-for="(d, i) in popular.results.results"
             :key="i"
+            class="d-flex justify-center"
           >
             <AnimeCard
               :id="d.id"
               :title="d.title.userPreferred"
               :imgsrc="d.image"
               :imgalt="d.id"
-              :animeColor="d.color"
+              :anime-color="d.color"
+              :year="d.releaseDate"
             />
           </div>
         </div>
@@ -80,10 +81,11 @@ const { mobile } = useDisplay();
     </v-col>
   </v-container>
   <!-- MOBILE DEVICE -->
+  <!-- eslint-disable-next-line vue/no-multiple-template-root -->
   <v-container class="d-lg-none d-sm-block d-xs" fluid>
     <h2>Trending Anime</h2>
-    <div class="loadingBlock" v-if="trpd">
-      <v-progress-circular :size="45" indeterminate></v-progress-circular>
+    <div v-if="trpd" class="loadingBlock">
+      <v-progress-circular :size="45" indeterminate />
     </div>
     <v-row v-else>
       <v-col class="media-scrolling">
@@ -93,14 +95,14 @@ const { mobile } = useDisplay();
             :title="data.title.userPreferred"
             :imgsrc="data.image"
             :imgalt="data.id"
-            :animeColor="data.color"
+            :anime-color="data.color"
           />
         </div>
       </v-col>
     </v-row>
     <h2 class="mt-10">Popular Anime</h2>
-    <div class="loadingBlock" v-if="plrpd">
-      <v-progress-circular :size="45" indeterminate></v-progress-circular>
+    <div v-if="plrpd" class="loadingBlock">
+      <v-progress-circular :size="45" indeterminate />
     </div>
     <v-row v-else>
       <v-col class="media-scrolling">
@@ -110,7 +112,7 @@ const { mobile } = useDisplay();
             :title="data.title.userPreferred"
             :imgsrc="data.image"
             :imgalt="data.id"
-            :animeColor="data.color"
+            :anime-color="data.color"
           />
         </div>
       </v-col>

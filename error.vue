@@ -4,7 +4,12 @@
       <v-card-title>Error</v-card-title>
       <v-card-text>{{ error.message }}</v-card-text>
       <v-card-actions>
-        <v-btn href="/" prepend-icon="mdi-home"> Go home </v-btn>
+        <v-btn
+          href="/"
+          prepend-icon="mdi-home"
+        >
+          Go home
+        </v-btn>
         <v-btn
           href="https://github.com/amvstrm/amvstrm/issues/new"
           target="blank"
@@ -18,7 +23,11 @@
   </div>
 </template>
 <script setup>
+useHead({
+  title: "Error",
+});
 defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   error: Object,
 });
 </script>

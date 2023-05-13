@@ -1,7 +1,6 @@
 <script setup>
 const env = useRuntimeConfig();
 
-const stream_in_dub = ref(false);
 const episode_dialog = ref(false);
 const infotab = ref(null);
 
@@ -12,9 +11,9 @@ const { data: anime, pending: aniPending } = await useAsyncData("", () =>
     }`
   )
 );
-useServerHead({
-  title: anime.value.title.userPreferred
-})
+useSeoMeta({
+  title: anime.value.title.userPreferred,
+});
 const { data: recmedAnime, pending: recmedPending } = useLazyFetch(
   `${env.public.API_URL}/api/${env.public.version}/recommendations/${
     useRoute().params.id
@@ -25,19 +24,6 @@ const { data: epAni, pending: loadAni } = useLazyFetch(
   `${env.public.API_URL}/api/v1/episode/${anime.value.id_provider.idGogo}`
 );
 
-// onMounted(async () => {
-//   const response = await fetch(
-
-//   );
-//   const data = await response.json();
-//   // set interval before data load
-//   setInterval(() => {
-//     loadAni.value = false;
-//     epAni.value = data.episodes;
-//   }, 400);
-// });
-
-// const groupedData = computed(() => {
 //   if (epAni.value.length > 200) {
 //     return epAni.value;
 //   }
@@ -56,51 +42,17 @@ const { data: epAni, pending: loadAni } = useLazyFetch(
 //   }`
 // );
 </script>
-<!-- <script>
-export default {
-  data() {
-    return {
-      infotab: null,
-      epAni: [],
-    };
-  },
-  async mounted() {
-    const response = await fetch(
-      `https://new-api.amvstr.ml/api/v1/episode/${this.$refs.idgogo}`
-    );
-    const data = await response.json();
-    this.epAni = data.episode;
-  },
-  computed: {
-    groupedData() {
-      if (this.epAni.length > 200) {
-        return this.epAni;
-      }
-      let groups = [],
-        i;
-      for (i = 0; i < this.epAni.length; i += 100) {
-        groups.push(this.epAni.slice(i, i + 100));
-      }
-      return groups;
-    },
-  },
-};
-</script> -->
 
 <template>
   <v-card v-if="anime">
-    <v-sheet
-      v-if="aniPending"
-      :color="anime.coverImage.color"
-      height="300px"
-    ></v-sheet>
+    <v-sheet v-if="aniPending" :color="anime.coverImage.color" height="300px" />
     <v-img
       v-else-if="anime.bannerImage !== null"
       :src="anime.bannerImage"
-      max-height="350px"
+      max-height="400px"
       cover=""
     />
-    <v-sheet v-else :color="anime.coverImage.color" height="300px"></v-sheet>
+    <v-sheet v-else :color="anime.coverImage.color" height="300px" />
     <v-container>
       <div class="card-container">
         <div class="image-area">
@@ -108,13 +60,51 @@ export default {
             class="image-poster"
             :src="anime.coverImage.large"
             :alt="anime.title.userPreferred"
-          />
+          >
         </div>
         <div class="card-content">
-          <h1>
+          <div class="mt-2">
+            <v-chip
+              class="mr-1"
+              label
+              variant="elevated"
+              :color="anime.dub == true ? 'success' : 'warning'"
+            >
+              {{ anime.dub == true ? "Dub" : "No Dub" }}
+            </v-chip>
+            <v-chip
+              class="mx-1"
+              label
+              variant="elevated"
+              :color="
+                anime.status === 'FINISHED'
+                  ? 'success'
+                  : anime.status === 'RELEASING'
+                  ? 'warning'
+                  : anime.status === 'NOT_YET_RELEASED'
+                  ? 'info'
+                  : anime.status === 'CANCELLED'
+                  ? 'danger'
+                  : 'No data'
+              "
+            >
+              {{
+                anime.status === "FINISHED"
+                  ? "Finished"
+                  : anime.status === "RELEASING"
+                  ? "Currently Releasing"
+                  : anime.status === "NOT_YET_RELEASED"
+                  ? "Not Released"
+                  : anime.status === "CANCELLED"
+                  ? "Cancelled"
+                  : "No data"
+              }}
+            </v-chip>
+          </div>
+          <h1 class="my-4" style="line-height: 2rem">
             {{ anime.title.userPreferred }}
           </h1>
-          <span>{{ anime.title.romaji }}</span>
+          <span>{{ anime.title.native }}</span>
           <v-btn
             class="mr-2 my-2"
             color="red"
@@ -166,21 +156,18 @@ export default {
                 <v-card-text v-if="loadAni">
                   <v-row>
                     <v-col class="justify-center">
-                      <v-progress-circular
-                        :size="40"
-                        indeterminate
-                      ></v-progress-circular>
+                      <v-progress-circular :size="40" indeterminate />
                     </v-col>
                   </v-row>
                 </v-card-text>
                 <v-card-text v-else-if="epAni.length === 0">
                   Episode not found or not available...
                 </v-card-text>
-                <v-list lines="two" v-else>
+                <v-list v-else lines="two">
                   <v-list-item
                     v-for="(ep, i) in epAni.episodes"
-                    :to="'/watch/' + useRoute().params.id + '-' + ep.id"
                     :key="i"
+                    :to="'/watch/' + useRoute().params.id + '-' + ep.id"
                     title="Episode"
                     :subtitle="ep.id.split('-episode-')[1]"
                   />
@@ -200,29 +187,13 @@ export default {
       </div>
     </v-container>
   </v-card>
+  <!-- eslint-disable-next-line vue/no-multiple-template-root -->
   <v-container>
     <v-row>
       <v-col cols="12" lg="3" md="4" sm="12">
         <v-card>
           <v-list lines="two">
             <v-list-subheader> Info </v-list-subheader>
-            <v-list-item value="isActive" :disabled="anime.dub === false">
-              <template v-slot:append="{ isActive }">
-                <v-list-item-action start>
-                  <v-checkbox-btn
-                    v-model="stream_in_dub"
-                    :model-value="isActive"
-                  ></v-checkbox-btn>
-                </v-list-item-action>
-              </template>
-              <v-list-item-title> Dub </v-list-item-title>
-              <v-list-item-subtitle>
-                {{
-                  anime.dub == true ? "Dub available" : "Dub is not available"
-                }}
-              </v-list-item-subtitle>
-            </v-list-item>
-            <v-list-item title="Status" :subtitle="anime.status" />
             <v-list-item title="Genres" :subtitle="anime.genres.join(', ')" />
             <v-list-item
               title="Score"
@@ -279,40 +250,42 @@ export default {
       <v-col>
         <v-card>
           <v-tabs v-model="infotab">
-            <v-tab value="descrpt">Description</v-tab>
-            <v-tab value="recomd">Recommendations</v-tab>
+            <v-tab value="descrpt">
+Description
+</v-tab>
+            <v-tab value="recomd">
+Recommendations
+</v-tab>
           </v-tabs>
           <v-card-text>
             <v-window v-model="infotab">
               <v-window-item value="descrpt">
-                <span v-html="anime.description"></span>
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <span v-html="anime.description" />
               </v-window-item>
               <v-window-item value="recomd">
                 <v-list lines="three">
                   <v-list-item v-if="recmedPending">
                     <v-row>
                       <v-col class="justify-center">
-                        <v-progress-circular
-                          :size="40"
-                          indeterminate
-                        ></v-progress-circular>
+                        <v-progress-circular :size="40" indeterminate />
                       </v-col>
                     </v-row>
                   </v-list-item>
                   <v-list-item
-                    v-else
                     v-for="(item, i) in recmedAnime.results"
+                    v-else
                     :key="i"
                     :title="item.title.userPreferred"
                     :subtitle="item.title.romaji"
                     :href="'/anime/' + item.id"
                   >
-                    <template v-slot:prepend>
+                    <template #prepend>
                       <v-img
                         class="mr-5"
                         style="border-radius: 4px; width: 60px; height: 10%"
                         :src="item.coverImage.large"
-                      ></v-img>
+                      />
                     </template>
                   </v-list-item>
                 </v-list>

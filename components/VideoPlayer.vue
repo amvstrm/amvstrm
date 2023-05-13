@@ -1,5 +1,5 @@
 <template>
-  <div ref="artRef"></div>
+  <div ref="artRef" />
 </template>
 
 <script>

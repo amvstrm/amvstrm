@@ -1,0 +1,11 @@
+@import url("https://cdn.amvstr.ml/font/inter/inter.css");
+
+body {
+  font-family: "Inter";
+}
+
+a {
+  color: rgb(230, 230, 230);
+  list-style: none;
+  text-decoration: none;
+}

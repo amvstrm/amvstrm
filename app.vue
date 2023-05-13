@@ -1,34 +1,40 @@
+<script setup>
+import { useStorage } from "@vueuse/core";
+const showAlert = ref(false);
+const { data: alert } = useLazyFetch("/api/dataalert");
+const d = useStorage("dataalert", {
+  showalert: false,
+});
+
+onMounted(() => {
+  if (d.value.showalert === true) {
+    showAlert.value = false;
+  }
+});
+
+const dontshowAlert = () => {
+  d.value.showalert = true;
+};
+</script>
+
 <template>
   <NuxtLayout>
     <NuxtLoadingIndicator />
     <v-alert
+      v-cloak
+      v-if="showAlert"
       closable
-      title="Warning"
-      text="amvstrm is still in a early stage of development 
-      because we are migrating to Nuxtjs 3, updating the UI and more.
-      There will be issue along the way."
-      type="warning"
+      :title="alert.alerts.title"
+      :text="alert.alerts.text"
+      :type="alert.alerts.alertType"
       variant="tonal"
-    ></v-alert>
+      @click:close="dontshowAlert"
+    />
     <NuxtPage />
   </NuxtLayout>
 </template>
-
 <style>
-/* Redundant unused code to test treeshaking */
-@import url("https://rsms.me/inter/inter.css");
-
-body {
-  font-family: "Inter";
-}
-
-a {
-  color: rgb(230, 230, 230);
-  list-style: none;
-  text-decoration: none;
-}
-
-.unused-selector-app {
-  color: orange;
+[v-cloak] {
+  display: none;
 }
 </style>

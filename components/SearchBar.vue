@@ -1,7 +1,4 @@
-<script setup>
-
-
-</script>
+<script setup></script>
 
 <template>
   <!-- <v-menu transition="scale-transition" offset-y offset-x>

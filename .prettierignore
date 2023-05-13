@@ -8,6 +8,5 @@ package-lock.json
 .env
 dist
 .DS_Store
-.github
 
 .vercel

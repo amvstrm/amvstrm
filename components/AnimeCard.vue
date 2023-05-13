@@ -5,23 +5,50 @@
       '--color-txt': animeColor,
     }"
   >
-    <NuxtLink  v-bind="props" :to="'/anime/' + id">
-      <img class="card-img" :src="imgsrc" :alt="imgalt" />
+    <NuxtLink
+      v-bind="props"
+      :to="'/anime/' + id"
+    > 
+      <v-chip
+        class="d-none d-lg-flex"
+        style="position: absolute;"
+        color="warning"
+        variant="elevated"
+        size="small"
+        label
+      >
+        {{ year }}
+      </v-chip>
+      <img
+        class="card-img"
+        loading="lazy"
+        :src="imgsrc"
+        :alt="imgalt"
+      >
     </NuxtLink>
-    <NuxtLink class="card-title" :to="'/anime/' + id">
-      <span>{{ title }} </span>
+    <NuxtLink
+      class="card-title"
+      :to="'/anime/' + id"
+    >
+      <span>{{ title }}</span>
     </NuxtLink>
   </div>
 </template>
 <script setup>
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   title: String,
+  // eslint-disable-next-line vue/require-default-prop
   imgsrc: String,
+  // eslint-disable-next-line vue/require-default-prop
   imgalt: String,
+  // eslint-disable-next-line vue/require-default-prop
   animeColor: String || "white",
+  // eslint-disable-next-line vue/require-default-prop
   id: String,
+  // eslint-disable-next-line vue/require-default-prop
+  year: Number,
 });
-const show = ref(false);
 </script>
 <style>
 .card {
@@ -43,7 +70,7 @@ const show = ref(false);
   padding: 1rem;
 }
 
-.card-title { 
+.card-title {
   color: white;
   font-weight: 600;
   line-height: 21px;
@@ -56,7 +83,6 @@ const show = ref(false);
 }
 
 .card-title:hover {
-  /* hover animation */
   color: var(--color-txt);
 }
 

@@ -52,7 +52,7 @@ export default {
       art.layers.add({
         name: "skipbtn",
         html: `
-                  <style>
+                <style>
                   .btn{
                   font-weight: 100;
                   font-size: 18px;
@@ -76,16 +76,18 @@ export default {
                   color: #ffffff;
                   border: none;
                   }
-                  </style>
+                </style>
                   <button class="btn">Skip OP! 
                   <img src="https://api.iconify.design/mdi:skip-forward.svg?color=%23ffffff" 
                   style="width:20px; margin-left:3px; margin-right:3px; flex-direction: row;">
-                  </button>
+                </button>
               `,
         style: {
-          position: "absolute",
-          bottom: "18%",
-          right: "30px",
+          display: 'flex',
+          'flex-direction': 'column',
+          'justify-content': 'center',
+          width: '100%',
+          'align-items': 'end'
         },
         click: function () {
           art.forward = 90;
@@ -102,12 +104,21 @@ export default {
 };
 </script>
 <template>
-  <div class="loadingBlock" v-if="strmLoading">
-    <v-progress-circular :size="45" indeterminate></v-progress-circular>
+  <div
+    v-if="strmLoading"
+    class="loadingBlock"
+  >
+    <v-progress-circular
+      :size="45"
+      indeterminate
+    />
   </div>
   <v-container v-else>
     <v-row>
-      <v-col cols="12" lg="8">
+      <v-col
+        cols="12"
+        lg="8"
+      >
         <ClientOnly>
           <VideoPlayer
             :option="{
@@ -126,7 +137,7 @@ export default {
             }"
             :style="style"
             @get-instance="getInstance"
-          ></VideoPlayer>
+          />
         </ClientOnly>
       </v-col>
       <v-col cols="">
@@ -134,9 +145,11 @@ export default {
           <v-list lines="two">
             <v-list-item :href="'/anime/' + getID">
               <v-list-item-title>{{ strm.info.title }}</v-list-item-title>
-              <v-list-item-subtitle>{{
-                strm.info.episode
-              }}</v-list-item-subtitle>
+              <v-list-item-subtitle>
+                Episode {{
+                  strm.info.episode
+                }}
+              </v-list-item-subtitle>
             </v-list-item>
             <v-list-item>
               <v-btn
@@ -186,7 +199,7 @@ export default {
               </v-dialog>
             </v-no-ssr>
           </v-list>
-          <v-divider></v-divider>
+          <v-divider />
           <v-list lines="two">
             <v-list-item v-if="epPending">
               <v-list-item-title>LOADING...</v-list-item-title>
@@ -198,8 +211,8 @@ export default {
               </v-list-item-subtitle>
             </v-list-item>
             <v-list-item
-              v-else
               v-for="(epitm, i) in ep.episodes"
+              v-else
               :key="i"
               :href="'/watch/' + getID + '-' + epitm.id"
             >
