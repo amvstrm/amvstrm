@@ -140,7 +140,5 @@
   "description": "An anime streaming service for weebo",
   "dir": "ltr",
   "orientation": "any",
-  "categories": [
-    "entertainment"
-  ]
+  "categories": ["entertainment"]
 }

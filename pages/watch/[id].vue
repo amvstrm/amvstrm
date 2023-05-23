@@ -1,35 +1,23 @@
 <script setup>
+const env = useRuntimeConfig();
 const route = useRoute();
 const getID = route.params.id.split("-")[0];
 const getGogoID = route.params.id.split(`${getID}-`)[1];
 
 const { data: strm, pending: strmLoading } = useFetch(
-  `https://new-api.amvstr.ml/api/v2/stream/${getGogoID}`
+  `${env.public.API_URL}/api/${env.public.version}/stream/${getGogoID}`
 );
 const {
   data: ep,
   pending: epPending,
   error: epError,
 } = useFetch(
-  `https://new-api.amvstr.ml/api/v1/episode/${getGogoID.split("-episode-")[0]}`
+  `${env.public.API_URL}/api/v1/episode/${getGogoID.split("-episode-")[0]}`,
+  {
+    cache: "default",
+  }
 );
 
-// useHead({
-//   title: `${strm.value.info.title} Episode ${strm.value.info.episode}`
-// })
-
-const player_setting = ref(false);
-const share_dialog = ref(false);
-
-// useHead({
-//   title: `${strm.info.title} Episode ${strm.info.episode}`,
-//   meta: [
-//     {
-//       name: "description",
-//       content: `Watch ${strm.info.title} Episode ${strm.info.episode} on amvstr.ml`,
-//     },
-//   ],
-// });
 </script>
 
 <script>
@@ -49,76 +37,42 @@ export default {
   methods: {
     getInstance(art) {
       console.log("INITZ ARTPLAYER");
-      art.layers.add({
+      art.controls.add({
         name: "skipbtn",
-        html: `
-                <style>
-                  .btn{
-                  font-weight: 100;
-                  font-size: 18px;
-                  color: #ffffff;
-                  background-color: #0000005b;
-                  padding: 10px 25px;
-                  border: none;
-                  box-shadow: none;
-                  border-radius: 14px;
-                  transition : 0ms;
-                  transform: translateY(0);
-                  display: flex;
-                  flex-direction: row;
-                  align-items: center;
-                  cursor: pointer;
-                  }
-                  .btn:hover{
-                  transition : 0ms;
-                  transform : translateY(-0px);
-                  background-color: #0000006c;
-                  color: #ffffff;
-                  border: none;
-                  }
-                </style>
-                  <button class="btn">Skip OP! 
-                  <img src="https://api.iconify.design/mdi:skip-forward.svg?color=%23ffffff" 
-                  style="width:20px; margin-left:3px; margin-right:3px; flex-direction: row;">
-                </button>
-              `,
+        position: "right",
+        html: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><path fill="#ffffff" d="M52.5 440.6c-9.5 7.9-22.8 9.7-34.1 4.4S0 428.4 0 416V96c0-12.4 7.2-23.7 18.4-29s24.5-3.6 34.1 4.4L224 214.3v83.4L52.5 440.6zM256 352V96c0-12.4 7.2-23.7 18.4-29s24.5-3.6 34.1 4.4l192 160c7.3 6.1 11.5 15.1 11.5 24.6s-4.2 18.5-11.5 24.6l-192 160c-9.5 7.9-22.8 9.7-34.1 4.4S256 428.4 256 416v-64z"/></svg>',
+        index: 1,
+        tooltip: "Skip Intro",
         style: {
-          display: 'flex',
-          'flex-direction': 'column',
-          'justify-content': 'center',
-          width: '100%',
-          'align-items': 'end'
+          marginRight: "16px",
         },
         click: function () {
           art.forward = 90;
-          art.layers.show = false;
+          art.controls.remove("skipbtn");
         },
       });
       art.on("ready", () => {
         setTimeout(() => {
-          art.layers.remove("skipbtn");
+          art.controls.remove("skipbtn");
         }, 200000);
       });
     },
   },
 };
 </script>
+<!-- eslint-disable vue/no-multiple-template-root -->
 <template>
-  <div
-    v-if="strmLoading"
-    class="loadingBlock"
-  >
-    <v-progress-circular
-      :size="45"
-      indeterminate
-    />
+  <Html>
+    <Head>
+      <Title>{{ ep.title + " Episode " + ep.totalEpisodes }}</Title>
+    </Head>
+  </Html>
+  <div v-if="strmLoading" class="loadingBlock">
+    <v-progress-circular :size="45" indeterminate />
   </div>
   <v-container v-else>
     <v-row>
-      <v-col
-        cols="12"
-        lg="8"
-      >
+      <v-col cols="12" lg="8">
         <ClientOnly>
           <VideoPlayer
             :option="{
@@ -146,26 +100,10 @@ export default {
             <v-list-item :href="'/anime/' + getID">
               <v-list-item-title>{{ strm.info.title }}</v-list-item-title>
               <v-list-item-subtitle>
-                Episode {{
-                  strm.info.episode
-                }}
+                Episode {{ strm.info.episode }}
               </v-list-item-subtitle>
             </v-list-item>
             <v-list-item>
-              <v-btn
-                class="mr-2"
-                color="red darken-1"
-                @click="player_setting = !player_setting"
-              >
-                <v-icon> mdi-play </v-icon>
-              </v-btn>
-              <v-btn
-                class="mr-2"
-                color="green darken-1"
-                @click="share_dialog = !share_dialog"
-              >
-                <v-icon> mdi-share </v-icon>
-              </v-btn>
               <v-btn
                 class="mr-2"
                 color="blue darken-1"
@@ -174,30 +112,6 @@ export default {
                 <v-icon> mdi-download </v-icon>
               </v-btn>
             </v-list-item>
-            <v-no-ssr>
-              <v-dialog
-                v-model="player_setting"
-                max-width="500px"
-                scrim="#202020"
-              >
-                <v-card>
-                  <v-card-title> Coming soon </v-card-title>
-                </v-card>
-              </v-dialog>
-              <v-dialog
-                v-model="share_dialog"
-                max-width="500px"
-                scrim="#202020"
-              >
-                <v-card>
-                  <v-card-title>Share <v-icon>mdi-share</v-icon></v-card-title>
-                  <v-card-actions>
-                    <v-btn> Twitter </v-btn>
-                    <v-btn> Facebook </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-no-ssr>
           </v-list>
           <v-divider />
           <v-list lines="two">

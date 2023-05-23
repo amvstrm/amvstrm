@@ -33,9 +33,8 @@
     "artplayer": "^5.0.4",
     "artplayer-plugin-hls-quality": "^2.0.0",
     "axios": "^1.4.0",
-    "deta": "^1.1.0",
     "hls.js": "^1.4.0",
     "lodash.debounce": "^4.0.8",
-    "vuetify": "^3.1.13"
+    "vuetify": "^3.2.5"
   }
 }

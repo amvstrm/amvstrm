@@ -1,7 +1,11 @@
 <script setup>
 import { useStorage } from "@vueuse/core";
 const showAlert = ref(false);
-const { data: alert } = useLazyFetch("/api/dataalert");
+const alert = {
+  title: "",
+  text: "",
+  type: ""
+}
 const d = useStorage("dataalert", {
   showalert: false,
 });
@@ -21,20 +25,14 @@ const dontshowAlert = () => {
   <NuxtLayout>
     <NuxtLoadingIndicator />
     <v-alert
-      v-cloak
       v-if="showAlert"
       closable
-      :title="alert.alerts.title"
-      :text="alert.alerts.text"
-      :type="alert.alerts.alertType"
+      :title="title"
+      :text="text"
+      :type="type"
       variant="tonal"
       @click:close="dontshowAlert"
     />
     <NuxtPage />
   </NuxtLayout>
 </template>
-<style>
-[v-cloak] {
-  display: none;
-}
-</style>

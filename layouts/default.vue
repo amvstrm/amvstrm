@@ -1,64 +1,31 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      v-model="drawer"
-      temporary=""
-    >
+    <v-navigation-drawer v-model="drawer" temporary="">
       <v-list>
         <v-list-item>
           <img
-            src="/amv_wh.png"
+            src="/logo.png"
             style="display: flex; width: 140px; height: 100%"
           >
-          <!-- <SearchBar /> -->
         </v-list-item>
+        <SearchBar />
       </v-list>
       <v-divider />
       <v-list>
-        <v-list-item
-          title="Home"
-          to="/"
-        />
-      </v-list>
-      <v-divider />
-      <v-list>
-        <v-list-subheader>Catagory</v-list-subheader>
-        <v-list-item
-          title="Popular Anime"
-          to="/popular"
-        />
-        <v-list-item
-          title="Trending Anime"
-          to="/trending"
-        />
-        <v-list-item
-          title="Schedule Anime"
-          to="/schedule"
-        />
+        <v-list-item title="Home" to="/" />
+        <v-list-item title="Search Anime" to="/search" />
       </v-list>
       <v-divider />
       <v-list>
         <v-list-subheader>More</v-list-subheader>
-        <v-list-item
-          title="About us"
-          to="/about"
-        />
-        <v-list-item
-          title="Privacy Policy"
-          to="/privacy"
-        />
-        <v-list-item
-          title="Help"
-          href="https://docs.amvstr.ml/help"
-        >
+        <v-list-item title="About us" to="/about" />
+        <v-list-item title="Privacy Policy" to="/privacy" />
+        <v-list-item title="Help" href="https://docs.amvstr.ml/help">
           <template #append>
             <v-icon icon="mdi-help" />
           </template>
         </v-list-item>
-        <v-list-item
-          title="Github"
-          href="https://github.com/amvstrm/amvstrm"
-        >
+        <v-list-item title="Github" href="https://github.com/amvstrm/amvstrm">
           <template #append>
             <v-icon icon="mdi-github" />
           </template>
@@ -66,39 +33,30 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar>
-      <v-app-bar-nav-icon @click="drawer = !drawer" />
+    <v-app-bar absolute="">
       <v-col>
         <NuxtLink to="/">
           <img
-            src="/amv_wh.png"
-            style="display: flex; width: 140px; height: 100%"
+            src="/logo.png"
+            style="
+              margin: 0 0.5rem 0 0.5rem;
+              display: flex;
+              width: 140px;
+              height: 100%;
+            "
           >
         </NuxtLink>
       </v-col>
-      <!-- <v-spacer></v-spacer>
-      <v-col class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
-        <SearchBar />
-      </v-col> -->
+      <v-spacer />
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
     </v-app-bar>
-
     <v-main>
       <slot />
     </v-main>
-    <v-footer
-      app
-      height="auto"
-      dense
-      absolute
-    >
-      <span>amvstrm Cambodia © Copyright {{ new Date().getFullYear() }}. Build with
-        Nuxt 3</span>
-      <!-- <p>/</p>
-      <span style="opacity: 50%; font-size: 0.8em">
-        Disclaimer : We do not store data in our database. We get data from 3rd
-        party sites and other site only. Our Website and Domain are protected by
-        Cloudflare.
-      </span> -->
+    <v-footer app height="auto" dense absolute>
+      <span>
+        amvstrm Cambodia © Copyright {{ new Date().getFullYear() }}. Build with Nuxt 3
+      </span>
     </v-footer>
   </v-app>
 </template>

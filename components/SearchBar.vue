@@ -1,81 +1,75 @@
-<script setup></script>
+<script setup>
+import debounce from "lodash.debounce";
+import axios from "axios";
 
+const searchResults = ref();
+const search = ref("");
+
+const debouncedSearch = debounce(async (query) => {
+  const { data } = await axios.get(
+    `https://new-api.amvstr.ml/api/v2/search?q=${query}&limit=5`
+  );
+  console.log(data);
+  searchResults.value = data;
+}, 500);
+</script>
+<!-- eslint-disable vue/no-use-v-if-with-v-for -->
 <template>
-  <!-- <v-menu transition="scale-transition" offset-y offset-x>
-    <template v-slot:activator="{ props }">
+  <v-menu
+    close-on-content-click
+    no-click-animation
+    origin="auto"
+    location="bottom"
+  >
+    <template #activator="{ props }">
       <v-text-field
         v-model="search"
         variant="solo"
-        color="green darken-2"
+        color="green"
         label="Search"
+        flat
         single-line
         hide-details
-        @keydown.enter="onQueryChange"
         prepend-inner-icon="mdi-magnify"
         v-bind="props"
-      ></v-text-field>
+        @update:model-value="debouncedSearch(search)"
+      />
     </template>
-    <v-card v-if="search" :dense="true" class="mx-auto overflow-auto mt-2">
-      <v-list>
-        <v-list-item
-          v-for="item in searchResults.data"
-          :key="item.id"
-          :to="'/anime/' + item.id"
-        >
-          <template v-slot:prepend>
-            <img
-              v-if="item.coverImage.medium"
-              class="ma-2"
-              :src="item.coverImage.medium"
-              :alt="item.id + '_img'"
-              style="border-radius: 4px; width: 60px; height: 10%"
-            />
-          </template>
-          <v-list-item-title>{{ item.title.userPreferred }}</v-list-item-title>
-        </v-list-item>
-        <v-list-item
-          v-if="searchResults.length > 0"
-          :to="'/search?q=' + search"
-        >
-          <v-list-item-title>Search more...</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-card>
-  </v-menu> -->
-  <v-autocomplete
-    v-model:search-input="search"
-    :items="searchResults"
-    @update:search="onInput"
-  />
+    <ClientOnly>
+      <v-card>
+        <v-list lines="two">
+          <v-list-item title="Search result" />
+          <v-divider />
+          <v-list-item
+            v-for="item in searchResults.data"
+            :key="item.id"
+            :to="'/anime/' + item.id"
+          >
+            <template #prepend>
+              <img
+                v-if="item.coverImage.medium"
+                class="ma-2"
+                :src="item.coverImage.medium"
+                :alt="item.id + '_img'"
+                style="border-radius: 4px; width: 60px; height: 10%"
+              />
+            </template>
+            <v-list-item-title>{{
+              item.title.userPreferred
+            }}</v-list-item-title>
+            <v-list-item-subtitle
+              >Episode {{ item.episodes }}</v-list-item-subtitle
+            >
+            <v-list-item-subtitle>{{ item.status }}</v-list-item-subtitle>
+          </v-list-item>
+          <v-list-item
+            v-if="searchResults.data.length > 0"
+            :to="'/search?q=' + search"
+          >
+            <v-list-item-title>Search more...</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </ClientOnly>
+  </v-menu>
 </template>
-<script>
-import debounce from "lodash.debounce";
-export default {
-  data() {
-    return {
-      search: "",
-      searchResults: [],
-      query: this.searchAnime,
-    };
-  },
-  methods: {
-    searchAnime: debounce(async function () {
-      const env = useRuntimeConfig();
-      const { data: searchResultsA } = await useFetch(
-        `${env.public.API_URL}/api/${env.public.version}/search?q=${this.search}&limit=5`
-      );
-      // if (this.searchResults.length === 0) {
-      //   this.query = 'Not found'
-      // } else if (this.searchResults.length > 0) {
-      //   this.nosearchResults = true
-      // }
-      this.searchResults = searchResultsA;
-    }, 500),
-    onQueryChange(event) {
-      if (event.target.value.trim().length === 0) {
-        this.searchResults = null;
-      }
-    },
-  },
-};
-</script>

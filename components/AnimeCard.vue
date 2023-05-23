@@ -5,13 +5,10 @@
       '--color-txt': animeColor,
     }"
   >
-    <NuxtLink
-      v-bind="props"
-      :to="'/anime/' + id"
-    > 
+    <NuxtLink v-bind="props" :to="'/anime/' + id">
       <v-chip
         class="d-none d-lg-flex"
-        style="position: absolute;"
+        style="position: absolute"
         color="warning"
         variant="elevated"
         size="small"
@@ -19,17 +16,9 @@
       >
         {{ year }}
       </v-chip>
-      <img
-        class="card-img"
-        loading="lazy"
-        :src="imgsrc"
-        :alt="imgalt"
-      >
+      <img class="card-img" loading="lazy" :src="imgsrc" :alt="imgalt" />
     </NuxtLink>
-    <NuxtLink
-      class="card-title"
-      :to="'/anime/' + id"
-    >
+    <NuxtLink class="card-title" :to="'/anime/' + id">
       <span>{{ title }}</span>
     </NuxtLink>
   </div>

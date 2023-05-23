@@ -25,7 +25,7 @@ export default defineNuxtConfig({
           type: "application/json",
           href: "/manifest.json",
         },
-      ]
+      ],
     },
   },
   ssr: true,
@@ -46,10 +46,7 @@ export default defineNuxtConfig({
   pwa: {
     registerType: "autoUpdate",
     strategies: "generateSW",
-    includeAssets: [
-      "favicon.ico",
-      "manifest.json",
-    ],
+    includeAssets: ["favicon.ico", "manifest.json"],
     manifest: {
       name: "amvstrm",
       short_name: "amvstrm",
@@ -205,16 +202,16 @@ export default defineNuxtConfig({
             {
               src: "/android/android-launchericon-192-192.png",
               sizes: "192x192",
-            }
-          ]
-        }
+            },
+          ],
+        },
       ],
       lang: "en",
     },
     workbox: {
       navigateFallback: "/",
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
-      runtimeCaching : [
+      runtimeCaching: [
         {
           urlPattern: /^https?.*/,
           handler: "NetworkFirst",
@@ -223,21 +220,23 @@ export default defineNuxtConfig({
             networkTimeoutSeconds: 20,
             expiration: {
               maxEntries: 150,
-              maxAgeSeconds:
-                15 * 24 * 60 * 60
-            }
-          }
-        }
-      ]
+              maxAgeSeconds: 15 * 24 * 60 * 60,
+            },
+          },
+        },
+      ],
     },
     client: {
       installPrompt: true,
     },
   },
+  eslint: {
+    emitWarning: false
+  },
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL,
-      version: process.env.VERSION,
+      API_URL: process.env.API_URL || 'https://new-api.amvstr.ml',
+      version: process.env.VERSION || 'v2',
     },
     DETA_BASE_KEY: process.env.DETA_BASE_KEY,
   },

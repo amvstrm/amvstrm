@@ -12,7 +12,7 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   rules: {
-    'vue/max-attributes-per-line': 'off',
-    'vue/html-indent': 'off'
+    "vue/max-attributes-per-line": "off",
+    "vue/html-indent": "off",
   },
 };

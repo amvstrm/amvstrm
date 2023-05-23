@@ -2,7 +2,7 @@ import { createVuetify } from "vuetify";
 import { mdi, aliases as allAliases } from "vuetify/iconsets/mdi";
 
 import "vuetify/styles";
-import "@mdi/font/css/materialdesignicons.min.css";
+import "@mdi/font/css/materialdesignicons.css";
 const aliases = allAliases;
 
 export default defineNuxtPlugin((nuxtApp) => {

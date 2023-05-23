@@ -1,0 +1,16 @@
+# Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
+v: 0
+micros:
+  - name: amvstrmnuxt3
+    src: ./
+    engine: nuxt
+    primary: true
+    public: true
+    presets:
+      env:
+        - name: API_URL
+          default: https://new-api.amvstr.ml
+        - name: VERSION
+          default: v2  
+
+

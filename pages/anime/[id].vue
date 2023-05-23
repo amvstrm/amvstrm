@@ -1,6 +1,5 @@
 <script setup>
 const env = useRuntimeConfig();
-
 const episode_dialog = ref(false);
 const infotab = ref(null);
 
@@ -8,7 +7,10 @@ const { data: anime, pending: aniPending } = await useAsyncData("", () =>
   $fetch(
     `${env.public.API_URL}/api/${env.public.version}/info/${
       useRoute().params.id
-    }`
+    }`,
+    {
+      cache: "force-cache",
+    }
   )
 );
 useSeoMeta({
@@ -17,30 +19,19 @@ useSeoMeta({
 const { data: recmedAnime, pending: recmedPending } = useLazyFetch(
   `${env.public.API_URL}/api/${env.public.version}/recommendations/${
     useRoute().params.id
-  }`
+  }`,
+  {
+    cache: "force-cache",
+  }
 );
 
 const { data: epAni, pending: loadAni } = useLazyFetch(
-  `${env.public.API_URL}/api/v1/episode/${anime.value.id_provider.idGogo}`
+  `${env.public.API_URL}/api/v1/episode/${anime.value.id_provider.idGogo}`,
+  {
+    cache: "default",
+  }
 );
 
-//   if (epAni.value.length > 200) {
-//     return epAni.value;
-//   }
-//   let groups = [],
-//     i;
-//   for (i = 0; i < epAni.value.length; i += 100) {
-//     groups.push(epAni.value.slice(i, i + 100));
-//   }
-//   return groups;
-// });
-// idgogo.value = anime.value.id_provider.idGogo
-
-// const { data: epAni, pending: epLoad } = useLazyFetch(
-//   `${env.public.API_URL}/api/${env.public.version}/episode/${
-//     useRoute().params.id
-//   }`
-// );
 </script>
 
 <template>
@@ -60,7 +51,7 @@ const { data: epAni, pending: loadAni } = useLazyFetch(
             class="image-poster"
             :src="anime.coverImage.large"
             :alt="anime.title.userPreferred"
-          >
+          />
         </div>
         <div class="card-content">
           <div class="mt-2">
@@ -106,7 +97,7 @@ const { data: epAni, pending: loadAni } = useLazyFetch(
           </h1>
           <span>{{ anime.title.native }}</span>
           <v-btn
-            class="mr-2 my-2"
+            class="my-2"
             color="red"
             prepend-icon="mdi-play"
             @click="episode_dialog = !episode_dialog"
@@ -122,37 +113,6 @@ const { data: epAni, pending: loadAni } = useLazyFetch(
             >
               <v-card>
                 <v-card-title>Episode</v-card-title>
-                <!-- <v-expansion-panels
-                  v-if="epAni.length > 200"
-                  variant="accordion"
-                >
-                  <v-expansion-panel
-                    v-for="(group, index) in groupedData"
-                    :key="index"
-                  >
-                    <v-expansion-panel-title>
-                      {{ "Series " + index }}
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text
-                      v-for="(item, index) in group"
-                      :key="index"
-                    >
-                      <v-list>
-                        <v-list-item
-                          :href="
-                            '/watch/' + useRoute().params.id + '-' + item.id
-                          "
-                          title="Episode"
-                          :subtitle="
-                            stream_in_dub === false
-                            ? ep.id.split('-episode-')[1]
-                            : ep.id.split('-episode-')[1] + ' (DUB)'
-                          "
-                        />
-                      </v-list>
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-                </v-expansion-panels> -->
                 <v-card-text v-if="loadAni">
                   <v-row>
                     <v-col class="justify-center">
@@ -250,12 +210,8 @@ const { data: epAni, pending: loadAni } = useLazyFetch(
       <v-col>
         <v-card>
           <v-tabs v-model="infotab">
-            <v-tab value="descrpt">
-Description
-</v-tab>
-            <v-tab value="recomd">
-Recommendations
-</v-tab>
+            <v-tab value="descrpt"> Description </v-tab>
+            <v-tab value="recomd"> Recommendations </v-tab>
           </v-tabs>
           <v-card-text>
             <v-window v-model="infotab">
@@ -278,7 +234,7 @@ Recommendations
                     :key="i"
                     :title="item.title.userPreferred"
                     :subtitle="item.title.romaji"
-                    :href="'/anime/' + item.id"
+                    :to="'/anime/' + item.id"
                   >
                     <template #prepend>
                       <v-img

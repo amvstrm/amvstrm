@@ -4,11 +4,8 @@
       <v-card-title>Error</v-card-title>
       <v-card-text>{{ error.message }}</v-card-text>
       <v-card-actions>
-        <v-btn
-          href="/"
-          prepend-icon="mdi-home"
-        >
-          Go home
+        <v-btn href="/" prepend-icon="mdi-home"> 
+          Go home 
         </v-btn>
         <v-btn
           href="https://github.com/amvstrm/amvstrm/issues/new"

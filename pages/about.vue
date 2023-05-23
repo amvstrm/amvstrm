@@ -1,7 +1,7 @@
 <script setup>
 useHead({
-  title: "About"
-})
+  title: "About",
+});
 </script>
 <template>
   <v-container>
@@ -23,18 +23,12 @@ useHead({
         </v-btn>
       </v-col>
       <v-col cols="12">
-        <v-btn
-          prepend-icon="mdi-github"
-          href="https://github.com/amvstrm/api"
-        >
+        <v-btn prepend-icon="mdi-github" href="https://github.com/amvstrm/api">
           Github (API)
         </v-btn>
       </v-col>
       <v-col cols="12">
-        <v-btn
-          prepend-icon="mdi-bookshelf"
-          href="https://docs.amvstr.ml"
-        >
+        <v-btn prepend-icon="mdi-bookshelf" href="https://docs.amvstr.ml">
           Docs
         </v-btn>
       </v-col>
