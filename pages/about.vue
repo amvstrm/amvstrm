@@ -5,11 +5,14 @@ useHead({
 </script>
 <template>
   <v-container>
-    <h1>About amvstrm</h1>
-    <p>
-      amvstrm is an open source anime streaming platform that offer free anime
-      with no ADs. Build with Nuxt 3, Vuetify and amvstrm's V2 API.
-    </p>
+    <v-card>
+      <v-card-title>About amvstrm</v-card-title>
+      <v-card-text>
+        amvstrm is an open source anime streaming platform that offer free anime
+        with no ADs and install it as Android or IOS web app. <br>
+        Build with Nuxt 3, Vuetify and amvstrm's V2 API.
+      </v-card-text>
+    </v-card>
     <v-row class="my-5">
       <v-col cols="12">
         <h1>Other :</h1>
