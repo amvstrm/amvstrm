@@ -5,7 +5,7 @@
       '--color-txt': animeColor,
     }"
   >
-    <NuxtLink v-bind="props" :to="'/anime/' + id">
+    <NuxtLink v-bind="props" :to="/\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + id : '/anime/' + id">
       <v-chip
         class="d-none d-lg-flex"
         style="position: absolute"
@@ -18,7 +18,12 @@
       </v-chip>
       <img class="card-img" loading="lazy" :src="imgsrc" :alt="imgalt" />
     </NuxtLink>
-    <NuxtLink class="card-title" :to="'/anime/' + id">
+    <NuxtLink
+      class="card-title"
+      :to="
+        /\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + id : '/anime/' + id
+      "
+    >
       <span>{{ title }}</span>
     </NuxtLink>
   </div>
@@ -37,6 +42,8 @@ const props = defineProps({
   id: String,
   // eslint-disable-next-line vue/require-default-prop
   year: Number,
+  totalEp: Number,
+  type: String,
 });
 </script>
 <style>
