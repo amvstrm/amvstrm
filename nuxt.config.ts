@@ -25,12 +25,34 @@ export default defineNuxtConfig({
           type: "application/json",
           href: "/manifest.json",
         },
+        {
+          rel: "icon",
+          type: "image/x-icon",
+          href: "/favicon.ico",
+        },
+        // import font
+        {
+          rel: "stylesheet",
+          href: process.env.FONT || "https://rsms.me/inter/inter.css"
+        }
       ],
     },
   },
   ssr: true,
   build: {
     transpile: ["vuetify"],
+  },
+  routeRules: {
+    "/": { static: true },
+    "/pwa": { static: true },
+    "/search": { static: true, swr: false },
+    "/anime/**": { swr: true },
+    "/watch/**": { swr: true },
+    "/pwa/search": { static: true, swr: false },
+    "/pwa/anime/**": { static: true },
+    "/pwa/watch/**": { static: true },
+    "/about": { static: true },
+    "/privacy": { static: true },
   },
   css: ["@/assets/style.css"],
   modules: [
@@ -50,8 +72,12 @@ export default defineNuxtConfig({
     manifest: {
       name: "amvstrm",
       short_name: "amvstrm",
-      theme_color: "#ffffff",
+      start_url: "/pwa",
       display: "standalone",
+      background_color: "#191919",
+      lang: "en",
+      scope: "/pwa",
+      theme_color: "#202020",
       icons: [
         {
           src: "/android/android-launchericon-512-512.png",
@@ -182,34 +208,13 @@ export default defineNuxtConfig({
           sizes: "1024x1024",
         },
       ],
-      background_color: "#191919",
       description: "An anime streaming service for weebo",
       dir: "ltr",
       orientation: "any",
-      scope: "/",
-      start_url: "/",
       categories: ["entertainment"],
-      shortcuts: [
-        {
-          name: "amvstrm's Homepage",
-          url: "/",
-          short_name: "Home",
-          icons: [
-            {
-              src: "/android/android-launchericon-512-512.png",
-              sizes: "512x512",
-            },
-            {
-              src: "/android/android-launchericon-192-192.png",
-              sizes: "192x192",
-            },
-          ],
-        },
-      ],
-      lang: "en",
     },
     workbox: {
-      navigateFallback: "/",
+      navigateFallback: "/pwa",
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
       runtimeCaching: [
         {
@@ -231,12 +236,15 @@ export default defineNuxtConfig({
     },
   },
   eslint: {
-    emitWarning: false
+    emitWarning: false,
+    ignore: true,
   },
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL || 'https://new-api.amvstr.ml',
-      version: process.env.VERSION || 'v2',
+      API_URL: process.env.API_URL || "https://new-api.amvstr.ml",
+      version: process.env.VERSION || "v2",
+      posthogPublicKey: process.env.POSTHOG_PK || "",
+      posthogHost: process.env.POSTHOG_HOST || "https://app.posthog.com",
     },
     DETA_BASE_KEY: process.env.DETA_BASE_KEY,
   },
