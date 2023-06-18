@@ -39,7 +39,7 @@ const {
       :cycle="true"
     >
       <v-carousel-item
-        v-for="(item, i) in popularData?.results.results"
+        v-for="(item, i) in popularData?.results"
         :key="i"
         :src="item.cover"
         cover
@@ -88,7 +88,7 @@ const {
       <v-container v-else fluid>
         <div class="grid">
           <div
-            v-for="(d, i) in trendingData?.results.results"
+            v-for="(d, i) in trendingData?.results"
             :key="i"
             class="d-flex justify-center"
           >
@@ -124,7 +124,7 @@ const {
       <v-container v-else fluid>
         <div class="grid">
           <div
-            v-for="(d, i) in popularData?.results.results"
+            v-for="(d, i) in popularData?.results"
             :key="i"
             class="d-flex justify-center"
           >
@@ -162,7 +162,7 @@ const {
     </div>
     <v-row v-else>
       <v-col class="media-scrolling">
-        <div v-for="data in trendingData?.results.results" :key="data.id">
+        <div v-for="data in trendingData?.results" :key="data.id">
           <AnimeCard
             :id="data.id"
             :title="data.title.userPreferred"
@@ -191,7 +191,7 @@ const {
     </div>
     <v-row v-else>
       <v-col class="media-scrolling">
-        <div v-for="data in popularData?.results.results" :key="data.id">
+        <div v-for="data in popularData?.results" :key="data.id">
           <AnimeCard
             :id="data.id"
             :title="data.title.userPreferred"
