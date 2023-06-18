@@ -14,5 +14,7 @@ module.exports = {
   rules: {
     "vue/max-attributes-per-line": "off",
     "vue/html-indent": "off",
+    "vue/html-self-closing": "off",
+    "vue/no-v-text-v-html-on-component": "off"
   },
 };
