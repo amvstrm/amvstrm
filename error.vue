@@ -1,13 +1,31 @@
 <template>
+  <Html>
+    <Head>
+      <Title>
+        {{ error.statusCode || 500 }}
+      </Title>
+    </Head>
+  </Html>
   <div class="app-error-page">
-    <v-card>
-      <v-card-title>Error</v-card-title>
-      <v-card-text>{{ error.message }}</v-card-text>
-      <v-card-actions>
-        <v-btn href="/" prepend-icon="mdi-home"> 
-          Go home 
-        </v-btn>
+    <v-sheet
+      elevation="12"
+      max-width="600"
+      rounded="lg"
+      width="100%"
+      class="ma-2 pa-4 text-center mx-auto"
+    >
+      <v-icon class="mb-5" color="error" icon="mdi-exclamation" size="112" />
+      <h2 class="mb-6">
+        Error
+      </h2>
+      <p class="mb-4">
+        {{ error.statusCode === 404 ? 'Page not found!' : 'Internal server error!' }}
+      </p>
+      <v-divider class="mb-4" />
+      <div class="text-end">
+        <v-btn class="mr-1" :href="/\/pwa\.*/.test(useRoute().path) ? '/pwa' : '/'" prepend-icon="mdi-home"> Go home </v-btn>
         <v-btn
+          v-if="error.statusCode !== 404"
           href="https://github.com/amvstrm/amvstrm/issues/new"
           target="blank"
           color="primary"
@@ -15,14 +33,11 @@
         >
           Report Issue
         </v-btn>
-      </v-card-actions>
-    </v-card>
+      </div>
+    </v-sheet>
   </div>
 </template>
 <script setup>
-useHead({
-  title: "Error",
-});
 defineProps({
   // eslint-disable-next-line vue/require-default-prop
   error: Object,
