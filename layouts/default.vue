@@ -4,7 +4,13 @@
       <v-list>
         <v-list-item>
           <img
+            v-if="scode == false || scode == undefined" 
             src="/logo.png"
+            style="display: flex; width: 140px; height: 100%"
+          >
+          <img
+            v-else
+            src="/logo-secret.png"
             style="display: flex; width: 140px; height: 100%"
           >
         </v-list-item>
@@ -37,13 +43,14 @@
       <v-col>
         <NuxtLink to="/">
           <img
+            v-if="scode == false || scode == undefined"
             src="/logo.png"
-            style="
-              margin: 0 0.5rem 0 0.5rem;
-              display: flex;
-              width: 140px;
-              height: 100%;
-            "
+            style="display: flex; width: 140px; height: 100%"
+          >
+          <img
+            v-else
+            src="/logo-secret.png"
+            style="display: flex; width: 140px; height: 100%"
           >
         </NuxtLink>
       </v-col>
@@ -52,6 +59,7 @@
     </v-app-bar>
     <v-main>
       <slot />
+      <AppCookieBanner />
     </v-main>
     <v-footer app height="auto" dense absolute>
       <span>
@@ -60,6 +68,18 @@
     </v-footer>
   </v-app>
 </template>
+<script setup>
+import { useStorage } from '@vueuse/core';
+const scode = useStorage('gayjmr');
+
+if (new Date().getMonth() !== 5) {
+  scode.value = false;
+}
+
+if (useRoute().query.code === 'gayjmr') {
+  scode.value = true
+}
+</script>
 <script>
 export default {
   data: () => ({
