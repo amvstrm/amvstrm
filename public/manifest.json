@@ -1,12 +1,12 @@
 {
   "name": "amvstrm",
   "short_name": "amvstrm",
-  "start_url": "/",
+  "start_url": "/pwa",
   "display": "standalone",
   "background_color": "#191919",
   "lang": "en",
-  "scope": "/",
-  "theme_color": "#ffffff",
+  "scope": "/pwa",
+  "theme_color": "#202020",
   "icons": [
     {
       "src": "/android/android-launchericon-512-512.png",
