@@ -1,11 +1,63 @@
-@import url("https://cdn.amvstr.ml/font/inter/inter.css");
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #353535 transparent;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #353535;
+  border-radius: 5px;
+  border: 2px solid #121212;
+}
 
 body {
   font-family: "Inter";
+  background: #191919;
 }
 
 a {
   color: rgb(230, 230, 230);
   list-style: none;
   text-decoration: none;
+}
+
+.app-skip-btn {
+  position: absolute;
+  top: -6.5rem;
+  background-color: #c71919;
+  color: #fff;
+  font-size: 0.5rem;
+  line-height: 1rem;
+  width: 6rem;
+  border-radius: 0.375rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  right: 2%;
+  height: 1.8rem;
+}
+
+.app-skip-btn:hover {
+  background: #c01f1f;
+}
+
+.loadingBlock {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+@media (min-width: 768px) {
+  .app-skip-btn {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
 }
