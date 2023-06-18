@@ -9,7 +9,6 @@ const debouncedSearch = debounce(async (query) => {
   const { data } = await axios.get(
     `https://new-api.amvstr.ml/api/v2/search?q=${query}&limit=5`
   );
-  console.log(data);
   searchResults.value = data;
 }, 500);
 </script>
@@ -41,9 +40,9 @@ const debouncedSearch = debounce(async (query) => {
           <v-list-item title="Search result" />
           <v-divider />
           <v-list-item
-            v-for="item in searchResults.data"
+            v-for="item in searchResults?.data"
             :key="item.id"
-            :to="'/anime/' + item.id"
+            :to="/\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + id : '/anime/' + id"
           >
             <template #prepend>
               <img
@@ -52,18 +51,20 @@ const debouncedSearch = debounce(async (query) => {
                 :src="item.coverImage.medium"
                 :alt="item.id + '_img'"
                 style="border-radius: 4px; width: 60px; height: 10%"
-              />
+              >
             </template>
-            <v-list-item-title>{{
-              item.title.userPreferred
-            }}</v-list-item-title>
-            <v-list-item-subtitle
-              >Episode {{ item.episodes }}</v-list-item-subtitle
-            >
+            <v-list-item-title>
+              {{
+                item.title.userPreferred
+              }}
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              Episode {{ item.episodes }}
+            </v-list-item-subtitle>
             <v-list-item-subtitle>{{ item.status }}</v-list-item-subtitle>
           </v-list-item>
           <v-list-item
-            v-if="searchResults.data.length > 0"
+            v-if="searchResults?.data.length > 0"
             :to="'/search?q=' + search"
           >
             <v-list-item-title>Search more...</v-list-item-title>
