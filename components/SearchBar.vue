@@ -2,12 +2,13 @@
 import debounce from "lodash.debounce";
 import axios from "axios";
 
+const env = useRuntimeConfig();
 const searchResults = ref();
 const search = ref("");
 
 const debouncedSearch = debounce(async (query) => {
   const { data } = await axios.get(
-    `https://new-api.amvstr.ml/api/v2/search?q=${query}&limit=5`
+    `${env.public.API_URL}/api/${env.public.version}/search?q=${query}&limit=5`
   );
   searchResults.value = data;
 }, 500);
@@ -42,7 +43,7 @@ const debouncedSearch = debounce(async (query) => {
           <v-list-item
             v-for="item in searchResults?.data"
             :key="item.id"
-            :to="/\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + id : '/anime/' + id"
+            :to="/\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + item.id : '/anime/' + item.id"
           >
             <template #prepend>
               <img
