@@ -1,31 +1,29 @@
-<script setup>
-import { useStorage } from "@vueuse/core";
-</script>
 <script>
 export default {
   data() {
     return {
       lStorage: null,
-      showban: true
+      showban: true,
     };
   },
   mounted() {
-    this.lStorage = useStorage("site-setting", {
-      allowCookies: true,
-    });
-    const { $posthog } = useNuxtApp()
-    this.showban = !($posthog().has_opted_out_capturing()||$posthog().has_opted_in_capturing())
+    const { $posthog } = useNuxtApp();
+    this.showban =
+      !(
+        $posthog().has_opted_out_capturing() ||
+        $posthog().has_opted_in_capturing()
+      ) || false;
   },
   methods: {
     doNottrkfn() {
-      const { $posthog } = useNuxtApp()
+      const { $posthog } = useNuxtApp();
       this.lStorage.allowCookies = false;
       this.showban = false;
       $posthog().opt_out_capturing();
     },
 
     doTrkfn() {
-      const { $posthog } = useNuxtApp()
+      const { $posthog } = useNuxtApp();
       this.showban = false;
       $posthog().opt_in_capturing();
     },
@@ -51,7 +49,9 @@ export default {
       >
         Disagree
       </v-btn>
-      <v-btn class="my-2" color="green" @click="doTrkfn"> Agree! </v-btn>
+      <v-btn class="my-2" color="green" @click="doTrkfn">
+        Agree !
+      </v-btn>
     </template>
   </v-alert>
 </template>
