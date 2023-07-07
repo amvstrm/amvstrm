@@ -15,6 +15,7 @@ module.exports = {
     "vue/max-attributes-per-line": "off",
     "vue/html-indent": "off",
     "vue/html-self-closing": "off",
-    "vue/no-v-text-v-html-on-component": "off"
+    "vue/no-v-text-v-html-on-component": "off",
+    "vue/no-multiple-template-root": "off"
   },
 };
