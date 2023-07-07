@@ -30,11 +30,6 @@ export default defineNuxtConfig({
           type: "image/x-icon",
           href: "/favicon.ico",
         },
-        // import font
-        {
-          rel: "stylesheet",
-          href: process.env.FONT || "https://rsms.me/inter/inter.css"
-        }
       ],
     },
   },
@@ -42,19 +37,23 @@ export default defineNuxtConfig({
   build: {
     transpile: ["vuetify"],
   },
+
   routeRules: {
-    "/": { static: true },
-    "/pwa": { static: true },
-    "/search": { static: true, swr: false },
-    "/anime/**": { swr: true },
-    "/watch/**": { swr: true },
-    "/pwa/search": { static: true, swr: false },
-    "/pwa/anime/**": { static: true },
-    "/pwa/watch/**": { static: true },
-    "/about": { static: true },
-    "/privacy": { static: true },
+    "/": { static: true, ssr: true },
+    "/pwa": { static: true, ssr: false },
+    "/search": { static: true },
+    "/anime/**": { swr: true, ssr: true },
+    "/watch/**": { swr: true, ssr: true },
+    "/bookmarks": { static: true, ssr: false },
+    "/pwa/search": { static: true, ssr: false },
+    "/pwa/anime/**": { static: true, ssr: false },
+    "/pwa/watch/**": { static: true, ssr: false },
+    "/about": { static: true, ssr: false, prerender: true },
+    "/privacy": { static: true, ssr: false, prerender: true },
   },
-  css: ["@/assets/style.css"],
+
+  css: ["~/assets/style.css"],
+
   modules: [
     "@nuxtjs/eslint-module",
     "@vite-pwa/nuxt",
@@ -65,6 +64,7 @@ export default defineNuxtConfig({
       });
     },
   ],
+
   pwa: {
     registerType: "autoUpdate",
     strategies: "generateSW",
@@ -214,7 +214,7 @@ export default defineNuxtConfig({
       categories: ["entertainment"],
     },
     workbox: {
-      navigateFallback: "/pwa",
+      navigateFallback: "/",
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
       runtimeCaching: [
         {
@@ -239,13 +239,18 @@ export default defineNuxtConfig({
     emitWarning: false,
     ignore: true,
   },
+
   runtimeConfig: {
     public: {
       API_URL: process.env.API_URL || "https://new-api.amvstr.ml",
       version: process.env.VERSION || "v2",
       posthogPublicKey: process.env.POSTHOG_PK || "",
       posthogHost: process.env.POSTHOG_HOST || "https://app.posthog.com",
+      disqus_id: process.env.DISQUS_ID,
     },
-    DETA_BASE_KEY: process.env.DETA_BASE_KEY,
+  },
+
+  devtools: {
+    enabled: true,
   },
 });
