@@ -1,6 +1,20 @@
 <script setup>
 const env = useRuntimeConfig();
+useSeoMeta({
+  ogTitle: "Home",
+  ogDescription: "amvstrm - A streaming service for weebo...",
+  ogImage: "logo.png",
+  ogUrl: "[og:url]",
+  twitterTitle: "Home",
+  twitterDescription: "amvstrm - A streaming service for weebo...",
+  twitterImage: "logo.png",
+  twitterCard: "summary",
+});
+
 useHead({
+  htmlAttrs: {
+    lang: "en",
+  },
   title: "Home",
 });
 
@@ -52,7 +66,18 @@ const {
             :width="420"
           >
             <div>
-              <h4 class="text-break">{{ item.title.userPreferred }}</h4>
+              <h4
+                style="
+                  width: 300px;
+                  overflow: hidden;
+                  transition: color 0.2s ease;
+                  display: -webkit-box;
+                  -webkit-box-orient: vertical;
+                  -webkit-line-clamp: 2;
+                "
+              >
+                {{ item.title.userPreferred }}
+              </h4>
               <p class="text--secondary">{{ item.title.native }}</p>
             </div>
             <v-btn
@@ -99,6 +124,8 @@ const {
               :imgalt="d.id"
               :anime-color="d.color"
               :year="d.releaseDate"
+              :type="d.type"
+              :total-ep="d.totalEpisodes"
             />
           </div>
         </div>
@@ -135,6 +162,8 @@ const {
               :imgalt="d.id"
               :anime-color="d.color"
               :year="d.releaseDate"
+              :type="d.type"
+              :total-ep="d.totalEpisodes"
             />
           </div>
         </div>
@@ -167,8 +196,11 @@ const {
             :id="data.id"
             :title="data.title.userPreferred"
             :imgsrc="data.image"
-            :imgalt="data.id"
             :anime-color="data.color"
+            :imgalt="data.id"
+            :year="data.releaseDate"
+            :type="data.type"
+            :total-ep="data.totalEpisodes"
           />
         </div>
       </v-col>
@@ -198,6 +230,9 @@ const {
             :imgsrc="data.image"
             :imgalt="data.id"
             :anime-color="data.color"
+            :year="data.releaseDate"
+            :type="data.type"
+            :total-ep="data.totalEpisodes"
           />
         </div>
       </v-col>
@@ -205,7 +240,7 @@ const {
   </v-container>
 </template>
 
-<style scoped>
+<style>
 .loadingBlock {
   height: 200px;
   display: grid;
@@ -217,15 +252,6 @@ const {
   grid-template-rows: repeat(2, 1fr);
   grid-column-gap: 0px;
   grid-row-gap: 0px;
-}
-
-.text-break {
-  width: 310px;
-  overflow: hidden;
-  transition: color 0.2s ease;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
 }
 
 .media-scrolling {
@@ -246,11 +272,7 @@ const {
 
 @media (min-width: 768px) {
   .grid {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-    grid-template-rows: repeat(2, 1fr);
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
   }
 }
 </style>
