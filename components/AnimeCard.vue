@@ -5,10 +5,9 @@
       '--color-txt': animeColor,
     }"
   >
-    <NuxtLink v-bind="props" :to="/\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + id : '/anime/' + id">
+    <div class="ybk-ctn">
       <v-chip
-        class="d-none d-lg-flex"
-        style="position: absolute"
+        class="d-none d-md-flex d-lg-flex"
         color="warning"
         variant="elevated"
         size="small"
@@ -16,6 +15,19 @@
       >
         {{ year }}
       </v-chip>
+      <v-icon
+        class="addbkm"
+        :icon="bookmarkStatus"
+        size="28"
+        @click="bookmarkHandler"
+      />
+    </div>
+    <NuxtLink
+      v-bind="props"
+      :to="
+        /\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + id : '/anime/' + id
+      "
+    >
       <img class="card-img" loading="lazy" :src="imgsrc" :alt="imgalt" />
     </NuxtLink>
     <NuxtLink
@@ -29,6 +41,8 @@
   </div>
 </template>
 <script setup>
+import { useStorage } from "@vueuse/core";
+
 const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop
   title: String,
@@ -41,10 +55,97 @@ const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop
   id: String,
   // eslint-disable-next-line vue/require-default-prop
-  year: Number,
+  year: Number || "No Data",
+  // eslint-disable-next-line vue/require-default-prop
   totalEp: Number,
+  // eslint-disable-next-line vue/require-default-prop
   type: String,
 });
+
+const state = useStorage("site-bookmarker", []);
+// const isBookmarked = ref(false);
+// const bookmarkStatus = computed(() => {
+//   return isBookmarked.value ? "mdi-star" : "mdi-star-outline";
+// });
+
+// function saveBookmarks(bookmarks) {
+//   state.value = bookmarks || []
+// }
+
+// function bookmarkHandler() {
+//   console.log('props.id:', props.id);
+//   isBookmarked.value = !isBookmarked.value;
+//   const bookmarks = state.value;
+//   let index = -1;
+//   if (Array.isArray(bookmarks)) {
+//     index = bookmarks.findIndex((item) => item.id === props.id);
+//   }
+//   if (isBookmarked.value === true && index === -1) {
+//     bookmarks.push({
+//       id: props.id,
+//       title: props.title,
+//       imgsrc: props.imgsrc,
+//       color: props.animeColor,
+//       type: props.type,
+//       totalEp: props.totalEp,
+//       year: props.year,
+//     });
+//     console.log('pushed')
+//   } else if (!isBookmarked.value && index !== -1) {
+//     bookmarks.splice(index, 1);
+//     console.log('removed')
+//   }
+//   saveBookmarks(bookmarks);
+// }
+
+const isBookmarked = (id) => {
+  const bookmarks = state.value;
+  return bookmarks.find((item) => item.id === id) !== undefined;
+};
+
+let isAlreadyBookmarked = isBookmarked(props.id);
+
+const bookmarkStatus = ref(
+  isAlreadyBookmarked ? "mdi-star" : "mdi-star-outline"
+);
+
+function saveBookmarks(bookmarks) {
+  state.value = bookmarks || [];
+}
+
+function bookmarkHandler() {
+  isAlreadyBookmarked = isBookmarked(props.id);
+  isAlreadyBookmarked ? removeBookmark() : addBookmark();
+}
+
+function addBookmark() {
+  const bookmarks = state.value;
+  bookmarks.push({
+    id: props.id,
+    title: props.title,
+    imgsrc: props.imgsrc,
+    color: props.animeColor,
+    type: props.type,
+    totalEp: props.totalEp,
+    year: props.year,
+  });
+  bookmarkStatus.value = "mdi-star"; // Update bookmarkStatus
+  saveBookmarks(bookmarks);
+}
+
+function removeBookmark() {
+  const bookmarks = state.value;
+  const index = bookmarks.findIndex((item) => item.id === props.id);
+  bookmarks.splice(index, 1);
+  bookmarkStatus.value = "mdi-star-outline"; // Update bookmarkStatus
+  saveBookmarks(bookmarks);
+}
+watch(
+  () => isAlreadyBookmarked,
+  (newValue) => {
+    bookmarkStatus.value = newValue ? "mdi-star" : "mdi-star-outline";
+  }
+);
 </script>
 <style>
 .card {
@@ -62,8 +163,23 @@ const props = defineProps({
   border-radius: 4px;
 }
 
-.video-info {
-  padding: 1rem;
+.addbkm {
+  margin: 1rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  text-shadow: 0px 0px 5px rgb(0, 0, 0);
+}
+
+.ybk-ctn {
+  position: absolute;
+  z-index: 99;
+  display: flex;
+  justify-content: space-between;
+  width: 200px;
+}
+
+.card:hover .addbkm {
+  opacity: 1;
 }
 
 .card-title {
@@ -90,11 +206,34 @@ const props = defineProps({
 
 @media (max-width: 1280px) {
   .card-img {
+    width: 180px;
+    height: 270px;
+  }
+  .ybk-ctn {
+    width: 184px;
+    position: relative;
+    top: 60px;
+    margin-top: -50px;
+  }
+}
+
+@media (max-width: 960px) {
+  .card-img {
     width: auto;
     height: 210px;
   }
   .card {
     margin: 1rem 1rem 1rem 0rem;
+  }
+  .ybk-ctn {
+    width: 150px;
+    justify-content: end;
+    position: relative;
+    top: 60px;
+    margin-top: -50px;
+  }
+  .addbkm {
+    opacity: 1;
   }
 }
 </style>
