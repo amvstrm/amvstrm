@@ -4,43 +4,59 @@ const env = useRuntimeConfig();
 const route = useRoute();
 const getID = route.params.id.split("-")[0];
 const getGogoID = route.params.id.split(`${getID}-`)[1];
+const getEP = getGogoID.split(`-episode-`)[1];
 
 const loadSettingDialog = ref(false);
 const switchtobackup = ref(false);
 const putsandbox = ref(false);
 
-const { data: strm, pending: strmLoading } = useFetch(
+const { data: anime } = await useFetch(
+  `${env.public.API_URL}/api/${env.public.version}/info/${getID}`,
+  {
+    cache: "force-cache",
+  }
+);
+
+const { data: strm, pending: strmLoading } = useLazyFetch(
   `${env.public.API_URL}/api/${env.public.version}/stream/${getGogoID}`,
   {
     cache: "force-cache",
   }
 );
+
 const {
   data: ep,
   pending: epPending,
   error: epError,
-} = useFetch(
+} = useLazyFetch(
   `${env.public.API_URL}/api/v1/episode/${getGogoID.split("-episode-")[0]}`,
   {
     cache: "default",
   }
 );
 
+useHead({
+  htmlAttrs: {
+    lang: "en",
+  },
+  title: anime.value?.title.userPreferred
+    ? anime.value?.title.userPreferred + " Episode " + getEP
+    : "amvstrm",
+});
+
 const { data: time2Skip } = useFetch(
-  `${env.public.API_URL}/api/v2/stream/skiptime/${getID}/${
-    getGogoID.split("-episode-")[1]
-  }`,
+  `${env.public.API_URL}/api/v2/stream/skiptime/${getID}/${getEP}`,
   {
     cache: "force-cache",
   }
 );
 
-if (putsandbox === true) {
-  document.getElementById("gogoiFrame").sandbox =
-    "allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation";
-} else if (putsandbox === false) {
-  document.getElementById("gogoiFrame").removeAttribute("sandbox");
-}
+// if (putsandbox === true) {
+//   document.getElementById("gogoiFrame").sandbox =
+//     "allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation";
+// } else if (putsandbox === false) {
+//   document.getElementById("gogoiFrame").removeAttribute("sandbox");
+// }
 
 const useStorageState = useStorage("ap_settings", {
   s_source: "Main",
@@ -170,15 +186,6 @@ export default {
 </script>
 <!-- eslint-disable vue/no-multiple-template-root -->
 <template>
-  <Html>
-    <Head>
-      <Title>
-        {{
-          ep?.title ? ep?.title + " Episode " + ep?.totalEpisodes : "amvstrm"
-        }}
-      </Title>
-    </Head>
-  </Html>
   <div v-if="strmLoading" class="loadingBlock">
     <v-progress-circular :size="45" indeterminate />
   </div>
@@ -235,10 +242,12 @@ export default {
         <v-card class="epinf_card">
           <div class="pa-4 d-flex justify-space-between">
             <div style="flex: 1">
-              <h1 style="font-size: large">
-                {{ strm?.info.title === "" ? ep?.episodes[0].title.split('Episode')[0] : strm?.info.title }}
-              </h1>
-              <span>Episode {{ strm.info.episode }}</span>
+              <NuxtLink :to="'/pwa/anime/' + getID">
+                <h1 style="font-size: large">
+                  {{ anime?.title.userPreferred }}
+                </h1>
+              </NuxtLink>
+              <span>Episode {{ getEP }}</span>
             </div>
             <div class="d-flex align-center">
               <v-btn
@@ -266,9 +275,9 @@ export default {
                   >
                   </v-btn>
                 </template>
-                <v-card class="mx-auto" width="400">
+                <v-card class="mx-auto">
                   <v-card-title> Player setting </v-card-title>
-                  <v-card-text>
+                  <div class="ma-4">
                     <v-radio-group v-model="switchplyr">
                       <v-radio
                         label="Integrated Player (Recommended)"
@@ -276,9 +285,11 @@ export default {
                       ></v-radio>
                       <v-radio label="Plyr" :value="2"></v-radio>
                       <v-radio label="nsPlayer" :value="3"></v-radio>
-                      <v-radio label="GOGOSTREAM (ADs)" :value="4"></v-radio>
+                      <v-radio label="Embedded (ADs)" :value="4"></v-radio>
                     </v-radio-group>
                     <div v-if="switchplyr == 2 || switchplyr == 3">
+                      Using Plyr and nsPlayer will lose some of the
+                      functionality (time saved, auto-skip, etc)
                       <v-checkbox
                         v-model="switchtobackup"
                         label="Backup stream"
@@ -290,12 +301,21 @@ export default {
                       browser.
                       <v-checkbox
                         v-model="putsandbox"
+                        :disabled="true"
                         label="Enable Sandbox (Won't Work For Google Chrome)"
                         color="primary"
                       ></v-checkbox>
                     </div>
-                  </v-card-text>
+                  </div>
                   <v-card-actions>
+                    <v-btn
+                      prepend-icon="mdi-help"
+                      href="https://docs.amvstr.ml/help/video-player"
+                      target="blank"
+                    >
+                      Player Help
+                    </v-btn>
+                    <v-spacer />
                     <v-btn
                       icon="mdi-close"
                       @click="loadSettingDialog = false"
