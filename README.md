@@ -1,8 +1,7 @@
-# AMVSTRM V2 (BETA)
+<img src="https://cdn.amvstr.ml/amv.png" width=30% />
 
-Nuxt 3 self-host anime streaming website with amvstrm's API
+# AMVSTRM
 
-## Disclaimer
+Nuxt 3 self-hostable anime streaming website with amvstrm's API
 
-This website is still under the construction.
-You can still visit the website at <https://v2.amvstr.ml/>.
+Read more in our [Documentation](https://amvdocs.pages.dev/introduction) 
