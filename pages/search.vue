@@ -1,7 +1,22 @@
 <script setup>
+useSeoMeta({
+  ogTitle: 'Search Anime',
+  ogDescription: 'Search 100+ of animes to watch on amvstrm',
+  ogImage: 'logo.png',
+  ogUrl: '[og:url]',
+  twitterTitle: 'Search Anime',
+  twitterDescription: 'Search 100+ of animes to watch on amvstrm',
+  twitterImage: 'logo.png',
+  twitterCard: 'summary'
+})
+
 useHead({
-  title: "Search Anime",
-});
+  htmlAttrs: {
+    lang: 'en'
+  },
+  title: "Search Anime"
+})
+
 
 import debounce from "lodash.debounce";
 import axios from "axios";
