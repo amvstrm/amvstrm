@@ -1,3 +1,23 @@
+<script setup>
+useSeoMeta({
+  ogTitle: 'Privacy Policy',
+  ogDescription: 'Privacy policy for amvstrm',
+  ogImage: 'logo.png',
+  ogUrl: '[og:url]',
+  twitterTitle: 'Home',
+  twitterDescription: 'Privacy policy for amvstrm',
+  twitterImage: 'logo.png',
+  twitterCard: 'summary'
+})
+
+useHead({
+  htmlAttrs: {
+    lang: 'en'
+  },
+  title: "Privacy Policy"
+})
+
+</script>
 <template>
   <v-container>
     <h1 style="padding-bottom: 0">

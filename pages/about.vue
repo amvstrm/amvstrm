@@ -1,7 +1,22 @@
 <script setup>
+useSeoMeta({
+  ogTitle: 'About',
+  ogDescription: 'About amvstrm...',
+  ogImage: 'logo.png',
+  ogUrl: '[og:url]',
+  twitterTitle: 'About',
+  twitterDescription: 'About amvstrm...',
+  twitterImage: 'logo.png',
+  twitterCard: 'summary'
+})
+
 useHead({
-  title: "About",
-});
+  htmlAttrs: {
+    lang: 'en'
+  },
+  title: "About"
+})
+
 </script>
 <template>
   <v-container>
