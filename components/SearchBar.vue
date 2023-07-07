@@ -1,77 +1,77 @@
+<script setup>
+import debounce from "lodash.debounce";
+import axios from "axios";
+
+const env = useRuntimeConfig();
+const searchResults = ref();
+const search = ref("");
+
+const debouncedSearch = debounce(async (query) => {
+  const { data } = await axios.get(
+    `${env.public.API_URL}/api/${env.public.version}/search?q=${query}&limit=5`
+  );
+  searchResults.value = data;
+}, 500);
+</script>
+<!-- eslint-disable vue/no-use-v-if-with-v-for -->
 <template>
-  <div>
-    <v-menu transition="scale-transition" offset-y offset-x>
-      <template #activator="{ on, attrs }">
-        <v-text-field
-          v-model="search"
-          color="green darken-2"
-          :label="$t('search')"
-          single-line
-          hide-details
-          prepend-inner-icon="mdi-magnify"
-          v-bind="attrs"
-          @keyup="searchAnime"
-          @input="query"
-          v-on="on"
-        ></v-text-field>
-      </template>
-      <v-card v-model="search" :dense="true" class="mx-auto overflow-auto mt-2">
-        <v-list>
+  <v-menu
+    close-on-content-click
+    no-click-animation
+    origin="auto"
+    location="bottom"
+  >
+    <template #activator="{ props }">
+      <v-text-field
+        v-model="search"
+        variant="solo"
+        color="green"
+        label="Search"
+        flat
+        single-line
+        hide-details
+        prepend-inner-icon="mdi-magnify"
+        v-bind="props"
+        @update:model-value="debouncedSearch(search)"
+      />
+    </template>
+    <ClientOnly>
+      <v-card>
+        <v-list lines="two">
+          <v-list-item title="Search result" />
+          <v-divider />
           <v-list-item
-            v-for="item in searchResults"
+            v-for="item in searchResults?.data"
             :key="item.id"
-            :to="localePath('/anime/' + item.id)"
+            :to="/\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + item.id : '/anime/' + item.id"
           >
-            <img
-              v-if="item.img"
-              class="ma-2"
-              :src="item.img"
-              :alt="item.id + '_img'"
-              style="border-radius: 4px; width: 60px; height: 10%"
-            />
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <template #prepend>
+              <img
+                v-if="item.coverImage.medium"
+                class="ma-2"
+                :src="item.coverImage.medium"
+                :alt="item.id + '_img'"
+                style="border-radius: 4px; width: 60px; height: 10%"
+              >
+            </template>
+            <v-list-item-title>
+              {{
+                item.title.userPreferred
+              }}
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              Episode {{ item.episodes }}
+            </v-list-item-subtitle>
+            <v-list-item-subtitle>{{ item.status }}</v-list-item-subtitle>
           </v-list-item>
-          <v-list-item v-if="searchResults.length > 0" :to="localePath('/search?q=' + search)">
-            <v-list-item-title>{{$t('search_more')}}...</v-list-item-title>
+          <v-list-item
+            v-if="searchResults?.data.length > 0"
+            :to="'/search?q=' + search"
+          >
+            <v-list-item-title>Search more...</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-card>
-    </v-menu>
-  </div>
+    </ClientOnly>
+  </v-menu>
 </template>
-<script>
-import debounce from 'lodash.debounce'
-export default {
-  data() {
-    return {
-      search: '',
-      searchResults: [],
-      query: this.searchAnime,
-    }
-  },
-  methods: {
-    searchAnime: debounce(function () {
-      this.searchResultsAPI = this.$axios.get(`/api/v1/search?q=${this.search}`)
-      this.searchResultsAPI.then((response) => {
-        this.searchResults = response.data.search.splice(0, 4)
-      })
-      if (this.searchResults.length === 0) {
-        this.searchResults = [
-          {
-            id: '404',
-            title: this.$t('search_no_results'),
-            img: '',
-          },
-        ]
-      } else if (this.searchResults.length > 0) {
-        this.nosearchResults = true
-      }
-    }, 500),
-    onQueryChange(event) {
-      if (event.target.value.trim().length === 0) {
-        this.searchResults = null
-      }
-    },
-  },
-}
-</script>

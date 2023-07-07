@@ -1,144 +1,108 @@
-<template>
-  <div class="mx-xl-16 mx-lg-16 mx-md-8 mx-sm-4 mx-xs-2 pheight">
-    <v-card>
-      <v-card-title style="font-size: 24px">{{ $t('search') }}</v-card-title>
-      <v-card-text>
-        <v-text-field
-          v-model="search"
-          :label="$t('search')"
-          single-line
-          hide-details
-          prepend-inner-icon="mdi-magnify"
-          @keyup="searchAnime(query)"
-          @input="query"
-        ></v-text-field>
-      </v-card-text>
-      <div class="pa-4">
-        <div v-if="searchResults == 0" style="height: 600px">
-          <div class="text-center">
-            <v-icon color="grey--text" size="100"> mdi-magnify </v-icon>
-            <h2>{{ $t('search') }} Anime...</h2>
-          </div>
-        </div>
-        <div v-else class="tw-grid tw-justify-items-center tw-grid-cols-2 md:tw-grid-cols-4">
-          <div v-for="item in searchResults" :key="item.id">
-            <AnimeCard
-              :imagesrc="item.img"
-              :title="item.title"
-              :path="localePath('/anime/' + item.id)"
-            />
-          </div>
-        </div>
-      </div>
-    </v-card>
-  </div>
-</template>
-<script>
-import debounce from 'lodash.debounce'
-// import axios from 'axios'
-export default {
-  data() {
-    return {
-      search: '',
-      searchResults: [],
-      query: this.searchAnime,
-    }
+<script setup>
+useSeoMeta({
+  ogTitle: 'Search Anime',
+  ogDescription: 'Search 100+ of animes to watch on amvstrm',
+  ogImage: 'logo.png',
+  ogUrl: '[og:url]',
+  twitterTitle: 'Search Anime',
+  twitterDescription: 'Search 100+ of animes to watch on amvstrm',
+  twitterImage: 'logo.png',
+  twitterCard: 'summary'
+})
+
+useHead({
+  htmlAttrs: {
+    lang: 'en'
   },
-  head() {
-    return {
-      title: 'Search Anime',
-      link: [
-        { rel: 'canonical', href: window.location.href },
-      ],
-      meta: [
-        {
-          hid: 'description',
-          name: 'description',
-          content: 'Search Anime on amvstrm',
-        },
-        {
-          hid: 'og:type',
-          property: 'og:type',
-          content: 'website',
-        },
-        {
-          hid: 'og:url',
-          property: 'og:url',
-          content: 'https://amvstr.ml/search',
-        },
-        {
-          hid: 'og:title',
-          property: 'og:title',
-          content: 'Search Anime | amvstrm',
-        },
-        {
-          hid: 'og:description',
-          property: 'og:description',
-          content: 'Search Anime on amvstrm',
-        },
-        {
-          hid: 'og:image',
-          property: 'og:image',
-          content: 'seoimg.png',
-        },
-        // twitter
-        {
-          hid: 'twitter:card',
-          name: 'twitter:card',
-          content: 'summary_large_image',
-        },
-        {
-          hid: 'twitter:url',
-          name: 'twitter:url',
-          content: 'https://amvstr.ml/search',
-        },
-        {
-          hid: 'twitter:title',
-          name: 'twitter:title',
-          content: 'Search Anime | amvstrm',
-        },
-        {
-          hid: 'twitter:description',
-          name: 'twitter:description',
-          content: 'Search Anime on amvstrm',
-        },
-        {
-          hid: 'twitter:image',
-          name: 'twitter:image',
-          content: '/seoimg.png',
-        },
-      ],
-    }
-  },
-  async mounted() {
-    await this.searchAnimeUsingQuery()
-  },
-  methods: {
-    searchAnime: debounce(function () {
-      this.searchResultsAPI = this.$axios.get(`/api/v1/search?q=${this.search}`)
-      this.searchResultsAPI.then((response) => {
-        this.searchResults = response.data.search
-      })
-    }, 500),
-    searchAnimeUsingQuery() {
-      if (this.$route.query.q !== undefined) {
-        this.search = this.$route.query.q
-        this.searchAnime(this.search)
-      }
-    },
-    onQueryChange(event) {
-      if (event.target.value.trim().length === 0) {
-        this.searchResults = null
-      }
-    },
-  },
+  title: "Search Anime"
+})
+
+
+import debounce from "lodash.debounce";
+import axios from "axios";
+
+const env = useRuntimeConfig();
+const searchResults = ref();
+const search = ref("");
+const searchLoading = ref(true);
+
+const debouncedSearch = debounce(async (query) => {
+  const { data } = await axios.get(
+    `${env.public.API_URL}/api/${env.public.version}/search?q=${query}&limit=18`
+  );
+  searchResults.value = data;
+  setTimeout(() => {
+    searchLoading.value = false;
+  }, 200);
+}, 500);
+
+const query = useRoute().query
+
+if (query.q) {
+  search.value = query?.q;
+  debouncedSearch(search.value)
 }
 </script>
+<!-- eslint-disable vue/no-use-v-if-with-v-for -->
+<template>
+  <v-container>
+    <h1>Search Anime</h1>
+    <v-text-field
+      v-model="search"
+      variant="solo"
+      color="green"
+      label="Search Anime"
+      flat
+      clearable
+      single-line
+      hide-details
+      prepend-inner-icon="mdi-magnify"
+      @update:model-value="debouncedSearch(search)"
+    />
+    <v-card class="mt-4">
+      <v-card-text v-if="searchResults?.data ? false : true">
+        <div class="loadingBlock" style="height:40vh;">
+          <div class="d-flex flex-column align-center">
+            <v-icon size="5rem">mdi-magnify</v-icon>
+            <h2>Search Anime</h2>
+          </div>
+        </div>
+      </v-card-text>
+      <v-list v-if="searchResults?.data.length > 0" lines="two">
+        <v-list-item title="Search result" />
+        <v-divider />
+        <div v-if="searchLoading" class="loadingBlock">
+          <v-progress-circular :size="45" indeterminate />
+        </div>
+        <v-list-item
+          v-for="item in searchResults.data"
+          v-else
+          :key="item.id"
+          :to="'/anime/' + item.id"
+        >
+          <template #prepend>
+            <img
+              v-if="item.coverImage.medium"
+              class="ma-2"
+              :src="item.coverImage.medium"
+              :alt="item.id + '_img'"
+              style="border-radius: 4px; width: 60px; height: 10%"
+            />
+          </template>
+          <v-list-item-title>{{ item.title.userPreferred }}</v-list-item-title>
+          <v-list-item-subtitle>
+            Episode {{ item.episodes }}
+          </v-list-item-subtitle>
+          <v-list-item-subtitle>{{ item.status }}</v-list-item-subtitle>
+        </v-list-item>
+      </v-list>
+    </v-card>
+  </v-container>
+</template>
 <style>
-.grid-ctn {
+.loadingBlock {
+  height: 100vh;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  grid-gap: 5px;
-  justify-items: center;
+  place-items: center;
 }
 </style>
