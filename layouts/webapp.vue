@@ -14,7 +14,10 @@
         <v-icon>mdi-magnify</v-icon>
         Search
       </v-btn>
-
+      <v-btn to="/pwa/bookmarks" value="search">
+        <v-icon>mdi-book</v-icon>
+        Bookmarker
+      </v-btn>
       <v-btn to="/pwa/more" value="about">
         <v-icon>mdi-menu</v-icon>
         More
