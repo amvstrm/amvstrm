@@ -8,6 +8,9 @@ export default {
   },
   mounted() {
     const { $posthog } = useNuxtApp();
+    if(!useRuntimeConfig().public.posthogPublicKey) {
+      this.showban = false
+    }
     this.showban =
       !(
         $posthog().has_opted_out_capturing() ||
