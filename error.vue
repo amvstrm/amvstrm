@@ -42,6 +42,7 @@ defineProps({
   // eslint-disable-next-line vue/require-default-prop
   error: Object,
 });
+console.log(error)
 </script>
 <style>
 .app-error-page {
