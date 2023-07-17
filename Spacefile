@@ -2,15 +2,25 @@
 v: 0
 micros:
   - name: amvstrmnuxt3
-    src: ./
-    engine: nuxt
+    src: .
+    engine: nodejs16
     primary: true
     public: true
+    run: node .output/server/index.mjs
+    commands:
+      - npm install
+      - npm run build
     presets:
       env:
         - name: API_URL
           default: https://new-api.amvstr.ml
         - name: VERSION
           default: v2  
+        - name: DISQUS_ID
+          default: ''
+        - name : POSTHOG_PK
+          default: ''
+        - name : POSTHOG_HOST
+          default: 'https://app.posthog.com'
 
 
