@@ -62,41 +62,9 @@ const props = defineProps({
   type: String,
 });
 
-const state = useStorage("site-bookmarker", []);
-// const isBookmarked = ref(false);
-// const bookmarkStatus = computed(() => {
-//   return isBookmarked.value ? "mdi-star" : "mdi-star-outline";
-// });
-
-// function saveBookmarks(bookmarks) {
-//   state.value = bookmarks || []
-// }
-
-// function bookmarkHandler() {
-//   console.log('props.id:', props.id);
-//   isBookmarked.value = !isBookmarked.value;
-//   const bookmarks = state.value;
-//   let index = -1;
-//   if (Array.isArray(bookmarks)) {
-//     index = bookmarks.findIndex((item) => item.id === props.id);
-//   }
-//   if (isBookmarked.value === true && index === -1) {
-//     bookmarks.push({
-//       id: props.id,
-//       title: props.title,
-//       imgsrc: props.imgsrc,
-//       color: props.animeColor,
-//       type: props.type,
-//       totalEp: props.totalEp,
-//       year: props.year,
-//     });
-//     console.log('pushed')
-//   } else if (!isBookmarked.value && index !== -1) {
-//     bookmarks.splice(index, 1);
-//     console.log('removed')
-//   }
-//   saveBookmarks(bookmarks);
-// }
+const state = useStorage("site-bookmarker", [], '', {
+      mergeDefaults: true,
+    });
 
 const isBookmarked = (id) => {
   const bookmarks = state.value;
