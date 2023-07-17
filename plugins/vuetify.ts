@@ -19,5 +19,4 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   });
   nuxtApp.vueApp.use(vuetify);
-  if (!process.server) console.log("Initialized Vuetify 3", vuetify);
 });
