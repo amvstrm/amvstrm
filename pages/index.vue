@@ -1,4 +1,5 @@
 <script setup>
+import { useStorage } from "@vueuse/core";
 const env = useRuntimeConfig();
 useSeoMeta({
   ogTitle: "Home",
@@ -40,6 +41,8 @@ const {
     cache: "force-cache",
   }
 );
+
+const history_state = useStorage("site-watch", {});
 </script>
 
 <template>
@@ -91,6 +94,30 @@ const {
       </v-carousel-item>
     </v-carousel>
   </ClientOnly>
+  <v-container>
+    <SearchBar />
+    <ClientOnly>
+      <v-alert
+        v-if="history_state"
+        class="mt-4"
+        icon="mdi-history"
+        title="Continue Watching : "
+        :text="`${history_state.latest_anime_watched.title} Episode ${history_state.latest_anime_watched.curr_ep} ${history_state.latest_anime_watched.isDub ? 'Dub' : 'Sub'}`"
+        closable
+      >
+        <template #default>
+          <br />
+          <v-btn
+            class="my-2"
+            :to="`/watch/${history_state.latest_anime_watched.id}-${history_state.latest_anime_watched.ep_id}`"
+            prepend-icon="mdi-play"
+          >
+            Resume?
+          </v-btn>
+        </template>
+      </v-alert>
+    </ClientOnly>
+  </v-container>
   <!-- DESKTOP DEVICE -->
   <v-container class="d-lg-block d-sm-none d-none" fluid>
     <v-col>
@@ -169,6 +196,29 @@ const {
         </div>
       </v-container>
     </v-col>
+    <!-- <v-col v-if="history_state.all_anime_watched.length === -1">
+      <h1>Your watch history</h1>
+      <v-container fluid>
+         <div class="grid">
+          <div
+            v-for="(d, i) in popularData?.results"
+            :key="i"
+            class="d-flex justify-center"
+          >
+            <AnimeCard
+              :id="d.id"
+              :title="d.title.userPreferred"
+              :imgsrc="d.image"
+              :imgalt="d.id"
+              :anime-color="d.color"
+              :year="d.releaseDate"
+              :type="d.type"
+              :total-ep="d.totalEpisodes"
+            />
+          </div>
+        </div>
+      </v-container>
+    </v-col> -->
   </v-container>
   <!-- MOBILE DEVICE -->
   <!-- eslint-disable-next-line vue/no-multiple-template-root -->

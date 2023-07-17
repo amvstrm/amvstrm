@@ -9,6 +9,7 @@ const getEP = getGogoID.split(`-episode-`)[1];
 const loadSettingDialog = ref(false);
 const switchtobackup = ref(false);
 const putsandbox = ref(false);
+const autonext_bool = ref(false);
 
 const { data: anime } = await useFetch(
   `${env.public.API_URL}/api/${env.public.version}/info/${getID}`,
@@ -29,7 +30,7 @@ const {
   pending: epPending,
   error: epError,
 } = useLazyFetch(
-  `${env.public.API_URL}/api/v1/episode/${getGogoID.split("-episode-")[0]}`,
+  `${env.public.API_URL}/api/v1/episode/${anime?.value.id_provider.idGogo}`,
   {
     cache: "default",
   }
@@ -62,7 +63,41 @@ const useStorageState = useStorage("ap_settings", {
   s_source: "Main",
   s_autoskip: false,
   s_autoplay: false,
+  s_autonext: false,
 });
+
+const setHistory = useStorage("site-watch", {
+  latest_watched_date: 0,
+  latest_anime_watched: {},
+  all_anime_watched: [],
+});
+
+const latestAnimeWatched = {
+  id: anime?.value.id,
+  title: anime?.value.title.userPreferred,
+  imgsrc: anime?.value.coverImage.large,
+  color: anime?.value.coverImage.color,
+  type: anime?.value.format,
+  curr_ep: getEP,
+  ep_id: getGogoID,
+  isDub: getGogoID.includes("-dub-"),
+  totalEp: anime?.value.episodes ? anime?.value.episodes : 0,
+  year: anime?.value.year,
+};
+// const index = setHistory.value.all_anime_watched.findIndex(
+//   (watchedAnime) => watchedAnime.id === getID
+// );
+
+// if (index !== -1) {
+//   setHistory.value.all_anime_watched[index].curr_ep = getEP;
+//   setHistory.value.latest_anime_watched = setHistory.value.all_anime_watched[index];
+// } else {
+//   setHistory.value.all_anime_watched.push(latestAnimeWatched);
+// }
+setHistory.value.latest_anime_watched = latestAnimeWatched;
+setHistory.value.latest_watched_date = Date.now();
+
+autonext_bool.value = useStorageState.value.s_autonext || false;
 
 function getInstance(art) {
   console.log("INITZ ARTPLAYER");
@@ -99,6 +134,9 @@ function getInstance(art) {
       return nextState;
     },
   });
+  art.on("ready", async () => {
+    art.controls.add();
+  });
   art.on("video:timeupdate", () => {
     const currentTime = art.currentTime;
     if (useStorageState.value.s_autoskip === true) {
@@ -108,12 +146,14 @@ function getInstance(art) {
         currentTime <= time2Skip.value?.results.op.interval.endTime
       ) {
         art.seek = time2Skip.value?.results.op.interval.endTime + 1;
+        art.notice.show = "Skipped Opening";
       } else if (
         time2Skip.value?.results.ed &&
         currentTime >= time2Skip.value?.results.ed.interval.startTime &&
         currentTime <= time2Skip.value?.results.ed.interval.endTime
       ) {
         art.seek = time2Skip.value?.results.ed.interval.endTime + 1;
+        art.notice.show = "Skipped Ending";
       } else {
         return;
       }
@@ -133,6 +173,7 @@ function getInstance(art) {
             html: '<button class="app-skip-btn">Skip Opening</button>',
             click: function () {
               art.seek = time2Skip.value?.results.op.interval.endTime;
+              art.notice.show = "Skipped Opening";
             },
           });
         }
@@ -151,6 +192,7 @@ function getInstance(art) {
             html: '<button class="app-skip-btn">Skip Ending</button>',
             click: function () {
               art.seek = time2Skip.value?.results.ed.interval.endTime;
+              art.notice.show = "Skipped Ending";
             },
           });
         }
@@ -162,6 +204,23 @@ function getInstance(art) {
           art.controls.remove("ending");
         }
       }
+    }
+  });
+  art.on("video:ended", () => {
+    const currentEpisodeIndex = ep?.value.episodes.findIndex(
+      (episode) => episode.id.split(`-episode-`)[1] === getEP
+    );
+    if (
+      currentEpisodeIndex !== -1 &&
+      currentEpisodeIndex < ep?.value.episodes.length + 1
+    ) {
+      art.notice.show = "Next episode >";
+      const nextEpisode = ep?.value.episodes[currentEpisodeIndex - 1];
+      navigateTo(`/watch/${getID}-${nextEpisode.id}`, {
+        external: true,
+      });
+    } else {
+      art.notice.show = "No more episode!";
     }
   });
 }
@@ -191,16 +250,18 @@ export default {
   </div>
   <v-container v-else>
     <v-row>
-      <v-col cols="12" style="padding:0;">
+      <v-col cols="12" style="padding: 0">
         <v-breadcrumbs>
           <template #prepend>
             <v-icon size="small" icon="mdi-home"></v-icon>
           </template>
           <v-breadcrumbs-item title="Home" to="/pwa" />
           <v-breadcrumbs-divider />
-          <v-breadcrumbs-item :title="getID" :to="'/pwa/anime/'+getID" />
+          <v-breadcrumbs-item :title="getID" :to="'/pwa/anime/' + getID" />
           <v-breadcrumbs-divider />
-          <v-breadcrumbs-item :title="'Episode '+getGogoID.split('-episode-')[1]" />
+          <v-breadcrumbs-item
+            :title="'Episode ' + getGogoID.split('-episode-')[1]"
+          />
         </v-breadcrumbs>
       </v-col>
       <v-col cols="12" lg="8">
@@ -209,6 +270,7 @@ export default {
             v-if="switchplyr == 1"
             :option="{
               url: strm.stream.multi.main.url,
+              poster: anime.coverImage.large,
             }"
             :style="style"
             :vtt="strm.stream?.tracks?.file"
@@ -253,7 +315,11 @@ export default {
               <v-btn
                 class="mr-2"
                 color="blue"
-                :href="'https://api.amvstr.ml/api/v1/download/' + getGogoID"
+                :href="
+                  'https://api.amvstr.ml/api/v1/download/' +
+                  getGogoID +
+                  '?redirect=true'
+                "
                 icon="mdi-download"
                 variant="plain"
               >
@@ -325,6 +391,15 @@ export default {
               </v-dialog>
             </div>
           </div>
+          <div class="px-4 d-flex justify-space-between">
+            <v-switch v-model="autonext_bool">
+              <template #label>
+                <v-icon> mdi-skip-next </v-icon>
+                Auto next
+              </template>
+            </v-switch>
+          </div>
+          <v-divider />
           <v-divider />
           <v-list lines="two">
             <v-list-item v-if="epPending">
@@ -356,7 +431,7 @@ export default {
           <v-card-actions>
             <v-btn
               prepend-icon="mdi-arrow-top-right-bold-box-outline"
-              :href="'/watch/' + route.params.id+'#comment'"
+              :href="'/watch/' + route.params.id + '#comment'"
               target="blank"
               variant="outlined"
             >
