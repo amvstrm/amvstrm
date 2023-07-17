@@ -5,7 +5,7 @@
 import Artplayer from "artplayer";
 import artplayerPluginHlsQuality from "artplayer-plugin-hls-quality";
 import artplayerPluginVtt from "artplayer-plugin-vtt-thumbnail";
-
+import Hls from 'hls.js'
 export default {
   props: {
     option: {
@@ -27,8 +27,8 @@ export default {
       browser: "",
     };
   },
-  mounted() {
-
+  async mounted() {
+    window.hls = new Hls();
     this.instance = new Artplayer({
       ...this.option,
       container: this.$refs.artRef,
@@ -37,7 +37,6 @@ export default {
         artplayerPluginHlsQuality({
           control: false,
           setting: true,
-          title: "Quality",
           auto: "Auto",
         }),
         artplayerPluginVtt({
@@ -68,18 +67,13 @@ export default {
       fastForward: false,
       autoPlayback: true,
       autoOrientation: true,
-      pip:
-        navigator.userAgent.match(/(chrome|edg|safari|opr)/i)
-          ? true
-          : false,
+      pip: navigator.userAgent.match(/(chrome|edg|safari|opr)/i) ? true : false,
       playsInline: true,
       autoplay: true,
       autoMini: true,
       customType: {
         m3u8: async function (video, url) {
-          const { default: Hls } = await import("hls.js");
           if (Hls.isSupported()) {
-            window.hls = new Hls();
             window.hls.loadSource(url);
             window.hls.attachMedia(video);
           } else {
