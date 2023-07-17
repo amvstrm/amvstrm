@@ -43,7 +43,9 @@ export default {
     },
   },
   setup(props) {
-    const state = useStorage("site-bookmarker", []);
+    const state = useStorage("site-bookmarker", [], '', {
+      mergeDefaults: true,
+    });
     const bookmarks = ref(state.value);
     const isAlreadyBookmarked = ref(isBookmarked(props.id));
     const bookmarkStatus = ref(
