@@ -6,13 +6,23 @@ Nuxt 3 self-hostable anime streaming website with amvstrm's API.
 
 Read more in our [Documentation](https://amvdocs.pages.dev/introduction) 
 
+## Site Mirror
+
+__Our domain sometime suffers from outages for no reason making the site not accessible for some users right now!__
+
+We have multiple mirrors in case our main domain is down for no reason
+
+- [amvstr.ml](https://amvstr.ml)
+- [amvstrm.nyt92.eu.org](https://amvstrm.nyt92.eu.org)
+- [v2amvstrm.vercel.app](https://v2amvstrm.vercel.app)
+
 ## Donation
 
 __English__
 
-We have been running our website with no ADs and also provide users with free anime too.
+We have been running our website with no ADs and providing users with free anime.
 
-Please consider supporting us via :
+Please consider supporting us via the following:
 
 [LiberaPay (GLOBAL)](https://en.liberapay.com/amvstrm/)
 
