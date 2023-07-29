@@ -28,8 +28,7 @@ Please consider supporting us via the following:
 
 or If you are Cambodian Citizen :
 
-[ABA (USD)](https://aslnk.ml/aba.nyt92)  
-[ABA (KHR)](https://aslnk.ml/aba.nyt92.khr)
+[ABA (USD/KHR)](https://nyt92.eu.org/donation#khmer)  
 
 __Khmer__
 
@@ -40,6 +39,5 @@ __Khmer__
 
 ឬ
 
-[ABA (USD)](https://aslnk.ml/aba.nyt92)  
-[ABA (KHR)](https://aslnk.ml/aba.nyt92.khr)
+[ABA (USD/KHR)](https://nyt92.eu.org/donation#khmer)  
 
