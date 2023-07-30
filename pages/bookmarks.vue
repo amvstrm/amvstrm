@@ -145,7 +145,7 @@ const clearData = () => {
     </ClientOnly>
     <v-row align="center">
       <v-col>
-        <h1>Bookmarks (BETA)</h1>
+        <h1>Bookmarks</h1>
         <p>Your bookmark's anime</p>
       </v-col>
       <v-col class="d-flex justify-end">
@@ -157,7 +157,10 @@ const clearData = () => {
             <v-list-item title="Import" @click="importData" />
             <v-list-item title="Export" @click="exportData" />
             <v-list-item title="Clear All" @click="clear_dia = true" />
-            <v-list-item title="Help" href="https://docs.amvstr.ml/help/bookmark" />
+            <v-list-item
+              title="Help"
+              href="https://docs.amvstr.ml/help/bookmark"
+            />
           </v-list>
         </v-menu>
       </v-col>
@@ -170,7 +173,7 @@ const clearData = () => {
       </div>
     </div>
     <div class="grid">
-      <div v-for="(d, i) in state" :key="i">
+      <div v-for="(d, i) in state" :key="i" class="d-flex justify-center">
         <AnimeCard
           :id="d.id"
           :title="d.title"
@@ -191,7 +194,6 @@ const clearData = () => {
   grid-template-rows: repeat(2, 1fr);
   grid-column-gap: 0px;
   grid-row-gap: 0px;
-  justify-items: center;
 }
 
 @media (min-width: 768px) {
