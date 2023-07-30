@@ -6,7 +6,6 @@
 -->
 <template>
   <div id="disqus_thread" style="min-height: 200px">
-    <p></p>
   </div>
 </template>
 
