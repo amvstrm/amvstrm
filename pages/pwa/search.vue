@@ -21,11 +21,11 @@ const debouncedSearch = debounce(async (query) => {
   }, 200);
 }, 500);
 
-const query = useRoute().query
+const query = useRoute().query;
 
 if (query.q) {
   search.value = query?.q;
-  debouncedSearch(search.value)
+  debouncedSearch(search.value);
 }
 </script>
 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
@@ -46,7 +46,7 @@ if (query.q) {
     />
     <v-card class="mt-4">
       <v-card-text v-if="searchResults?.data ? false : true">
-        <div class="loadingBlock" style="height:40vh;">
+        <div class="loadingBlock" style="height: 40vh">
           <div class="d-flex flex-column align-center">
             <v-icon size="5rem">mdi-magnify</v-icon>
             <h2>Search Anime</h2>
@@ -63,7 +63,11 @@ if (query.q) {
           v-for="item in searchResults.data"
           v-else
           :key="item.id"
-          :to="/\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + item.id : '/anime/' + item.id"
+          :to="
+            /\/pwa\.*/.test(useRoute().path)
+              ? '/pwa/anime/' + item.id
+              : '/anime/' + item.id
+          "
         >
           <template #prepend>
             <img
@@ -76,9 +80,23 @@ if (query.q) {
           </template>
           <v-list-item-title>{{ item.title.userPreferred }}</v-list-item-title>
           <v-list-item-subtitle>
-            Episode {{ item.episodes }}
+            Episode {{ item.episodes }} /
+            {{
+              item.status === "FINISHED"
+                ? "Finished"
+                : item?.status === "RELEASING"
+                ? "Currently Releasing"
+                : item?.status === "NOT_YET_RELEASED"
+                ? "Not Released"
+                : item?.status === "CANCELLED"
+                ? "Cancelled"
+                : "No data"
+            }}
           </v-list-item-subtitle>
-          <v-list-item-subtitle>{{ item.status }}</v-list-item-subtitle>
+          <template #append>
+            <v-icon color="yellow"> mdi-star </v-icon>
+            {{ item.averageScore / 10 }}
+          </template>
         </v-list-item>
       </v-list>
     </v-card>

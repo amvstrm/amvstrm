@@ -43,7 +43,11 @@ const debouncedSearch = debounce(async (query) => {
           <v-list-item
             v-for="item in searchResults?.data"
             :key="item.id"
-            :to="/\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + item.id : '/anime/' + item.id"
+            :to="
+              /\/pwa\.*/.test(useRoute().path)
+                ? '/pwa/anime/' + item.id
+                : '/anime/' + item.id
+            "
           >
             <template #prepend>
               <img
@@ -52,17 +56,29 @@ const debouncedSearch = debounce(async (query) => {
                 :src="item.coverImage.medium"
                 :alt="item.id + '_img'"
                 style="border-radius: 4px; width: 60px; height: 10%"
-              >
+              />
             </template>
             <v-list-item-title>
-              {{
-                item.title.userPreferred
-              }}
+              {{ item.title.userPreferred }}
             </v-list-item-title>
             <v-list-item-subtitle>
-              Episode {{ item.episodes }}
+              Episode {{ item.episodes }} /
+              {{
+                item.status === "FINISHED"
+                  ? "Finished"
+                  : item?.status === "RELEASING"
+                  ? "Currently Releasing"
+                  : item?.status === "NOT_YET_RELEASED"
+                  ? "Not Released"
+                  : item?.status === "CANCELLED"
+                  ? "Cancelled"
+                  : "No data"
+              }}
             </v-list-item-subtitle>
-            <v-list-item-subtitle>{{ item.status }}</v-list-item-subtitle>
+            <template #append>
+              <v-icon color="yellow"> mdi-star </v-icon>
+              {{ item.averageScore / 10 }}
+            </template>
           </v-list-item>
           <v-list-item
             v-if="searchResults?.data.length > 0"
