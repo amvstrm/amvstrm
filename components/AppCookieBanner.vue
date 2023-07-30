@@ -1,15 +1,18 @@
 <script>
+import { useStorage } from "@vueuse/core";
 export default {
   data() {
     return {
-      lStorage: null,
+      lStorage: useStorage("site-setting", {
+        allowCookies: true,
+      }),
       showban: true,
     };
   },
   mounted() {
     const { $posthog } = useNuxtApp();
-    if(!useRuntimeConfig().public.posthogPublicKey) {
-      this.showban = false
+    if (!useRuntimeConfig().public.posthogPublicKey || useRuntimeConfig().public.posthogPublicKey == '') {
+      this.showban = false;
     }
     this.showban =
       !(
@@ -52,9 +55,7 @@ export default {
       >
         Disagree
       </v-btn>
-      <v-btn class="my-2" color="green" @click="doTrkfn">
-        Agree !
-      </v-btn>
+      <v-btn class="my-2" color="green" @click="doTrkfn"> Agree ! </v-btn>
     </template>
   </v-alert>
 </template>
