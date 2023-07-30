@@ -1,9 +1,8 @@
 <script setup>
-import { useStorage } from "@vueuse/core";
-
 const env = useRuntimeConfig();
 const episode_dialog = ref(false);
 const infotab = ref(null);
+const ep_tab = ref(null);
 
 const { data: anime, pending: aniPending } = await useFetch(
   `${env.public.API_URL}/api/${env.public.version}/info/${
@@ -41,8 +40,11 @@ const next_air_day = ref(0);
 const next_air_hours = ref(0);
 const next_air_minutes = ref(0);
 const next_air_seconds = ref(0);
-let countdownInterval;
+const formattedDate = ref("");
 
+const next_air_count = ref();
+
+let countdownInterval;
 onMounted(() => {
   nextAirDate.value =
     nextAirData.airingAt * 1000 + nextAirData.timeUntilAiring * 1000;
@@ -55,6 +57,14 @@ onMounted(() => {
       next_air_hours.value = Math.floor((remainingTime / 1000 / 60 / 60) % 24);
       next_air_minutes.value = Math.floor((remainingTime / 1000 / 60) % 60);
       next_air_seconds.value = Math.floor((remainingTime / 1000) % 60);
+
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+      });
+
+      formattedDate.value = formatter.format(new Date(nextAirDate.value));
+
+      next_air_count.value = `${next_air_day.value} day, ${next_air_hours.value} hour, ${next_air_minutes.value} minute, ${next_air_seconds.value} second`;
     }
   }, 1000);
 });
@@ -114,7 +124,7 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
             <div class="d-none d-lg-flex flex-column">
               <BookmarkButton
                 :id="anime?.id"
-                :title="anime?.title.userPreferred" 
+                :title="anime?.title.userPreferred"
                 :imgsrc="anime?.coverImage.large"
                 :imgalt="anime?.id"
                 :anime-color="anime?.coverImage.color"
@@ -163,14 +173,14 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
                 }}
               </v-chip>
             </div>
-            <h1 class="mt-4" style="line-height: 2rem; font-size: x-large">
+            <h1 class="mt-2" style="line-height: 2rem; font-size: x-large">
               {{ anime?.title.userPreferred }}
             </h1>
-            <p class="mb-5">{{ anime?.title.native }}</p>
+            <p class="mb-2">{{ anime?.title.native }}</p>
             <div class="d-flex d-lg-none flex-column">
               <BookmarkButton
                 :id="anime?.id"
-                :title="anime?.title.userPreferred" 
+                :title="anime?.title.userPreferred"
                 :imgsrc="anime?.coverImage.large"
                 :imgalt="anime?.id"
                 :anime-color="anime?.coverImage.color"
@@ -202,7 +212,7 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
                   <v-card-text v-else-if="epAni.episodes.length === 0">
                     Episodes not found or not available...
                   </v-card-text>
-                  <v-expansion-panels v-else variant="accordian">
+                  <!-- <v-expansion-panels v-else variant="accordian">
                     <v-expansion-panel title="SUB">
                       <template #text>
                         <v-list lines="two">
@@ -218,7 +228,7 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
                     </v-expansion-panel>
                     <v-expansion-panel
                       title="DUB"
-                      :disabled="anime?.dub === false ? true : false"
+                      
                     >
                       <template #text>
                         <v-list v-if="!epAniError" lines="two">
@@ -231,11 +241,48 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
                           />
                         </v-list>
                         <v-list v-else lines="two">
-                          <!-- LOCKED -->
+                          LOCKED
                         </v-list>
                       </template>
                     </v-expansion-panel>
-                  </v-expansion-panels>
+                  </v-expansion-panels> -->
+                  <v-card v-else>
+                    <v-tabs v-model="ep_tab" grow="">
+                      <v-tab value="sub">SUB</v-tab>
+                      <v-tab value="dub" :disabled="anime?.dub === false ? true : false">DUB</v-tab>
+                    </v-tabs>
+                    <v-card-text>
+                      <v-window v-model="ep_tab">
+                        <v-window-item value="sub">
+                          <v-list lines="two" height="300px">
+                            <v-list-item
+                              v-for="(ep, i) in epAni.episodes"
+                              :key="i"
+                              :to="
+                                '/watch/' + useRoute().params.id + '-' + ep.id
+                              "
+                              title="Episode"
+                              :subtitle="ep.id.split('-episode-')[1]"
+                            />
+                          </v-list>
+                        </v-window-item>
+                        <v-window-item value="dub">
+                          <v-list v-if="!epAniError" lines="two" height="300px">
+                            <v-list-item
+                              v-for="(ep, i) in epAniDub.episodes"
+                              :key="i"
+                              :to="
+                                '/watch/' + useRoute().params.id + '-' + ep.id
+                              "
+                              title="Episode"
+                              :subtitle="ep.id.split('-episode-')[1]"
+                            />
+                          </v-list>
+                          <v-list v-else lines="two"> LOCKED </v-list>
+                        </v-window-item>
+                      </v-window>
+                    </v-card-text>
+                  </v-card>
                   <v-card-actions>
                     <v-btn
                       prepend-icon="mdi-close"
@@ -254,38 +301,31 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
     <v-container>
       <v-row>
         <v-col cols="12" lg="3" md="4" sm="12">
-          <v-card class="mb-2">
-            <v-list lines="two">
-              <v-list-subheader> Next airing episode date </v-list-subheader>
-              <v-list-item
-                v-if="anime?.nextair"
-                title="New episode in"
-                :subtitle="
-                  next_air_day +
-                  ' days, ' +
-                  next_air_hours +
-                  ' hours, ' +
-                  next_air_minutes +
-                  ' minutes, ' +
-                  next_air_seconds +
-                  ' seconds'
-                "
-              />
-              <v-list-item
-                v-else
-                title="Next release at"
-                :subtitle="
-                  anime?.status === 'FINISHED'
-                    ? 'Finished'
-                    : anime?.status === 'NOT_YET_RELEASED'
-                    ? 'No EST'
-                    : anime?.status === 'CANCELLED'
-                    ? 'Cancelled'
-                    : 'No data'
-                "
-              />
-            </v-list>
-          </v-card>
+          <ClientOnly>
+            <v-card class="mb-2">
+              <v-list lines="two">
+                <v-list-subheader> Episode release date </v-list-subheader>
+                <v-list-item
+                  v-if="anime?.nextair"
+                  :title="`New episode on ${formattedDate}`"
+                  :subtitle="next_air_count"
+                />
+                <v-list-item
+                  v-else
+                  title="Episode is"
+                  :subtitle="
+                    anime?.status === 'FINISHED'
+                      ? 'Finished'
+                      : anime?.status === 'NOT_YET_RELEASED'
+                      ? 'Not yet released'
+                      : anime?.status === 'CANCELLED'
+                      ? 'Cancelled'
+                      : 'No data'
+                  "
+                />
+              </v-list>
+            </v-card>
+          </ClientOnly>
           <v-card>
             <v-list lines="two">
               <v-list-subheader> Info </v-list-subheader>
@@ -383,7 +423,17 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
                       v-else
                       :key="i"
                       :title="item.title.userPreferred"
-                      :subtitle="item.title.romaji"
+                      :subtitle="`Episode ${item.episodes} / ${
+                        item.status === 'FINISHED'
+                          ? 'Finished'
+                          : item?.status === 'RELEASING'
+                          ? 'Currently Releasing'
+                          : item?.status === 'NOT_YET_RELEASED'
+                          ? 'Not Released'
+                          : item?.status === 'CANCELLED'
+                          ? 'Cancelled'
+                          : 'No data'
+                      }`"
                       :to="'/anime/' + item.id"
                     >
                       <template #prepend>
@@ -392,6 +442,10 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
                           style="border-radius: 4px; width: 60px; height: 10%"
                           :src="item.coverImage.large"
                         />
+                      </template>
+                      <template #append>
+                        <v-icon color="yellow"> mdi-star </v-icon>
+                        {{ item.averageScore / 10 }}
                       </template>
                     </v-list-item>
                   </v-list>
