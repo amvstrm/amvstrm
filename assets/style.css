@@ -31,6 +31,12 @@
   }
 }
 
+@media (prefers-color-scheme: light) {
+  iframe[src*="disqus.com"] {
+    color-scheme: light;
+  }
+}
+
 body {
   font-family: "Inter";
   background: #191919;
