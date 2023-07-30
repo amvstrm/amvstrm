@@ -62,13 +62,11 @@ const props = defineProps({
   type: String,
 });
 
-const state = useStorage("site-bookmarker", [], '', {
-      mergeDefaults: true,
-    });
+const state = useStorage("site-bookmarker", []);
 
 const isBookmarked = (id) => {
   const bookmarks = state.value;
-  return bookmarks.find((item) => item.id === id) !== undefined;
+  return bookmarks.find((item) => item.id == id) !== undefined;
 };
 
 let isAlreadyBookmarked = isBookmarked(props.id);
@@ -103,7 +101,7 @@ function addBookmark() {
 
 function removeBookmark() {
   const bookmarks = state.value;
-  const index = bookmarks.findIndex((item) => item.id === props.id);
+  const index = bookmarks.findIndex((item) => item.id == props.id);
   bookmarks.splice(index, 1);
   bookmarkStatus.value = "mdi-star-outline"; // Update bookmarkStatus
   saveBookmarks(bookmarks);

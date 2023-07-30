@@ -43,9 +43,7 @@ export default {
     },
   },
   setup(props) {
-    const state = useStorage("site-bookmarker", [], '', {
-      mergeDefaults: true,
-    });
+    const state = useStorage("site-bookmarker", []);
     const bookmarks = ref(state.value);
     const isAlreadyBookmarked = ref(isBookmarked(props.id));
     const bookmarkStatus = ref(
@@ -58,7 +56,7 @@ export default {
     }
 
     function isBookmarked(id) {
-      return bookmarks.value.find((item) => item.id === id) !== undefined;
+      return bookmarks.value.find((item) => item.id == id) !== undefined;
     }
 
     function addBookmark() {
@@ -77,7 +75,7 @@ export default {
     }
 
     function removeBookmark() {
-      const index = bookmarks.value.findIndex((item) => item.id === props.id);
+      const index = bookmarks.value.findIndex((item) => item.id == props.id);
       bookmarks.value.splice(index, 1);
       bookmarkStatus.value = "mdi-bookmark-outline";
       bookmarkColor.value = "warning";
