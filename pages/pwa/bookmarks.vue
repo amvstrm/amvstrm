@@ -115,6 +115,14 @@ const clearData = () => {
 };
 </script>
 <template>
+  <v-breadcrumbs>
+    <template #prepend>
+      <v-icon size="small" icon="mdi-home"></v-icon>
+    </template>
+    <v-breadcrumbs-item title="Home" to="/pwa" />
+    <v-breadcrumbs-divider />
+    <v-breadcrumbs-item title="Bookmarker" />
+  </v-breadcrumbs>
   <v-container>
     <ClientOnly>
       <v-dialog v-model="app_dialog" eager scrim="#191919" width="auto">
@@ -157,7 +165,10 @@ const clearData = () => {
             <v-list-item title="Import" @click="importData" />
             <v-list-item title="Export" @click="exportData" />
             <v-list-item title="Clear All" @click="clear_dia = true" />
-            <v-list-item title="Help" href="https://docs.amvstr.ml/help/bookmark" />
+            <v-list-item
+              title="Help"
+              href="https://docs.amvstr.ml/help/bookmark"
+            />
           </v-list>
         </v-menu>
       </v-col>
