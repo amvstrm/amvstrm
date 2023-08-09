@@ -1,3 +1,17 @@
+<script setup>
+const env = useRuntimeConfig();
+const randomBTNstate = ref(false)
+const gotoRandomID = async () => {
+  const { data } = useFetch(`${env.public.API_URL}/api/${env.public.version}/random`)
+  randomBTNstate.value = true
+  setInterval(() => {
+    randomBTNstate.value = false;
+    navigateTo(`/anime/${data.value.id[0]}`, {
+      replace: true
+    });
+  }, 500)
+}
+</script>
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" temporary="">
@@ -17,6 +31,7 @@
         <v-list-item title="Home" to="/" append-icon="mdi-home" />
         <v-list-item title="Search Anime" to="/search" append-icon="mdi-magnify" />
         <v-list-item title="Bookmarker" to="/bookmarks" append-icon="mdi-bookmark-box-multiple" />
+        <v-list-item title="Randomizer" append-icon="mdi-shuffle" :disabled="randomBTNstate" @click="gotoRandomID" />
       </v-list>
       <v-divider />
       <v-list>
