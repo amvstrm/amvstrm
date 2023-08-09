@@ -31,46 +31,42 @@ useHead({
   title: anime.value?.title.userPreferred,
 });
 
-const nextAirData = {
-  airingAt: anime?.value.nextair?.airingAt,
-  timeUntilAiring: anime?.value.nextair?.timeUntilAiring,
-};
-const nextAirDate = ref(null);
-const next_air_day = ref(0);
-const next_air_hours = ref(0);
-const next_air_minutes = ref(0);
-const next_air_seconds = ref(0);
-const formattedDate = ref("");
+const countdown = ref();
 
-const next_air_count = ref();
-
-let countdownInterval;
-onMounted(() => {
-  nextAirDate.value =
-    nextAirData.airingAt * 1000 + nextAirData.timeUntilAiring * 1000;
-  countdownInterval = setInterval(() => {
-    if (nextAirDate.value) {
-      const currentTime = Date.now();
-      const remainingTime = Math.max(0, nextAirDate.value - currentTime);
-      if (remainingTime === 0) clearInterval(countdownInterval);
-      next_air_day.value = Math.floor(remainingTime / 1000 / 60 / 60 / 24);
-      next_air_hours.value = Math.floor((remainingTime / 1000 / 60 / 60) % 24);
-      next_air_minutes.value = Math.floor((remainingTime / 1000 / 60) % 60);
-      next_air_seconds.value = Math.floor((remainingTime / 1000) % 60);
-
-      const formatter = new Intl.DateTimeFormat("en-US", {
-        weekday: "long",
-      });
-
-      formattedDate.value = formatter.format(new Date(nextAirDate.value));
-
-      next_air_count.value = `${next_air_day.value} day, ${next_air_hours.value} hour, ${next_air_minutes.value} minute, ${next_air_seconds.value} second`;
-    }
+const updateCountdown = () => {
+  setInterval(() => {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const remainingTime = anime?.value.nextair?.airingAt - currentTime;
+    countdown.value = formatDuration(remainingTime);
   }, 1000);
-});
+};
 
-onBeforeUnmount(() => {
-  clearInterval(countdownInterval);
+const formatDuration = (duration) => {
+  const days = Math.floor(duration / (60 * 60 * 24));
+  const hours = Math.floor((duration % (60 * 60 * 24)) / (60 * 60));
+  const minutes = Math.floor((duration % (60 * 60)) / 60);
+  const seconds = duration % 60;
+
+  return `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+};
+
+function getAiringDay() {
+  const airingDate = new Date(anime?.value.nextair?.airingAt * 1000);
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const airingDay = daysOfWeek[airingDate.getDay()];
+  return airingDay;
+}
+
+onMounted(() => {
+  updateCountdown();
 });
 
 const { data: recmedAnime, pending: recmedPending } = useFetch(
@@ -83,20 +79,27 @@ const { data: recmedAnime, pending: recmedPending } = useFetch(
 );
 
 const { data: epAni, pending: loadAni } = useLazyFetch(
-  `${env.public.API_URL}/api/v1/episode/${anime?.value.id_provider.idGogo}`,
+  `${env.public.API_URL}/api/v1/episode/${
+    anime?.value.id_provider === null ? "''" : anime.value.id_provider.idGogo
+  }`,
   {
     cache: "default",
   }
 );
 const { data: epAniDub, error: epAniError } = useLazyFetch(
-  `${env.public.API_URL}/api/v1/episode/${anime?.value.id_provider.idGogo}-dub`,
+  `${env.public.API_URL}/api/v1/episode/${
+    anime?.value.id_provider === null ? "''" : anime.value.id_provider.idGogo
+  }-dub`,
   {
     cache: "default",
   }
 );
+
+const stringInstring = '""';
 </script>
 
 <template>
+  <!-- eslint-disable vue/no-parsing-error -->
   <div v-if="aniPending" class="loadingBlock">
     <v-progress-circular :size="45" indeterminate />
   </div>
@@ -105,14 +108,14 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
       <v-img
         v-if="anime?.bannerImage !== null"
         :src="anime?.bannerImage"
-        max-height="400px"
+        max-height="300px"
         cover=""
       >
         <template #placeholder>
-          <v-sheet :color="anime?.coverImage.color" height="300px"></v-sheet>
+          <v-sheet :color="anime?.coverImage.color" height="250px"></v-sheet>
         </template>
       </v-img>
-      <v-sheet v-else :color="anime?.coverImage.color" height="300px" />
+      <v-sheet v-else :color="anime?.coverImage.color" height="250px" />
       <v-container>
         <div class="card-container">
           <div class="image-area">
@@ -193,9 +196,17 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
               class="my-2"
               color="red"
               prepend-icon="mdi-play"
+              :disabled="
+                anime.id_provider === null ||
+                anime.id_provider.idGogo.includes(stringInstring)
+              "
               @click="episode_dialog = !episode_dialog"
             >
-              Watch Now
+              {{
+                anime.id_provider === null || anime.id_provider.idGogo === '""'
+                  ? "Not available"
+                  : "Watch Now"
+              }}
             </v-btn>
             <ClientOnly>
               <v-dialog
@@ -212,44 +223,15 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
                   <v-card-text v-else-if="epAni.episodes.length === 0">
                     Episodes not found or not available...
                   </v-card-text>
-                  <!-- <v-expansion-panels v-else variant="accordian">
-                    <v-expansion-panel title="SUB">
-                      <template #text>
-                        <v-list lines="two">
-                          <v-list-item
-                            v-for="(ep, i) in epAni.episodes"
-                            :key="i"
-                            :to="'/watch/' + useRoute().params.id + '-' + ep.id"
-                            title="Episode"
-                            :subtitle="ep.id.split('-episode-')[1]"
-                          />
-                        </v-list>
-                      </template>
-                    </v-expansion-panel>
-                    <v-expansion-panel
-                      title="DUB"
-                      
-                    >
-                      <template #text>
-                        <v-list v-if="!epAniError" lines="two">
-                          <v-list-item
-                            v-for="(ep, i) in epAniDub.episodes"
-                            :key="i"
-                            :to="'/watch/' + useRoute().params.id + '-' + ep.id"
-                            title="Episode"
-                            :subtitle="ep.id.split('-episode-')[1]"
-                          />
-                        </v-list>
-                        <v-list v-else lines="two">
-                          LOCKED
-                        </v-list>
-                      </template>
-                    </v-expansion-panel>
-                  </v-expansion-panels> -->
                   <v-card v-else>
                     <v-tabs v-model="ep_tab" grow="">
-                      <v-tab value="sub">SUB</v-tab>
-                      <v-tab value="dub" :disabled="anime?.dub === false ? true : false">DUB</v-tab>
+                      <v-tab value="sub"> SUB </v-tab>
+                      <v-tab
+                        value="dub"
+                        :disabled="anime?.dub === false ? true : false"
+                      >
+                        DUB
+                      </v-tab>
                     </v-tabs>
                     <v-card-text>
                       <v-window v-model="ep_tab">
@@ -307,8 +289,8 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
                 <v-list-subheader> Episode release date </v-list-subheader>
                 <v-list-item
                   v-if="anime?.nextair"
-                  :title="`New episode on ${formattedDate}`"
-                  :subtitle="next_air_count"
+                  :title="`New episode on ${getAiringDay()}`"
+                  :subtitle="countdown"
                 />
                 <v-list-item
                   v-else
@@ -331,12 +313,15 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
               <v-list-subheader> Info </v-list-subheader>
               <v-list-item
                 title="Episode"
-                :subtitle="anime?.episodes ? anime?.episodes : 'No data'"
+                :subtitle="
+                  anime?.nextair
+                    ? `Current : ${anime?.nextair.episode === 1 ? anime?.nextair.episode : anime?.nextair.episode - 1} / Est : ${anime?.episodes}`
+                    : anime?.episodes
+                    ? anime?.episodes
+                    : 'No data'
+                "
               />
-              <v-list-item
-                title="Genres"
-                :subtitle="anime?.genres.join(', ')"
-              />
+
               <v-list-item
                 title="Score"
                 :subtitle="
@@ -389,6 +374,32 @@ const { data: epAniDub, error: epAniError } = useLazyFetch(
                       anime?.endIn.day
                 "
               />
+              <v-list-item title="Genres">
+                <template #default>
+                  <v-chip
+                    v-for="(d, i) in anime?.genres"
+                    :key="i"
+                    class="my-1 mr-1"
+                    :to="'/search?genres=' + d"
+                    label=""
+                  >
+                    {{ d }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+              <v-list-item title="Tags">
+                <template #default>
+                  <v-chip
+                    v-for="(d, i) in anime?.tags"
+                    :key="i"
+                    class="my-1 mr-1"
+                    :to="'/search?tags=' + d.name"
+                    label=""
+                  >
+                    {{ d.name }}
+                  </v-chip>
+                </template>
+              </v-list-item>
             </v-list>
           </v-card>
         </v-col>
