@@ -5,7 +5,7 @@ useSeoMeta({
   ogTitle: "Home",
   ogDescription: "amvstrm - A streaming service for weebo...",
   ogImage: "logo.png",
-  ogUrl: "[og:url]",
+  ogUrl: useRoute().fullPath,
   twitterTitle: "Home",
   twitterDescription: "amvstrm - A streaming service for weebo...",
   twitterImage: "logo.png",
@@ -24,7 +24,7 @@ const {
   pending: trpend,
   refresh: trenddataRefresh,
   error: trenderr,
-} = useLazyFetch(
+} = useFetch(
   `${env.public.API_URL}/api/${env.public.version}/trending?limit=12`,
   {
     cache: "force-cache",
@@ -35,7 +35,7 @@ const {
   pending: popend,
   refresh: popdataRefresh,
   error: poperr,
-} = useLazyFetch(
+} = useFetch(
   `${env.public.API_URL}/api/${env.public.version}/popular?limit=12`,
   {
     cache: "force-cache",
@@ -58,7 +58,7 @@ const history_state = useStorage("site-watch", {});
       <v-carousel-item
         v-for="(item, i) in popularData?.results"
         :key="i"
-        :src="item.cover"
+        :src="item.bannerImage"
         cover
       >
         <div class="d-flex flex-column align-center justify-end h-100">
@@ -85,7 +85,9 @@ const history_state = useStorage("site-watch", {});
             </div>
             <v-btn
               :to="'/anime/' + item.id"
-              :color="item.color ? item.color : 'transparent'"
+              :color="
+                item.coverImage.color ? item.coverImage.color : 'transparent'
+              "
             >
               <v-icon>mdi-open-in-new</v-icon>
             </v-btn>
@@ -102,7 +104,13 @@ const history_state = useStorage("site-watch", {});
         class="mt-4"
         icon="mdi-history"
         title="Continue Watching : "
-        :text="`${history_state.latest_anime_watched.title} Episode ${history_state.latest_anime_watched.curr_ep} ${history_state.latest_anime_watched.isDub ? 'Dub' : 'Sub'}`"
+        :text="
+          history_state
+            ? `${history_state.latest_anime_watched.title} Episode ${
+                history_state.latest_anime_watched.curr_ep
+              } ${history_state.latest_anime_watched.isDub ? 'Dub' : 'Sub'}`
+            : ''
+        "
         closable
       >
         <template #default>
@@ -116,6 +124,7 @@ const history_state = useStorage("site-watch", {});
           </v-btn>
         </template>
       </v-alert>
+      <div v-else></div>
     </ClientOnly>
   </v-container>
   <!-- DESKTOP DEVICE -->
@@ -147,12 +156,12 @@ const history_state = useStorage("site-watch", {});
             <AnimeCard
               :id="d.id"
               :title="d.title.userPreferred"
-              :imgsrc="d.image"
+              :imgsrc="d.coverImage.large"
               :imgalt="d.id"
-              :anime-color="d.color"
-              :year="d.releaseDate"
-              :type="d.type"
-              :total-ep="d.totalEpisodes"
+              :anime-color="d.coverImage.color"
+              :year="d.seasonYear"
+              :type="d.format"
+              :total-ep="d.episodes"
             />
           </div>
         </div>
@@ -185,40 +194,17 @@ const history_state = useStorage("site-watch", {});
             <AnimeCard
               :id="d.id"
               :title="d.title.userPreferred"
-              :imgsrc="d.image"
+              :imgsrc="d.coverImage.large"
               :imgalt="d.id"
-              :anime-color="d.color"
-              :year="d.releaseDate"
-              :type="d.type"
-              :total-ep="d.totalEpisodes"
+              :anime-color="d.coverImage.color"
+              :year="d.seasonYear"
+              :type="d.format"
+              :total-ep="d.episodes"
             />
           </div>
         </div>
       </v-container>
     </v-col>
-    <!-- <v-col v-if="history_state.all_anime_watched.length === -1">
-      <h1>Your watch history</h1>
-      <v-container fluid>
-         <div class="grid">
-          <div
-            v-for="(d, i) in popularData?.results"
-            :key="i"
-            class="d-flex justify-center"
-          >
-            <AnimeCard
-              :id="d.id"
-              :title="d.title.userPreferred"
-              :imgsrc="d.image"
-              :imgalt="d.id"
-              :anime-color="d.color"
-              :year="d.releaseDate"
-              :type="d.type"
-              :total-ep="d.totalEpisodes"
-            />
-          </div>
-        </div>
-      </v-container>
-    </v-col> -->
   </v-container>
   <!-- MOBILE DEVICE -->
   <!-- eslint-disable-next-line vue/no-multiple-template-root -->
@@ -241,16 +227,16 @@ const history_state = useStorage("site-watch", {});
     </div>
     <v-row v-else>
       <v-col class="media-scrolling">
-        <div v-for="data in trendingData?.results" :key="data.id">
+        <div v-for="d in trendingData?.results" :key="d.id">
           <AnimeCard
-            :id="data.id"
-            :title="data.title.userPreferred"
-            :imgsrc="data.image"
-            :anime-color="data.color"
-            :imgalt="data.id"
-            :year="data.releaseDate"
-            :type="data.type"
-            :total-ep="data.totalEpisodes"
+            :id="d.id"
+            :title="d.title.userPreferred"
+            :imgsrc="d.coverImage.large"
+            :imgalt="d.id"
+            :anime-color="d.coverImage.color"
+            :year="d.seasonYear"
+            :type="d.format"
+            :total-ep="d.episodes"
           />
         </div>
       </v-col>
@@ -273,16 +259,16 @@ const history_state = useStorage("site-watch", {});
     </div>
     <v-row v-else>
       <v-col class="media-scrolling">
-        <div v-for="data in popularData?.results" :key="data.id">
+        <div v-for="d in popularData?.results" :key="d.id">
           <AnimeCard
-            :id="data.id"
-            :title="data.title.userPreferred"
-            :imgsrc="data.image"
-            :imgalt="data.id"
-            :anime-color="data.color"
-            :year="data.releaseDate"
-            :type="data.type"
-            :total-ep="data.totalEpisodes"
+            :id="d.id"
+            :title="d.title.userPreferred"
+            :imgsrc="d.coverImage.large"
+            :imgalt="d.id"
+            :anime-color="d.coverImage.color"
+            :year="d.seasonYear"
+            :type="d.format"
+            :total-ep="d.episodes"
           />
         </div>
       </v-col>

@@ -1,7 +1,21 @@
 <script setup>
-import { useStorage } from '@vueuse/core';
+import { useStorage } from "@vueuse/core";
 const env = useRuntimeConfig();
+useSeoMeta({
+  ogTitle: "Home",
+  ogDescription: "amvstrm - A streaming service for weebo...",
+  ogImage: "logo.png",
+  ogUrl: useRoute().fullPath,
+  twitterTitle: "Home",
+  twitterDescription: "amvstrm - A streaming service for weebo...",
+  twitterImage: "logo.png",
+  twitterCard: "summary",
+});
+
 useHead({
+  htmlAttrs: {
+    lang: "en",
+  },
   title: "Home",
 });
 
@@ -10,7 +24,7 @@ const {
   pending: trpend,
   refresh: trenddataRefresh,
   error: trenderr,
-} = useLazyFetch(
+} = useFetch(
   `${env.public.API_URL}/api/${env.public.version}/trending?limit=12`,
   {
     cache: "force-cache",
@@ -21,22 +35,18 @@ const {
   pending: popend,
   refresh: popdataRefresh,
   error: poperr,
-} = useLazyFetch(
+} = useFetch(
   `${env.public.API_URL}/api/${env.public.version}/popular?limit=12`,
   {
     cache: "force-cache",
   }
 );
 
-definePageMeta({
-  layout: false,
-});
-
 const history_state = useStorage("site-watch", {});
 </script>
 
 <template>
-  <v-breadcrumbs density="compact" bg-color="grey-darken-4">
+  <v-breadcrumbs density="compact">
     <template #prepend>
       <v-icon icon="mdi-home" />
     </template>
@@ -54,7 +64,7 @@ const history_state = useStorage("site-watch", {});
       <v-carousel-item
         v-for="(item, i) in popularData?.results"
         :key="i"
-        :src="item.cover"
+        :src="item.bannerImage"
         cover
       >
         <div class="d-flex flex-column align-center justify-end h-100">
@@ -65,12 +75,25 @@ const history_state = useStorage("site-watch", {});
             :width="420"
           >
             <div>
-              <h4 class="text-break">{{ item.title.userPreferred }}</h4>
+              <h4
+                style="
+                  width: 300px;
+                  overflow: hidden;
+                  transition: color 0.2s ease;
+                  display: -webkit-box;
+                  -webkit-box-orient: vertical;
+                  -webkit-line-clamp: 2;
+                "
+              >
+                {{ item.title.userPreferred }}
+              </h4>
               <p class="text--secondary">{{ item.title.native }}</p>
             </div>
             <v-btn
-              :to="'/anime/' + item.id"
-              :color="item.color ? item.color : 'transparent'"
+              :to="'/pwa/anime/' + item.id"
+              :color="
+                item.coverImage.color ? item.coverImage.color : 'transparent'
+              "
             >
               <v-icon>mdi-open-in-new</v-icon>
             </v-btn>
@@ -87,7 +110,13 @@ const history_state = useStorage("site-watch", {});
         class="mt-4"
         icon="mdi-history"
         title="Continue Watching : "
-        :text="`${history_state.latest_anime_watched.title} Episode ${history_state.latest_anime_watched.curr_ep} ${history_state.latest_anime_watched.isDub ? 'Dub' : 'Sub'}`"
+        :text="
+          history_state
+            ? `${history_state.latest_anime_watched.title} Episode ${
+                history_state.latest_anime_watched.curr_ep
+              } ${history_state.latest_anime_watched.isDub ? 'Dub' : 'Sub'}`
+            : ''
+        "
         closable
       >
         <template #default>
@@ -101,6 +130,7 @@ const history_state = useStorage("site-watch", {});
           </v-btn>
         </template>
       </v-alert>
+      <div v-else></div>
     </ClientOnly>
   </v-container>
   <!-- DESKTOP DEVICE -->
@@ -132,10 +162,12 @@ const history_state = useStorage("site-watch", {});
             <AnimeCard
               :id="d.id"
               :title="d.title.userPreferred"
-              :imgsrc="d.image"
+              :imgsrc="d.coverImage.large"
               :imgalt="d.id"
-              :anime-color="d.color"
-              :year="d.releaseDate"
+              :anime-color="d.coverImage.color"
+              :year="d.seasonYear"
+              :type="d.format"
+              :total-ep="d.episodes"
             />
           </div>
         </div>
@@ -168,10 +200,12 @@ const history_state = useStorage("site-watch", {});
             <AnimeCard
               :id="d.id"
               :title="d.title.userPreferred"
-              :imgsrc="d.image"
+              :imgsrc="d.coverImage.large"
               :imgalt="d.id"
-              :anime-color="d.color"
-              :year="d.releaseDate"
+              :anime-color="d.coverImage.color"
+              :year="d.seasonYear"
+              :type="d.format"
+              :total-ep="d.episodes"
             />
           </div>
         </div>
@@ -199,13 +233,16 @@ const history_state = useStorage("site-watch", {});
     </div>
     <v-row v-else>
       <v-col class="media-scrolling">
-        <div v-for="data in trendingData?.results" :key="data.id">
+        <div v-for="d in trendingData?.results" :key="d.id">
           <AnimeCard
-            :id="data.id"
-            :title="data.title.userPreferred"
-            :imgsrc="data.image"
-            :imgalt="data.id"
-            :anime-color="data.color"
+            :id="d.id"
+            :title="d.title.userPreferred"
+            :imgsrc="d.coverImage.large"
+            :imgalt="d.id"
+            :anime-color="d.coverImage.color"
+            :year="d.seasonYear"
+            :type="d.format"
+            :total-ep="d.episodes"
           />
         </div>
       </v-col>
@@ -228,13 +265,16 @@ const history_state = useStorage("site-watch", {});
     </div>
     <v-row v-else>
       <v-col class="media-scrolling">
-        <div v-for="data in popularData?.results" :key="data.id">
+        <div v-for="d in popularData?.results" :key="d.id">
           <AnimeCard
-            :id="data.id"
-            :title="data.title.userPreferred"
-            :imgsrc="data.image"
-            :imgalt="data.id"
-            :anime-color="data.color"
+            :id="d.id"
+            :title="d.title.userPreferred"
+            :imgsrc="d.coverImage.large"
+            :imgalt="d.id"
+            :anime-color="d.coverImage.color"
+            :year="d.seasonYear"
+            :type="d.format"
+            :total-ep="d.episodes"
           />
         </div>
       </v-col>
@@ -242,7 +282,7 @@ const history_state = useStorage("site-watch", {});
   </v-container>
 </template>
 
-<style scoped>
+<style>
 .loadingBlock {
   height: 200px;
   display: grid;
@@ -254,15 +294,6 @@ const history_state = useStorage("site-watch", {});
   grid-template-rows: repeat(2, 1fr);
   grid-column-gap: 0px;
   grid-row-gap: 0px;
-}
-
-.text-break {
-  width: 310px;
-  overflow: hidden;
-  transition: color 0.2s ease;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
 }
 
 .media-scrolling {
@@ -283,11 +314,7 @@ const history_state = useStorage("site-watch", {});
 
 @media (min-width: 768px) {
   .grid {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-    grid-template-rows: repeat(2, 1fr);
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
   }
 }
 </style>
