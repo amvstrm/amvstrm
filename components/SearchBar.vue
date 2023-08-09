@@ -41,7 +41,7 @@ const debouncedSearch = debounce(async (query) => {
           <v-list-item title="Search result" />
           <v-divider />
           <v-list-item
-            v-for="item in searchResults?.data"
+            v-for="item in searchResults?.results"
             :key="item.id"
             :to="
               /\/pwa\.*/.test(useRoute().path)
@@ -81,7 +81,7 @@ const debouncedSearch = debounce(async (query) => {
             </template>
           </v-list-item>
           <v-list-item
-            v-if="searchResults?.data.length > 0"
+            v-if="searchResults?.results.length > 0"
             :to="'/search?q=' + search"
           >
             <v-list-item-title>Search more...</v-list-item-title>
