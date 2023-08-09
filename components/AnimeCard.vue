@@ -49,13 +49,13 @@ const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop
   imgsrc: String,
   // eslint-disable-next-line vue/require-default-prop
-  imgalt: String,
+  imgalt: String || Number,
   // eslint-disable-next-line vue/require-default-prop
   animeColor: String || "white",
   // eslint-disable-next-line vue/require-default-prop
-  id: String,
+  id: Number,
   // eslint-disable-next-line vue/require-default-prop
-  year: Number || "No Data",
+  year: Number,
   // eslint-disable-next-line vue/require-default-prop
   totalEp: Number,
   // eslint-disable-next-line vue/require-default-prop
