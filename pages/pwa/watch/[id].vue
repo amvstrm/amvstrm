@@ -316,7 +316,7 @@ export default {
                 class="mr-2"
                 color="blue"
                 :href="
-                  'https://api.amvstr.ml/api/v1/download/' +
+                  'https://api-amvstrm.nyt92.eu.org/api/v1/download/' +
                   getGogoID +
                   '?redirect=true'
                 "
