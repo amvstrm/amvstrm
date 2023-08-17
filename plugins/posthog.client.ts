@@ -9,6 +9,7 @@ export default defineNuxtPlugin(() => {
  
   const posthogClient = posthog.init(runtimeConfig.public.posthogPublicKey, {
     api_host: runtimeConfig.public.posthogHost || "https://app.posthog.com",
+    opt_in_site_apps: true,
     loaded: (posthog) => {
       if (import.meta.env.MODE === "development") posthog.debug();
     },
