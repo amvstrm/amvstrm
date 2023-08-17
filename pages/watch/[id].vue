@@ -1,16 +1,13 @@
 <script setup>
 import { useStorage } from "@vueuse/core";
-
 const env = useRuntimeConfig();
-const route = useRoute();
-const getID = route.params.id.split("-")[0];
-const getGogoID = route.params.id.split(`${getID}-`)[1];
+
+const getID = useRoute().params.id.split("-")[0];
+const getGogoID = useRoute().params.id.split(`${getID}-`)[1];
 const getEP = getGogoID.split(`-episode-`)[1];
 
 const loadSettingDialog = ref(false);
 const switchtobackup = ref(false);
-const putsandbox = ref(false);
-const autonext_bool = ref(false);
 
 const { data: anime } = await useFetch(
   `${env.public.API_URL}/api/${env.public.version}/info/${getID}`,
@@ -31,7 +28,10 @@ const {
   pending: epPending,
   error: epError,
 } = useLazyFetch(
-  `${env.public.API_URL}/api/v1/episode/${anime?.value.id_provider.idGogo}`
+  `${env.public.API_URL}/api/v1/episode/${anime?.value.id_provider.idGogo}`,
+  {
+    cache: "default",
+  }
 );
 
 useSeoMeta({
@@ -77,18 +77,44 @@ const { data: time2Skip } = useFetch(
   }
 );
 
-// if (putsandbox === true) {
-//   document.getElementById("gogoiFrame").sandbox =
-//     "allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation";
-// } else if (putsandbox === false) {
-//   document.getElementById("gogoiFrame").removeAttribute("sandbox");
-// }
+const skipTimeHighlight = () => {
+  if (time2Skip.value.found === true) {
+    const output = [];
+
+    if (time2Skip.value.results.op) {
+      output.push({
+        text: "Opening start",
+        time: time2Skip.value.results.op.interval.startTime,
+      });
+
+      output.push({
+        text: "Opening end",
+        time: time2Skip.value.results.op.interval.endTime,
+      });
+    }
+
+    if (time2Skip.value.results.ed) {
+      output.push({
+        text: "Ending start",
+        time: time2Skip.value.results.ed.interval.startTime,
+      });
+
+      output.push({
+        text: "Ending end",
+        time: time2Skip.value.results.ed.interval.endTime,
+      });
+    }
+    return output;
+  }
+  return [];
+};
 
 const useStorageState = useStorage("ap_settings", {
   s_source: "Main",
   s_autoskip: false,
   s_autoplay: false,
   s_autonext: false,
+  c_theater_mode: false,
 });
 
 const setHistory = useStorage("site-watch", {
@@ -109,20 +135,9 @@ const latestAnimeWatched = {
   totalEp: anime?.value.episodes ? anime?.value.episodes : 0,
   year: anime?.value.year,
 };
-// const index = setHistory.value.all_anime_watched.findIndex(
-//   (watchedAnime) => watchedAnime.id === getID
-// );
 
-// if (index !== -1) {
-//   setHistory.value.all_anime_watched[index].curr_ep = getEP;
-//   setHistory.value.latest_anime_watched = setHistory.value.all_anime_watched[index];
-// } else {
-//   setHistory.value.all_anime_watched.push(latestAnimeWatched);  
-// }
 setHistory.value.latest_anime_watched = latestAnimeWatched;
 setHistory.value.latest_watched_date = Date.now();
-
-autonext_bool.value = useStorageState.value.s_autonext || false
 
 function getInstance(art) {
   console.log("INITZ ARTPLAYER");
@@ -150,8 +165,8 @@ function getInstance(art) {
     },
   });
   art.setting.add({
-    html: "Auto Skip",
-    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="#ffffff" d="M16 18h2V6h-2M6 18l8.5-6L6 6v12Z"/></svg>',
+    html: "Auto Skip (OP&ED)",
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="#ffffff" d="M6 9.83L8.17 12L6 14.17V9.83M4 5v14l7-7m9-7h-2v14h2m-7-9.17L15.17 12L13 14.17V9.83M11 5v14l7-7"/></svg>',
     switch: useStorageState.value.s_autoskip === false ? false : true,
     onSwitch: function (item) {
       const nextState = !item.switch;
@@ -159,8 +174,21 @@ function getInstance(art) {
       return nextState;
     },
   });
-  art.on("ready", async () => {
-    art.controls.add();
+  art.setting.add({
+    html: "Auto play",
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="#ffffff" d="M16 18h2V6h-2M6 18l8.5-6L6 6v12Z"/></svg>',
+    switch: useStorageState.value.s_autonext === false ? false : true,
+    onSwitch: function (item) {
+      const nextState = !item.switch;
+      useStorageState.value.s_autonext = nextState;
+      return nextState;
+    },
+  });
+  art.on("play", () => {
+    art.layers.show = false;
+  });
+  art.on("pause", () => {
+    art.layers.show = true;
   });
   art.on("video:timeupdate", () => {
     const currentTime = art.currentTime;
@@ -232,21 +260,24 @@ function getInstance(art) {
     }
   });
   art.on("video:ended", () => {
-    const currentEpisodeIndex = ep?.value.episodes.findIndex(
-      (episode) => episode.id.split(`-episode-`)[1] === getEP
-    );
-    if (
-      currentEpisodeIndex !== -1 &&
-      currentEpisodeIndex < ep?.value.episodes.length + 1
-    ) {
-      art.notice.show = 'Next episode >'
-      const nextEpisode = ep?.value.episodes[currentEpisodeIndex - 1];
-      navigateTo(`/watch/${getID}-${nextEpisode.id}`, {
-        external: true
-      });
-    } else {
-      art.notice.show = 'No more episode!'
+    if (useStorageState.value.s_autonext === true) {
+      const currentEpisodeIndex = ep?.value.episodes.findIndex(
+        (episode) => episode.id.split(`-episode-`)[1] === getEP
+      );
+      if (
+        currentEpisodeIndex !== -1 &&
+        currentEpisodeIndex < ep?.value.episodes.length + 1
+      ) {
+        art.notice.show = "Next episode >";
+        const nextEpisode = ep?.value.episodes[currentEpisodeIndex - 1];
+        navigateTo(`/watch/${getID}-${nextEpisode.id}`, {
+          external: true,
+        });
+      } else {
+        art.notice.show = "No more episode!";
+      }
     }
+    art.notice.show = "Episode ended";
   });
 }
 </script>
@@ -266,9 +297,9 @@ export default {
   unmounted: function () {
     console.log(this.artPlayer);
   },
-  methods: {},
 };
 </script>
+<!-- eslint-disable vue/no-multiple-template-root -->
 <template>
   <div v-if="strmLoading" class="loadingBlock">
     <v-progress-circular :size="45" indeterminate />
@@ -281,7 +312,8 @@ export default {
             v-if="switchplyr == 1"
             :option="{
               url: strm.stream.multi.main.url,
-              poster: anime.coverImage.large
+              poster: anime.coverImage.large,
+              highlight: skipTimeHighlight(),
             }"
             :style="style"
             :vtt="strm.stream?.tracks?.file"
@@ -309,6 +341,14 @@ export default {
             frameborder="0"
             :style="style"
           ></iframe>
+          <iframe
+            v-else-if="switchplyr == 5"
+            id="gogoiFrame"
+            :src="strm.iframe.backup || strm.iframe.default"
+            allowfullscreen
+            frameborder="0"
+            :style="style"
+          ></iframe>
         </ClientOnly>
       </v-col>
       <v-col cols="">
@@ -326,8 +366,13 @@ export default {
               <v-btn
                 class="mr-2"
                 color="blue"
-                :href="'https://api.amvstr.ml/api/v1/download/' + getGogoID +'?redirect=true'"
+                :href="
+                  'https://api-amvstrm.nyt92.eu.org/api/v1/download/' +
+                  getGogoID +
+                  '?redirect=true'
+                "
                 icon="mdi-download"
+                target="blank"
                 variant="plain"
               >
               </v-btn>
@@ -359,10 +404,14 @@ export default {
                       <v-radio label="Plyr" :value="2"></v-radio>
                       <v-radio label="nsPlayer" :value="3"></v-radio>
                       <v-radio label="Embedded (ADs)" :value="4"></v-radio>
+                      <v-radio
+                        label="Backup Embedded (ADs)"
+                        :value="5"
+                      ></v-radio>
                     </v-radio-group>
                     <div v-if="switchplyr == 2 || switchplyr == 3">
                       Using Plyr and nsPlayer will lose some of the
-                      functionality (time saved, auto-skip, etc)
+                      functionality (Time saved, Auto-skip, and more)
                       <v-checkbox
                         v-model="switchtobackup"
                         label="Backup stream"
@@ -370,20 +419,14 @@ export default {
                       ></v-checkbox>
                     </div>
                     <div v-else-if="switchplyr === 4">
-                      Enable Sandbox mode will not work on Chromium based
-                      browser.
-                      <v-checkbox
-                        v-model="putsandbox"
-                        :disabled="true"
-                        label="Enable Sandbox (Won't Work For Google Chrome)"
-                        color="primary"
-                      ></v-checkbox>
+                      Recommend to use Adblocker and close the web inspect to
+                      watch it.
                     </div>
                   </div>
                   <v-card-actions>
                     <v-btn
                       prepend-icon="mdi-help"
-                      href="https://docs.amvstr.ml/help/video-player"
+                      href="https://amvdocs.pages.dev/help/video-player"
                       target="blank"
                     >
                       Player Help
@@ -397,14 +440,6 @@ export default {
                 </v-card>
               </v-dialog>
             </div>
-          </div>
-          <div class="px-4 d-flex justify-space-between">
-            <v-switch v-model="autonext_bool">
-              <template #label>
-                <v-icon> mdi-skip-next </v-icon>
-                Auto next
-              </template>
-            </v-switch>
           </div>
           <v-divider />
           <v-list lines="two">
