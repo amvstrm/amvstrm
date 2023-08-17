@@ -4,7 +4,7 @@ const episode_dialog = ref(false);
 const infotab = ref(null);
 const ep_tab = ref(null);
 
-const { data: anime, pending: aniPending } = await useFetch(
+const { data: anime, pending: aniPending, error: aniError } = await useFetch(
   `${env.public.API_URL}/api/${env.public.version}/info/${
     useRoute().params.id
   }`,
@@ -20,18 +20,12 @@ useHead({
   title: anime.value?.title.userPreferred,
 });
 
-
-const nextair = {
-  airingAt: anime?.value.nextair?.airingAt,
-  timeUntilAiring: anime?.value.nextair?.timeUntilAiring,
-};
-
-const countdown = ref("");
+const countdown = ref();
 
 const updateCountdown = () => {
   setInterval(() => {
     const currentTime = Math.floor(Date.now() / 1000);
-    const remainingTime = nextair.airingAt - currentTime;
+    const remainingTime = anime?.value.nextair?.airingAt - currentTime;
     countdown.value = formatDuration(remainingTime);
   }, 1000);
 };
@@ -46,7 +40,7 @@ const formatDuration = (duration) => {
 };
 
 function getAiringDay() {
-  const airingDate = new Date(this.nextair.airingAt * 1000);
+  const airingDate = new Date(anime?.value.nextair?.airingAt * 1000);
   const daysOfWeek = [
     "Sunday",
     "Monday",
@@ -73,7 +67,11 @@ const { data: recmedAnime, pending: recmedPending } = useFetch(
   }
 );
 
-const { data: epAni, pending: loadAni } = useLazyFetch(
+const {
+  data: epAni,
+  pending: loadAni,
+  error: epAniError,
+} = useLazyFetch(
   `${env.public.API_URL}/api/v1/episode/${
     anime?.value.id_provider === null ? "''" : anime.value.id_provider.idGogo
   }`,
@@ -81,7 +79,11 @@ const { data: epAni, pending: loadAni } = useLazyFetch(
     cache: "default",
   }
 );
-const { data: epAniDub, error: epAniError } = useLazyFetch(
+const {
+  data: epAniDub,
+  pending: loadAniDub,
+  error: epDubAniError,
+} = useLazyFetch(
   `${env.public.API_URL}/api/v1/episode/${
     anime?.value.id_provider === null ? "''" : anime.value.id_provider.idGogo
   }-dub`,
@@ -94,6 +96,7 @@ const stringInstring = '""';
 </script>
 
 <template>
+  <!-- eslint-disable vue/no-parsing-error -->
   <div v-if="aniPending" class="loadingBlock">
     <v-progress-circular :size="45" indeterminate />
   </div>
@@ -219,50 +222,62 @@ const stringInstring = '""';
               >
                 <v-card>
                   <v-card-title>Episode</v-card-title>
-                  <v-card-text v-if="loadAni">
-                    <v-progress-circular :size="40" indeterminate />
-                  </v-card-text>
-                  <v-card-text v-else-if="epAni.episodes.length === 0">
-                    Episodes not found or not available...
-                  </v-card-text>
-                  <v-card v-else>
+                  <v-card>
                     <v-tabs v-model="ep_tab" grow="">
                       <v-tab value="sub"> SUB </v-tab>
-                      <v-tab
-                        value="dub"
-                        :disabled="anime?.dub === false ? true : false"
-                      >
-                        DUB
-                      </v-tab>
+                      <v-tab value="dub"> DUB </v-tab>
                     </v-tabs>
                     <v-card-text>
                       <v-window v-model="ep_tab">
                         <v-window-item value="sub">
-                          <v-list lines="two" height="300px">
+                          <v-progress-circular
+                            v-if="loadAni"
+                            :size="40"
+                            indeterminate
+                          />
+                          <div
+                            v-else-if="!epAni || !epAni?.episodes || epAni?.episodes.length === 0"
+                          >
+                            Episodes not found or not available...
+                          </div>
+                          <div v-else-if="epAniError">
+                            Episodes failed to load due to API error!
+                          </div>
+                          <v-list v-else lines="two" height="300px">
                             <v-list-item
                               v-for="(ep, i) in epAni.episodes"
                               :key="i"
-                              :to="
-                                '/pwa/watch/' + useRoute().params.id + '-' + ep.id
-                              "
+                              :to="`/pwa/watch/${useRoute().params.id}-${ep.id}`"
                               title="Episode"
                               :subtitle="ep.id.split('-episode-')[1]"
                             />
                           </v-list>
                         </v-window-item>
                         <v-window-item value="dub">
-                          <v-list v-if="!epAniError" lines="two" height="300px">
+                          <v-progress-circular
+                            v-if="loadAniDub"
+                            :size="40"
+                            indeterminate
+                          />
+                          <div
+                            v-else-if="
+                              !epAniDub || !epAniDub?.episodes || epAniDub?.episodes.length === 0
+                            "
+                          >
+                            Episodes not found or not available...
+                          </div>
+                          <div v-else-if="epDubAniError">
+                            Episodes failed to load due to API error!
+                          </div>
+                          <v-list v-else lines="two" height="300px">
                             <v-list-item
                               v-for="(ep, i) in epAniDub.episodes"
                               :key="i"
-                              :to="
-                                '/pwa/watch/' + useRoute().params.id + '-' + ep.id
-                              "
+                              :to="`/pwa/watch/${useRoute().params.id}-${ep.id}`"
                               title="Episode"
                               :subtitle="ep.id.split('-episode-')[1]"
                             />
                           </v-list>
-                          <v-list v-else lines="two"> LOCKED </v-list>
                         </v-window-item>
                       </v-window>
                     </v-card-text>
@@ -291,9 +306,7 @@ const stringInstring = '""';
                 <v-list-subheader> Episode release date </v-list-subheader>
                 <v-list-item
                   v-if="anime?.nextair"
-                  :title="`New episode ${
-                    anime?.nextair.episode
-                  } on ${getAiringDay()}`"
+                  :title="`New episode on ${getAiringDay()}`"
                   :subtitle="countdown"
                 />
                 <v-list-item
@@ -319,7 +332,11 @@ const stringInstring = '""';
                 title="Episode"
                 :subtitle="
                   anime?.nextair
-                    ? `Current : ${anime?.nextair.episode === 1 ? anime?.nextair.episode : anime?.nextair.episode - 1} / Est : ${anime?.episodes}`
+                    ? `Current : ${
+                        anime?.nextair.episode === 1
+                          ? anime?.nextair.episode
+                          : anime?.nextair.episode - 1
+                      } / Est : ${anime?.episodes}`
                     : anime?.episodes
                     ? anime?.episodes
                     : 'No data'
