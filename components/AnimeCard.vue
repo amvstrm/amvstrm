@@ -49,7 +49,7 @@ const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop
   imgsrc: String,
   // eslint-disable-next-line vue/require-default-prop
-  imgalt: String || Number,
+  imgalt: Number,
   // eslint-disable-next-line vue/require-default-prop
   animeColor: String || "white",
   // eslint-disable-next-line vue/require-default-prop
