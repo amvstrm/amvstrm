@@ -5,7 +5,7 @@
 import Artplayer from "artplayer";
 import artplayerPluginHlsQuality from "artplayer-plugin-hls-quality";
 import artplayerPluginVtt from "artplayer-plugin-vtt-thumbnail";
-import Hls from 'hls.js'
+import Hls from "hls.js";
 export default {
   props: {
     option: {
@@ -53,9 +53,20 @@ export default {
       },
       contextmenu: [
         {
-          html: `${new Date().getFullYear()} © amvstrm`,
+          html: `© amvstrm ${new Date().getFullYear()}`,
           click: function () {
-            window.open("https://amvstr.ml");
+            window.open("/");
+          },
+        },
+      ],
+      layers: [
+        {
+          name: "amv_logo",
+          html: `<img src="/logo.png" width="100px">`,
+          style: {
+            position: "absolute",
+            top: "20px",
+            right: "20px",
           },
         },
       ],
