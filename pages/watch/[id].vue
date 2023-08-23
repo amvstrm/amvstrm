@@ -315,8 +315,8 @@ export default {
               poster: anime.coverImage.large,
               highlight: skipTimeHighlight(),
             }"
-            :style="style"
             :vtt="strm.stream?.tracks?.file"
+            :style="style"
             @get-instance="getInstance"
           />
           <iframe
@@ -366,11 +366,7 @@ export default {
               <v-btn
                 class="mr-2"
                 color="blue"
-                :href="
-                  'https://api-amvstrm.nyt92.eu.org/api/v1/download/' +
-                  getGogoID +
-                  '?redirect=true'
-                "
+                :href="'/download/' + useRoute().params.id"
                 icon="mdi-download"
                 target="blank"
                 variant="plain"
@@ -466,16 +462,12 @@ export default {
           </v-list>
         </v-card>
       </v-col>
-      <v-col cols="12">
+      <v-col v-if="env.public.disqus_id" cols="12">
         <v-card id="comment">
           <v-card-title>Comment</v-card-title>
           <ClientOnly>
             <div class="pa-10">
-              <VueDisqus
-                ref="disqus"
-                :lazy="true"
-                :shortname="useRuntimeConfig().public.disqus_id"
-              />
+              <DisqusComments :identifier="useRoute().fullPath" />
             </div>
           </ClientOnly>
         </v-card>

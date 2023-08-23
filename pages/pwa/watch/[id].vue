@@ -377,14 +377,10 @@ export default {
               <span>Episode {{ getEP }}</span>
             </div>
             <div class="d-flex align-center">
-              <v-btn
+               <v-btn
                 class="mr-2"
                 color="blue"
-                :href="
-                  'https://api-amvstrm.nyt92.eu.org/api/v1/download/' +
-                  getGogoID +
-                  '?redirect=true'
-                "
+                :href="'/download/' + useRoute().params.id"
                 icon="mdi-download"
                 target="blank"
                 variant="plain"
