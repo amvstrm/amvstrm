@@ -4,7 +4,11 @@ const episode_dialog = ref(false);
 const infotab = ref(null);
 const ep_tab = ref(null);
 
-const { data: anime, pending: aniPending, error: aniError } = await useFetch(
+const {
+  data: anime,
+  pending: aniPending,
+  error: aniError,
+} = await useFetch(
   `${env.public.API_URL}/api/${env.public.version}/info/${
     useRoute().params.id
   }`,
@@ -148,9 +152,21 @@ const stringInstring = '""';
                 class="mr-1"
                 label
                 variant="elevated"
-                :color="anime?.dub == true ? 'success' : 'warning'"
+                :color="
+                  !epAniDub ||
+                  !epAniDub?.episodes ||
+                  epAniDub?.episodes.length === 0
+                    ? 'warning'
+                    : 'success'
+                "
               >
-                {{ anime?.dub == true ? "Dub" : "No Dub" }}
+                {{
+                  !epAniDub ||
+                  !epAniDub?.episodes ||
+                  epAniDub?.episodes.length === 0
+                    ? "No Dub"
+                    : "Dub"
+                }}
               </v-chip>
               <v-chip
                 class="mx-1"
@@ -226,6 +242,7 @@ const stringInstring = '""';
                     <v-tabs v-model="ep_tab" grow="">
                       <v-tab value="sub"> SUB </v-tab>
                       <v-tab value="dub"> DUB </v-tab>
+                      <v-tab value="other"> Other </v-tab>
                     </v-tabs>
                     <v-card-text>
                       <v-window v-model="ep_tab">
@@ -236,7 +253,11 @@ const stringInstring = '""';
                             indeterminate
                           />
                           <div
-                            v-else-if="!epAni || !epAni?.episodes || epAni?.episodes.length === 0"
+                            v-else-if="
+                              !epAni ||
+                              !epAni?.episodes ||
+                              epAni?.episodes.length === 0
+                            "
                           >
                             Episodes not found or not available...
                           </div>
@@ -261,7 +282,9 @@ const stringInstring = '""';
                           />
                           <div
                             v-else-if="
-                              !epAniDub || !epAniDub?.episodes || epAniDub?.episodes.length === 0
+                              !epAniDub ||
+                              !epAniDub?.episodes ||
+                              epAniDub?.episodes.length === 0
                             "
                           >
                             Episodes not found or not available...
@@ -276,6 +299,116 @@ const stringInstring = '""';
                               :to="`/pwa/watch/${useRoute().params.id}-${ep.id}`"
                               title="Episode"
                               :subtitle="ep.id.split('-episode-')[1]"
+                            />
+                          </v-list>
+                        </v-window-item>
+                        <v-window-item value="other">
+                          <v-list v-if="!anime.id_provider || anime.id_provider !== null" lines="two">
+                            <v-list-item
+                              title="Gogoanime"
+                              :subtitle="
+                                anime?.id_provider.idGogo == ''
+                                  ? 'Not available'
+                                  : anime?.id_provider.idGogo
+                              "
+                            >
+                              <template #append>
+                                <v-btn
+                                  icon="mdi-launch"
+                                  :href="
+                                    'https://gogoanimehd.io/category/' +
+                                    anime?.id_provider.idGogo
+                                  "
+                                  target="blank"
+                                  :disabled="anime?.id_provider.idGogo == ''"
+                                />
+                              </template>
+                            </v-list-item>
+                            <v-list-item
+                              title="Gogoanime (DUB)"
+                              :subtitle="
+                                anime?.id_provider.idGogoDub == ''
+                                  ? 'Not available'
+                                  : anime?.id_provider.idGogoDub
+                              "
+                            >
+                              <template #append>
+                                <v-btn
+                                  icon="mdi-launch"
+                                  :href="
+                                    'https://gogoanimehd.io/category/' +
+                                    anime?.id_provider.idGogo
+                                  "
+                                  target="blank"
+                                  :disabled="anime?.id_provider.idGogoDub == ''"
+                                />
+                              </template>
+                            </v-list-item>
+                            <v-list-item
+                              title="Zoro/Aniwatch.to"
+                              :subtitle="
+                                anime?.id_provider.idZoro == ''
+                                  ? 'Not available'
+                                  : anime?.id_provider.idZoro
+                              "
+                            >
+                              <template #append>
+                                <v-btn
+                                  icon="mdi-launch"
+                                  :href="
+                                    'https://aniwatch.to/' +
+                                    anime?.id_provider.idZoro
+                                  "
+                                  target="blank"
+                                  :disabled="anime?.id_provider.idZoro == ''"
+                                />
+                              </template>
+                            </v-list-item>
+                            <v-list-item
+                              title="9anime/Aniwave.to"
+                              :subtitle="
+                                anime?.id_provider.id9anime == ''
+                                  ? 'Not available'
+                                  : anime?.id_provider.id9anime
+                              "
+                            >
+                              <template #append>
+                                <v-btn
+                                  icon="mdi-launch"
+                                  :href="
+                                    'https://aniwave.to/watch/' +
+                                    anime?.id_provider.id9anime
+                                  "
+                                  target="blank"
+                                  :disabled="anime?.id_provider.id9anime == ''"
+                                />
+                              </template>
+                            </v-list-item>
+                            <v-list-item
+                              title="AnimePahe"
+                              :subtitle="
+                                anime?.id_provider.idPahe == ''
+                                  ? 'Not available'
+                                  : anime?.id_provider.idPahe
+                              "
+                            >
+                              <template #append>
+                                <v-btn
+                                  icon="mdi-launch"
+                                  :href="
+                                    'https://animepahe.ru/a/' +
+                                    anime?.id_provider.idPahe
+                                  "
+                                  target="blank"
+                                  :disabled="anime?.id_provider.idPahe == ''"
+                                />
+                              </template>
+                            </v-list-item>
+                          </v-list>
+                          <v-list v-else>
+                            <v-list-item
+                              title="No data"
+                              subtitle="Not available"
                             />
                           </v-list>
                         </v-window-item>
