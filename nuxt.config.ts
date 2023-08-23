@@ -16,19 +16,41 @@ export default defineNuxtConfig({
         {
           name: "keywords",
           content:
-            "amvstrm, amvstr, amv streaming, anime streaming site, anime, free anime",
+            "amvstrm, amvstr, amvstreaming, anime streaming site, anime, free anime",
+        },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: "/" },
+        { property: "og:title", content: "Home - amvstrm" },
+        {
+          property: "og:description",
+          content: "amvstrm - A streaming service for weebo...",
+        },
+        {
+          property: "og:image",
+          content: "/banner.png",
+        },
+        { property: "twitter:card", content: "summary_large_image" },
+        { property: "twitter:url", content: "/" },
+        { property: "twitter:title", content: "Home - amvstrm" },
+        {
+          property: "twitter:description",
+          content: "amvstrm - A streaming service for weebo...",
+        },
+        {
+          property: "twitter:image",
+          content: "/banner.png",
         },
       ],
       link: [
         {
-          rel: "manifest",
-          type: "application/json",
-          href: "/manifest.json",
-        },
-        {
           rel: "icon",
           type: "image/x-icon",
           href: "/favicon.ico",
+        },
+        {
+          rel: "manifest",
+          type: "application/json",
+          href: "/manifest.webmanifest",
         },
       ],
     },
@@ -50,6 +72,12 @@ export default defineNuxtConfig({
     "/pwa/watch/**": { static: true, ssr: false },
     "/about": { static: true, ssr: false, prerender: true },
     "/privacy": { static: true, ssr: false, prerender: true },
+    "/manifest.webmanifest": {
+      headers: {
+        "Content-Type": "application/manifest+json",
+        "Cache-Control": "public, max-age=0, must-revalidate",
+      },
+    },
   },
 
   css: ["~/assets/style.css"],
@@ -63,11 +91,20 @@ export default defineNuxtConfig({
         config?.plugins?.push(vuetify());
       });
     },
+    "nuxt-disqus",
   ],
+  disqus: {
+    shortname: process.env.DISQUS_ID,
+  },
   pwa: {
     registerType: "autoUpdate",
     strategies: "generateSW",
-    includeAssets: ["favicon.ico", "manifest.json"],
+    includeAssets: [
+      "favicon.ico",
+      "manifest.webmanifest",
+      "logo.png",
+      "icon.png",
+    ],
     manifest: {
       name: "amvstrm",
       short_name: "amvstrm",
@@ -152,23 +189,55 @@ export default defineNuxtConfig({
         },
       ],
       description: "An anime streaming service for weebo",
+      shortcuts: [
+        {
+          name: "Home",
+          short_name: "Home",
+          url: "/pwa",
+          icons: [
+            {
+              src: "https://api.iconify.design/mdi:home.svg?color=%231fda5b",
+            },
+          ],
+        },
+        {
+          name: "Search",
+          short_name: "Search Anime",
+          url: "/pwa/search",
+          icons: [
+            {
+              src: "https://api.iconify.design/mdi:magnify.svg?color=%231fda5b",
+            },
+          ],
+        },
+        {
+          name: "Bookmarker",
+          short_name: "Your Bookmarked Anime",
+          url: "/pwa/bookmarks",
+          icons: [
+            {
+              src: "https://api.iconify.design/mdi:book.svg?color=%231fda5b",
+            },
+          ],
+        },
+      ],
       dir: "ltr",
       orientation: "any",
       categories: ["entertainment"],
     },
     workbox: {
-      navigateFallback: "/",
-      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
       runtimeCaching: [
         {
-          urlPattern: /^https?.*/,
-          handler: "NetworkFirst",
+          urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+          handler: "CacheFirst",
           options: {
-            cacheName: "https-calls",
-            networkTimeoutSeconds: 20,
+            cacheName: "google-fonts-cache",
             expiration: {
-              maxEntries: 150,
-              maxAgeSeconds: 15 * 24 * 60 * 60,
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365,
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
             },
           },
         },
