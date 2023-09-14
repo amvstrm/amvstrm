@@ -1,4 +1,4 @@
-<img src="https://cdn.amvstr.ml/amv.png" width=30% />
+<img src="https://cdn-global.nyt92.eu.org/amv.png" width=30% />
 
 # AMVSTRM
 
@@ -8,11 +8,11 @@ Read more in our [Documentation](https://amvdocs.pages.dev/introduction)
 
 ## Site Mirror
 
-__Our domain sometime suffers from outages for no reason making the site not accessible for some users right now!__
+__Good News! You can now access our website from our new domain 👇__
 
 We have multiple mirrors in case our main domain is down for no reason
 
-- [amvstr.ml](https://amvstr.ml)
+- [amvstr.me](https://amvstr.me)🌟
 - [amvstrm.nyt92.eu.org](https://amvstrm.nyt92.eu.org)
 - [v2amvstrm.vercel.app](https://v2amvstrm.vercel.app)
 
