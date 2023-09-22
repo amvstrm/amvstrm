@@ -3,6 +3,7 @@ services:
     name: amvstrmn3
     env: node
     branch: master
+    plan: free
     startCommand: node .output/server/index.mjs
     buildCommand: npm install && npm run build
     envVars:
