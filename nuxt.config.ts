@@ -62,16 +62,21 @@ export default defineNuxtConfig({
 
   routeRules: {
     "/": { static: true, ssr: true, swr: true },
-    "/pwa": { static: true, ssr: false },
     "/search": { static: true },
-    "/anime/**": { swr: true, ssr: true },
-    "/watch/**": { swr: true, ssr: true },
-    "/bookmarks": { static: true, ssr: false },
+    "/anime/**": {
+      swr: true,
+      ssr: true,
+    },
+    "/watch/**": { swr: true, ssr: false },
+    "/download/**": { static: true, ssr: false },
+    "/bookmarks": { static: true, ssr: false, prerender: true },
+    "/pwa": { static: true, ssr: false },
     "/pwa/search": { static: true, ssr: false },
     "/pwa/anime/**": { static: true, ssr: false },
     "/pwa/watch/**": { static: true, ssr: false },
-    "/about": { static: true, ssr: false, prerender: true },
     "/privacy": { static: true, ssr: false, prerender: true },
+    "/about": { static: true, ssr: false, prerender: true },
+    "/dmca": { static: true, ssr: false, prerender: true },
     "/manifest.webmanifest": {
       headers: {
         "Content-Type": "application/manifest+json",
@@ -196,7 +201,7 @@ export default defineNuxtConfig({
           url: "/pwa",
           icons: [
             {
-              src: "https://api.iconify.design/mdi:home.svg?color=%231fda5b",
+              src: "https://api.iconify.design/mdi:home.svg",
             },
           ],
         },
@@ -206,7 +211,7 @@ export default defineNuxtConfig({
           url: "/pwa/search",
           icons: [
             {
-              src: "https://api.iconify.design/mdi:magnify.svg?color=%231fda5b",
+              src: "https://api.iconify.design/mdi:magnify.svg",
             },
           ],
         },
@@ -216,7 +221,7 @@ export default defineNuxtConfig({
           url: "/pwa/bookmarks",
           icons: [
             {
-              src: "https://api.iconify.design/mdi:book.svg?color=%231fda5b",
+              src: "https://api.iconify.design/mdi:book.svg",
             },
           ],
         },
@@ -251,10 +256,9 @@ export default defineNuxtConfig({
     emitWarning: false,
     ignore: true,
   },
-
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL || "https://api-amvstrm.nyt92.eu.org",
+      API_URL: process.env.API_URL || "https://api.amvstr.me",
       version: process.env.VERSION || "v2",
       posthogPublicKey: process.env.POSTHOG_PK || "",
       posthogHost: process.env.POSTHOG_HOST || "https://app.posthog.com",
