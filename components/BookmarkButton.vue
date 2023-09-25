@@ -1,9 +1,5 @@
 <template>
-  <v-btn
-    :prepend-icon="bookmarkStatus"
-    :color="bookmarkColor"
-    @click="handleBookmark"
-  >
+  <v-btn :prepend-icon="bookmarkStatus" :color="bookmarkColor" @click="handleBookmark">
     {{ isAlreadyBookmarked ? "Unbookmarked" : "Bookmark" }}
   </v-btn>
 </template>
@@ -44,15 +40,28 @@ export default {
   },
   setup(props) {
     const state = useStorage("site-bookmarker", []);
+
     const bookmarks = ref(state.value);
     const isAlreadyBookmarked = ref(isBookmarked(props.id));
     const bookmarkStatus = ref(
       isAlreadyBookmarked.value ? "mdi-bookmark-outline" : "mdi-bookmark"
     );
     const bookmarkColor = ref(isAlreadyBookmarked.value ? "white" : "warning");
-
-    function saveBookmarks(bookmarks) {
+    const get_key = useStorage("cloud-cfg", {})
+    async function saveBookmarks(bookmarks) {
       state.value = bookmarks || [];
+
+      if (get_key.value.enabled) {
+        await useFetch('/api/saveToDB?mutate=add_bookmark', {
+          method: 'POST',
+          headers: {
+            'x-space-collection': get_key.value.deta_collection_key
+          },
+          body: {
+            bookmarks,
+          }
+        })
+      }
     }
 
     function isBookmarked(id) {

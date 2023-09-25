@@ -72,11 +72,23 @@ const isBookmarked = (id) => {
 let isAlreadyBookmarked = isBookmarked(props.id);
 
 const bookmarkStatus = ref(
-  isAlreadyBookmarked ? "mdi-star" : "mdi-star-outline"
+  isAlreadyBookmarked ? "mdi-bookmark" : "mdi-bookmark-outline"
 );
 
-function saveBookmarks(bookmarks) {
+const get_key = useStorage("cloud-cfg", {});
+async function saveBookmarks(bookmarks) {
   state.value = bookmarks || [];
+  if (get_key.value.enabled) {
+    await useFetch("/api/saveToDB?mutate=add_bookmark", {
+      method: "POST",
+      headers: {
+        "x-space-collection": get_key.value.deta_collection_key,
+      },
+      body: {
+        bookmarks,
+      },
+    });
+  }
 }
 
 function bookmarkHandler() {
@@ -95,7 +107,7 @@ function addBookmark() {
     totalEp: props.totalEp,
     year: props.year,
   });
-  bookmarkStatus.value = "mdi-star"; // Update bookmarkStatus
+  bookmarkStatus.value = "mdi-bookmark"; // Update bookmarkStatus
   saveBookmarks(bookmarks);
 }
 
@@ -103,13 +115,13 @@ function removeBookmark() {
   const bookmarks = state.value;
   const index = bookmarks.findIndex((item) => item.id == props.id);
   bookmarks.splice(index, 1);
-  bookmarkStatus.value = "mdi-star-outline"; // Update bookmarkStatus
+  bookmarkStatus.value = "mdi-bookmark-outline"; // Update bookmarkStatus
   saveBookmarks(bookmarks);
 }
 watch(
   () => isAlreadyBookmarked,
   (newValue) => {
-    bookmarkStatus.value = newValue ? "mdi-star" : "mdi-star-outline";
+    bookmarkStatus.value = newValue ? "mdi-bookmark" : "mdi-bookmark-outline";
   }
 );
 </script>
