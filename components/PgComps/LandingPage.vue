@@ -1,7 +1,23 @@
 <script setup>
 import { useStorage } from "@vueuse/core";
-const history_state = useStorage("site-watch", {});
 const env = useRuntimeConfig();
+
+// const setHistory = ref();
+
+const history_state = useStorage("site-watch", {});
+// const get_key = useStorage("cloud-cfg", {});
+
+// if (get_key.value.enabled) {
+//   const { data } = await useFetch('/api/getData', {
+//     method: 'GET',
+//     headers: {
+//       'x-space-collection': get_key.value.deta_collection_key
+//     },
+//   })
+//   setHistory.value = data.value.data.app_user_last_data
+// } else {
+//   setHistory.value = history_state.value
+// }
 
 const {
   data: trendingData,
@@ -25,7 +41,6 @@ const {
     cache: "force-cache",
   }
 );
-
 </script>
 
 <template>
@@ -64,7 +79,9 @@ const {
               >
                 {{ item.title.userPreferred }}
               </h4>
-              <p class="text--secondary">{{ item.title.native }}</p>
+              <p class="text--secondary">
+                {{ item.title.native }}
+              </p>
             </div>
             <v-btn
               :to="'/anime/' + item.id"
@@ -82,32 +99,32 @@ const {
   <v-container>
     <SearchBar />
     <ClientOnly>
-      <v-alert
-        v-if="history_state"
-        class="mt-4"
-        icon="mdi-history"
-        title="Continue Watching : "
-        :text="
-          history_state
-            ? `${history_state.latest_anime_watched.title} Episode ${
-                history_state.latest_anime_watched.curr_ep
-              } ${history_state.latest_anime_watched.isDub ? 'Dub' : 'Sub'}`
-            : ''
-        "
-        closable
-      >
-        <template #default>
-          <br />
-          <v-btn
-            class="my-2"
-            :to="`/watch/${history_state.latest_anime_watched.id}-${history_state.latest_anime_watched.ep_id}`"
-            prepend-icon="mdi-play"
-          >
-            Resume?
-          </v-btn>
-        </template>
-      </v-alert>
-      <div v-else></div>
+      <div v-if="history_state?.latest_anime_watched">
+        <v-alert
+          class="mt-4"
+          icon="mdi-history"
+          title="Continue Watching : "
+          :text="`${history_state?.latest_anime_watched?.title} Episode ${
+            history_state?.latest_anime_watched?.curr_ep
+          } ${history_state?.latest_anime_watched?.isDub ? 'Dub' : 'Sub'}`"
+          closable
+        >
+          <template #default>
+            <br />
+            <v-btn
+              class="my-2"
+              :to="
+                /\/pwa\.*/.test(useRoute().path)
+                  ? `/pwa/watch/${history_state?.latest_anime_watched?.id}-${history_state?.latest_anime_watched?.ep_id}`
+                  : `/watch/${history_state?.latest_anime_watched?.id}-${history_state?.latest_anime_watched?.ep_id}`
+              "
+              prepend-icon="mdi-play"
+            >
+              Resume?
+            </v-btn>
+          </template>
+        </v-alert>
+      </div>
     </ClientOnly>
   </v-container>
   <!-- DESKTOP DEVICE -->
@@ -265,6 +282,7 @@ const {
   display: grid;
   place-items: center;
 }
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
