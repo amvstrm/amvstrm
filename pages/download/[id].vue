@@ -12,39 +12,12 @@ const { data: anime } = await useFetch(
   }
 );
 
-const { data: animedl, pending: aniDLpending } = await useFetch(
+const { data: animedl, pending: aniDLpending } = useFetch(
   `${env.public.API_URL}/api/v1/download/${getGogoID}`,
   {
     cache: "force-cache",
   }
 );
-
-useSeoMeta({
-  ogTitle: `${
-    anime.value?.title.userPreferred
-      ? "Download " + anime.value?.title.userPreferred + " Episode " + getEP
-      : "amvstrm"
-  } - amvstrm`,
-  ogDescription: `${
-    anime.value?.title.userPreferred
-      ? "Download " + anime.value?.title.userPreferred + " Episode " + getEP
-      : "amvstrm"
-  } on amvstrm`,
-  ogImage: anime?.value.coverImage.large,
-  ogUrl: useRoute().fullPath,
-  twitterTitle: `${
-    anime.value?.title.userPreferred
-      ? "Download " + anime.value?.title.userPreferred + " Episode " + getEP
-      : "amvstrm"
-  } - amvstrm`,
-  twitterDescription: `${
-    anime.value?.title.userPreferred
-      ? "Download " + anime.value?.title.userPreferred + " Episode " + getEP
-      : "amvstrm"
-  } on amvstrm`,
-  twitterImage: anime?.value.coverImage.large,
-  twitterCard: "summary",
-});
 
 useHead({
   htmlAttrs: {
@@ -57,7 +30,7 @@ useHead({
 </script>
 
 <template>
-  <div class="app-error-page">
+  <div class="app-page">
     <v-sheet
       elevation="12"
       max-width="600"
@@ -68,13 +41,13 @@ useHead({
       <v-icon class="mb-5" color="blue" icon="mdi-download" size="112" />
       <h2 class="mb-6">Download</h2>
       <p class="mb-4">
-        {{ anime.title.userPreferred + " Episode " + getEP }}
+        {{ anime?.title.userPreferred + " Episode " + getEP }}
       </p>
       <v-divider class="mb-4" />
       <div class="text-end">
         <v-btn
-          v-if="!aniDLpending"
-          :href="animedl.download"
+          :loading="aniDLpending"
+          :href="animedl?.download"
           target="blank"
           prepend-icon="mdi-download"
           color="blue"
@@ -86,8 +59,8 @@ useHead({
   </div>
 </template>
 <style>
-.app-error-page {
-  height: 100vh;
+.app-page {
+  height: 90vh;
   display: grid;
   place-items: center;
 }
