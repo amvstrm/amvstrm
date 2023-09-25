@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: amvstrmn3
+    env: node
+    branch: master
+    plan: free
+    startCommand: node .output/server/index.mjs
+    buildCommand: npm install && npm run build
+    envVars:
+      - key: NODE_VERSION
+        value: "18"
+      - key: NITRO_PRESET
+        value: render_com
+      - key: API_URL
+        value: "https://api.amvstr.me"
+      - key: VERSION
+        value: "v2"
+      - key: DISCUS_ID
+        value: ""
+      - key: POSTHOG_PK
+        value: ""
+      - key: POSTHOG_HOST
+        value: ""
