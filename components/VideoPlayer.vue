@@ -82,7 +82,7 @@ export default {
       pip: navigator.userAgent.match(/(chrome|edg|safari|opr)/i) ? true : false,
       playsInline: true,
       autoplay: true,
-      autoMini: true,
+      autoMini: false,
       customType: {
         m3u8: async function (video, url) {
           if (Hls.isSupported()) {
