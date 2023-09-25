@@ -111,7 +111,6 @@ const stringInstring = '""';
 </script>
 
 <template>
-  <!-- eslint-disable vue/no-parsing-error -->
   <div v-if="aniPending" class="loadingBlock">
     <v-progress-circular :size="45" indeterminate />
   </div>
@@ -120,7 +119,7 @@ const stringInstring = '""';
       <v-img
         v-if="anime?.bannerImage !== null"
         :src="anime?.bannerImage"
-        max-height="300px"
+        max-height="280px"
         cover=""
       >
         <template #placeholder>
@@ -203,6 +202,7 @@ const stringInstring = '""';
             <h1 class="mt-2" style="line-height: 2rem; font-size: x-large">
               {{ anime?.title.userPreferred }}
             </h1>
+            <p class="mb-2">{{ anime?.title.english }}</p>
             <p class="mb-2">{{ anime?.title.native }}</p>
             <div class="d-flex d-lg-none flex-column">
               <BookmarkButton

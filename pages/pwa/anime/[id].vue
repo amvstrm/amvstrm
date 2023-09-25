@@ -17,6 +17,17 @@ const {
   }
 );
 
+useSeoMeta({
+  ogTitle: anime.value?.title.userPreferred,
+  ogDescription: anime.value?.description,
+  ogImage: anime.value?.coverImage.large,
+  ogUrl: useRoute().fullPath,
+  twitterTitle: `${anime.value?.title.userPreferred} - amvstrm`,
+  twitterDescription: anime.value?.description,
+  twitterImage: anime.value?.coverImage.large,
+  twitterCard: "summary",
+});
+
 useHead({
   htmlAttrs: {
     lang: "en",
@@ -89,8 +100,8 @@ const {
   error: epDubAniError,
 } = useLazyFetch(
   `${env.public.API_URL}/api/v1/episode/${
-    anime?.value.id_provider === null ? "''" : anime.value.id_provider.idGogo
-  }-dub`,
+    anime?.value.id_provider === null ? "''" : anime.value.id_provider.idGogoDub
+  }`,
   {
     cache: "default",
   }
@@ -100,7 +111,6 @@ const stringInstring = '""';
 </script>
 
 <template>
-  <!-- eslint-disable vue/no-parsing-error -->
   <div v-if="aniPending" class="loadingBlock">
     <v-progress-circular :size="45" indeterminate />
   </div>
@@ -117,7 +127,7 @@ const stringInstring = '""';
       <v-img
         v-if="anime?.bannerImage !== null"
         :src="anime?.bannerImage"
-        max-height="300px"
+        max-height="280px"
         cover=""
       >
         <template #placeholder>
@@ -200,6 +210,7 @@ const stringInstring = '""';
             <h1 class="mt-2" style="line-height: 2rem; font-size: x-large">
               {{ anime?.title.userPreferred }}
             </h1>
+            <p class="mb-2">{{ anime?.title.english }}</p>
             <p class="mb-2">{{ anime?.title.native }}</p>
             <div class="d-flex d-lg-none flex-column">
               <BookmarkButton
@@ -599,7 +610,7 @@ const stringInstring = '""';
                           ? 'Cancelled'
                           : 'No data'
                       }`"
-                      :to="'/pwa/anime/' + item.id"
+                      :to="'/anime/' + item.id"
                     >
                       <template #prepend>
                         <v-img

@@ -114,7 +114,6 @@ const useStorageState = useStorage("ap_settings", {
   s_autoskip: false,
   s_autoplay: false,
   s_autonext: false,
-  c_theater_mode: false,
 });
 
 const setHistory = useStorage("site-watch", {
@@ -139,8 +138,32 @@ const latestAnimeWatched = {
 setHistory.value.latest_anime_watched = latestAnimeWatched;
 setHistory.value.latest_watched_date = Date.now();
 
+const get_key = useStorage("cloud-cfg", {});
+if (get_key.value.enabled) {
+  await useFetch("/api/saveToDB?mutate=add_latest_watch", {
+    method: "POST",
+    headers: {
+      "x-space-collection": get_key.value.deta_collection_key,
+    },
+    body: {
+      latest_watch: useStorage("site-watch", {}).value,
+    },
+  });
+
+  setInterval(() => {
+    useFetch("/api/saveToDB?mutate=save_plyr_data", {
+      method: "POST",
+      headers: {
+        "x-space-collection": get_key.value.deta_collection_key,
+      },
+      body: {
+        plyr_data: useStorage("artplayer_settings", {}).value,
+      },
+    });
+  }, 120000);
+}
+
 function getInstance(art) {
-  console.log("INITZ ARTPLAYER");
   art.setting.add({
     html: "Stream Source",
     width: 200,
@@ -184,6 +207,11 @@ function getInstance(art) {
       return nextState;
     },
   });
+  art.on("ready", () => {
+    if (useRoute().query.time) {
+      art.seek = parseInt(useRoute().query.time) || 0;
+    }
+  });
   art.on("play", () => {
     art.layers.show = false;
   });
@@ -192,6 +220,7 @@ function getInstance(art) {
   });
   art.on("video:timeupdate", () => {
     const currentTime = art.currentTime;
+
     if (useStorageState.value.s_autoskip === true) {
       if (
         time2Skip.value?.results.op &&
@@ -299,7 +328,6 @@ export default {
   },
 };
 </script>
-<!-- eslint-disable vue/no-multiple-template-root -->
 <template>
   <div v-if="strmLoading" class="loadingBlock">
     <v-progress-circular :size="45" indeterminate />
@@ -481,10 +509,12 @@ export default {
   display: grid;
   place-items: center;
 }
+
 .epinf_card {
   aspect-ratio: 9/7;
   overflow-y: scroll !important;
 }
+
 @media (min-width: 1280px) {
   .epinf_card {
     aspect-ratio: 9/10.3;
