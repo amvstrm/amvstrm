@@ -15,6 +15,7 @@ const debouncedSearch = debounce(async (query) => {
 </script>
 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
 <template>
+<ClientOnly>
   <v-menu
     close-on-content-click
     no-click-animation
@@ -35,7 +36,7 @@ const debouncedSearch = debounce(async (query) => {
         @update:model-value="debouncedSearch(search)"
       />
     </template>
-    <ClientOnly>
+    
       <v-card>
         <v-list lines="two">
           <v-list-item title="Search result" />
@@ -87,7 +88,7 @@ const debouncedSearch = debounce(async (query) => {
             <v-list-item-title>Search more...</v-list-item-title>
           </v-list-item>
         </v-list>
-      </v-card>
-    </ClientOnly>
-  </v-menu>
+      </v-card> 
+    </v-menu>
+  </ClientOnly>
 </template>
