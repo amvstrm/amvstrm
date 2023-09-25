@@ -1,19 +1,17 @@
 # Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
 v: 0
+icon: public/logo-512x512.png
 micros:
   - name: amvstrmnuxt3
     src: .
-    engine: nodejs16
+    engine: nuxt
     primary: true
     public: true
     run: node .output/server/index.mjs
-    commands:
-      - npm install
-      - npm run build
     presets:
       env:
         - name: API_URL
-          default: https://new-api.amvstr.ml
+          default: https://api.amvstr.me
         - name: VERSION
           default: v2  
         - name: DISQUS_ID
