@@ -4,11 +4,11 @@ import { useStorage } from "@vueuse/core";
 useSeoMeta({
   ogTitle: "Bookmarker",
   ogDescription: "amvstrm`s local bookmaker",
-  ogImage: "[og:image]",
-  ogUrl: "[og:url]",
+  ogImage: "",
+  ogUrl: "",
   twitterTitle: "Bookmarker - amvstrm",
   twitterDescription: "amvstrm`s local bookmaker",
-  twitterImage: "[twitter:image]",
+  twitterImage: "",
   twitterCard: "summary",
 });
 
@@ -19,12 +19,80 @@ useHead({
   title: "Bookmarker",
 });
 
-const state = useStorage("site-bookmarker", []);
+const bk_state = useStorage("site-bookmarker", []);
+const t_d_state = useStorage("artplayer_settings", {});
+const swatch_d_state = useStorage("site-watch", {});
+const cfg = useStorage("cloud-cfg", {
+  enabled: false,
+  deta_collection_key: "",
+});
 
+const bk_data = ref();
 const dialog_text = ref("");
 const dialog_title = ref("");
 const app_dialog = ref(false);
 const clear_dia = ref(false);
+const cfg_dialog = ref(false);
+const cfg_cloud_enable = ref(false);
+const cfg_deta_clct_key = ref("");
+
+if (cfg.value.enabled) {
+  (cfg_cloud_enable.value = cfg.value.enabled),
+    (cfg_deta_clct_key.value = cfg.value.deta_collection_key);
+
+  const { data } = await useFetch("/api/getData", {
+    method: "GET",
+    headers: {
+      "x-space-collection": cfg.value.deta_collection_key,
+    },
+  });
+  bk_data.value = data.value?.data?.app_bookmark_data || [];
+  bk_state.value = data.value?.data?.app_bookmark_data;
+} else {
+  bk_data.value = bk_state.value;
+}
+
+const saveAlltoDB = async () => {
+  await useFetch("/api/saveToDB?mutate=saved_all", {
+    method: "POST",
+    headers: {
+      "x-space-collection": cfg.value.deta_collection_key,
+    },
+    body: {
+      bookmarks: bk_state.value,
+      plyr_data: t_d_state.value,
+      latest_watch: swatch_d_state.value,
+    },
+  });
+
+  app_dialog.value = true;
+  dialog_title.value = "Success";
+  dialog_text.value = "Saved to cloud successfully";
+};
+
+const checkStatus = async () => {
+  if (cfg_cloud_enable.value == true && !cfg_deta_clct_key.value) {
+    alert("Please enter a valid Deta project key");
+    cfg_dialog.value = true;
+  } else {
+    if (
+      confirm(
+        "This might override the local bookmarked data, Do you want to proceed?"
+      ) == true
+    ) {
+      cfg.value.deta_collection_key = cfg_deta_clct_key.value;
+      cfg.value.enabled = cfg_cloud_enable.value;
+      cfg_dialog.value = false;
+      location.reload();
+
+      bk_state.value = data.value?.data?.app_bookmark_data;
+      t_d_state.value = data.value?.data?.app_player_data;
+      swatch_d_state.value = data.value?.data.app_user_last_data;
+    } else {
+      cfg_dialog.value = false;
+    }
+  }
+};
 
 const uuid = (length) => {
   let result = "";
@@ -66,14 +134,16 @@ const importData = async () => {
       const dataStr = event.target.result;
       const validatedData = validateImportedData(
         dataStr,
-        fileName.split("-amvbookmarker-")[1].split(".")[0]
+        fileName.split("-amvbkudata-")[1].split(".")[0]
       );
       if (validatedData) {
         app_dialog.value = true;
         dialog_title.value = "Success";
         dialog_text.value = "Imported successfully";
         const parser = JSON.parse(dataStr);
-        state.value = parser.app_bookmark_data;
+        bk_state.value = parser.app_bookmark_data;
+        swatch_d_state.value = parser.app_last_watch;
+        t_d_state.value = parser.app_artplyr_data;
       } else {
         app_dialog.value = true;
         dialog_title.value = "Error";
@@ -88,15 +158,17 @@ const importData = async () => {
 const exportData = () => {
   const data = {
     "app-security-note":
-      "DO NOT MODIFY BMKID OR ELSE WHEN IMPORTED YOU WILL NOT ABLE TO GET THE DATA",
+      "DO NOT MODIFY BMKID AND RENAME THE FILE OR ELSE WHEN THE DATA IMPORTED YOU WILL NOT ABLE TO GET THE DATA",
     exported_date: new Date().toJSON(),
     bmkid: app_set_id,
-    app_bookmark_data: [...state.value],
+    app_bookmark_data: [...bk_state.value],
+    app_artplyr_data: t_d_state.value,
+    app_last_watch: swatch_d_state.value,
   };
   const dataStr = JSON.stringify(data);
   const dataUri =
     "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-  const exportFileName = `${Date.now()}-amvbookmarker-${app_set_id}.json`;
+  const exportFileName = `${Date.now()}-amvbkudata-${app_set_id}.json`;
   const linkElement = document.createElement("a");
   linkElement.setAttribute("href", dataUri);
   linkElement.setAttribute("download", exportFileName);
@@ -150,6 +222,46 @@ const clearData = () => {
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="cfg_dialog" eager scrim="#191919" width="auto">
+        <v-card>
+          <v-card-title> Config </v-card-title>
+          <v-list lines="three">
+            <v-list-subheader>Cloud (BETA)</v-list-subheader>
+            <v-list-item>
+              <template #prepend>
+                <v-list-item-action start>
+                  <v-checkbox-btn v-model="cfg_cloud_enable" />
+                </v-list-item-action>
+              </template>
+              <v-list-item-title>Using Cloud</v-list-item-title>
+              <v-list-item-subtitle>
+                Easily sync your bookmarked data, play times, and watch history
+                to other devices using Deta Collection.
+              </v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item>
+              <v-text-field
+                v-model="cfg_deta_clct_key"
+                label="Your Deta Collection key"
+                clearable
+                prepend-icon="mdi-lock"
+                :disabled="!cfg_cloud_enable"
+                variant="underlined"
+                type="password"
+              />
+            </v-list-item>
+          </v-list>
+          <v-card-actions>
+            <v-btn
+              href="https://docs.amvstr.me/help/bookmark#cloud-integration"
+            >
+              Help ?
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn @click="checkStatus"> Ok </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </ClientOnly>
     <v-row align="center">
       <v-col>
@@ -162,26 +274,32 @@ const clearData = () => {
             <v-btn v-bind="props" icon="mdi-chevron-down-box" variant="text" />
           </template>
           <v-list>
+            <v-list-item
+              title="Save All (Cloud)"
+              :disabled="!cfg.enabled"
+              @click="saveAlltoDB"
+            />
             <v-list-item title="Import" @click="importData" />
             <v-list-item title="Export" @click="exportData" />
             <v-list-item title="Clear All" @click="clear_dia = true" />
+            <v-list-item title="Configure Cloud" @click="cfg_dialog = true" />
             <v-list-item
               title="Help"
-              href="https://docs.amvstr.ml/help/bookmark"
+              href="https://docs.amvstr.me/help/bookmark"
             />
           </v-list>
         </v-menu>
       </v-col>
     </v-row>
     <v-divider class="my-5" />
-    <div v-if="state.length === 0" style="height: 600px">
+    <div v-if="bk_data.length === 0" style="height: 600px">
       <div class="text-center">
         <v-icon color="grey--text" size="100"> mdi-bookmark-outline </v-icon>
         <h2>No Bookmarks</h2>
       </div>
     </div>
     <div class="grid">
-      <div v-for="(d, i) in state" :key="i" class="d-flex justify-center">
+      <div v-for="(d, i) in bk_data" :key="i" class="d-flex justify-center">
         <AnimeCard
           :id="d.id"
           :title="d.title"
