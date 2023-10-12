@@ -245,76 +245,125 @@ const stringInstring = '""';
                 v-model="episode_dialog"
                 scrim="#202020"
                 max-width="500px"
+                height="auto"
                 scrollable
               >
-                <v-card>
+                <v-card elevation="10">
                   <v-card-title>Episode</v-card-title>
-                  <v-card>
+                  <v-card elevation="0">
                     <v-tabs v-model="ep_tab" grow="">
-                      <v-tab value="sub"> SUB </v-tab>
-                      <v-tab value="dub"> DUB </v-tab>
+                      <v-tab value="eplist"> Episode list </v-tab>
                       <v-tab value="other"> Other </v-tab>
                     </v-tabs>
                     <v-card-text>
                       <v-window v-model="ep_tab">
-                        <v-window-item value="sub">
-                          <v-progress-circular
-                            v-if="loadAni"
-                            :size="40"
-                            indeterminate
-                          />
-                          <div
-                            v-else-if="
-                              !epAni ||
-                              !epAni?.episodes ||
-                              epAni?.episodes.length === 0
-                            "
-                          >
-                            Episodes not found or not available...
+                        <v-window-item value="eplist">
+                          <div>
+                            <v-select
+                              v-model="selectedProvider"
+                              clearable
+                              label="Select streaming provider"
+                              :items="[
+                                'Gogoanime',
+                                'Gogoanime (DUB)',
+                                'Zoro/Aniwatch',
+                                'Animepahe',
+                                '9anime/Aniwave',
+                              ]"
+                              variant="solo"
+                            ></v-select>
+                            <v-list
+                              v-if="selectedProvider == 'Gogoanime'"
+                              lines="two"
+                              height="300px"
+                            >
+                              <v-progress-circular
+                                v-if="loadAni"
+                                :size="40"
+                                indeterminate
+                              />
+                              <div
+                                v-else-if="
+                                  !epAni ||
+                                  !epAni?.episodes ||
+                                  epAni?.episodes.length === 0
+                                "
+                              >
+                                Episodes not found or not available...
+                              </div>
+                              <div v-else-if="epAniError">
+                                Episodes failed to load due to API error!
+                              </div>
+                              <v-list-item
+                                v-for="(ep, i) in epAni.episodes"
+                                v-else
+                                :key="i"
+                                :to="`/watch/${useRoute().params.id}-${ep.id}`"
+                                title="Episode"
+                                :subtitle="ep.id.split('-episode-')[1]"
+                              />
+                            </v-list>
+                            <v-list
+                              v-else-if="selectedProvider == 'Gogoanime (DUB)'"
+                              lines="two"
+                              height="300px"
+                            >
+                              <v-progress-circular
+                                v-if="loadAniDub"
+                                :size="40"
+                                indeterminate
+                              />
+                              <div
+                                v-else-if="
+                                  !epAniDub ||
+                                  !epAniDub?.episodes ||
+                                  epAniDub?.episodes.length === 0
+                                "
+                              >
+                                Episodes not found or not available...
+                              </div>
+                              <div v-else-if="epDubAniError">
+                                Episodes failed to load due to API error!
+                              </div>
+                              <v-list-item
+                                v-for="(ep, i) in epAniDub.episodes"
+                                v-else
+                                :key="i"
+                                :to="`/watch/${useRoute().params.id}-${ep.id}`"
+                                title="Episode"
+                                :subtitle="ep.id.split('-episode-')[1]"
+                              />
+                            </v-list>
+                            <v-list
+                              v-else-if="selectedProvider == 'Zoro/Aniwatch'"
+                              lines="two"
+                              height="300px"
+                            >
+                              Comming Soon
+                            </v-list>
+                            <v-list
+                              v-else-if="selectedProvider == 'Animepahe'"
+                              lines="two"
+                              height="300px"
+                            >
+                              Comming Soon
+                            </v-list>
+                            <v-list
+                              v-else-if="selectedProvider == '9anime/Aniwave'"
+                              lines="two"
+                              height="300px"
+                            >
+                              Comming Soon
+                            </v-list>
                           </div>
-                          <div v-else-if="epAniError">
-                            Episodes failed to load due to API error!
-                          </div>
-                          <v-list v-else lines="two" height="300px">
-                            <v-list-item
-                              v-for="(ep, i) in epAni.episodes"
-                              :key="i"
-                              :to="`/pwa/watch/${useRoute().params.id}-${ep.id}`"
-                              title="Episode"
-                              :subtitle="ep.id.split('-episode-')[1]"
-                            />
-                          </v-list>
-                        </v-window-item>
-                        <v-window-item value="dub">
-                          <v-progress-circular
-                            v-if="loadAniDub"
-                            :size="40"
-                            indeterminate
-                          />
-                          <div
-                            v-else-if="
-                              !epAniDub ||
-                              !epAniDub?.episodes ||
-                              epAniDub?.episodes.length === 0
-                            "
-                          >
-                            Episodes not found or not available...
-                          </div>
-                          <div v-else-if="epDubAniError">
-                            Episodes failed to load due to API error!
-                          </div>
-                          <v-list v-else lines="two" height="300px">
-                            <v-list-item
-                              v-for="(ep, i) in epAniDub.episodes"
-                              :key="i"
-                              :to="`/pwa/watch/${useRoute().params.id}-${ep.id}`"
-                              title="Episode"
-                              :subtitle="ep.id.split('-episode-')[1]"
-                            />
-                          </v-list>
                         </v-window-item>
                         <v-window-item value="other">
-                          <v-list v-if="!anime.id_provider || anime.id_provider !== null" lines="two">
+                          <v-list
+                            v-if="
+                              !anime.id_provider || anime.id_provider !== null
+                            "
+                            lines="two"
+                          >
                             <v-list-item
                               title="Gogoanime"
                               :subtitle="
