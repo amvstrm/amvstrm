@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@mdi/font": "^7.2.96",
-    "@nuxt/devtools": "^0.6.3",
+    "@nuxt/devtools": "^1.0.0-beta.0",
     "@nuxt/eslint-config": "^0.1.1",
     "@nuxtjs/eslint-module": "^4.0.2",
     "@typescript-eslint/eslint-plugin": "^5.59.5",
@@ -26,16 +26,16 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "nuxt": "^3.7.3",
+    "nuxt-csurf": "^1.3.1",
     "nuxt-disqus": "^1.0.1",
     "prettier": "^2.8.8",
     "vite-plugin-pwa": "^0.16.4",
-    "vite-plugin-vuetify": "^1.0.2",
-    "vue-eslint-parser": "^9.2.1"
+    "vue-eslint-parser": "^9.2.1",
+    "vuetify-nuxt-module": "^0.5.13"
   },
   "dependencies": {
     "artplayer": "^5.0.4",
     "artplayer-plugin-hls-quality": "^2.0.0",
-    "artplayer-plugin-vtt-thumbnail": "file:package/artplayer-plugin-vtt-thumbnail-1.0.0.tgz",
     "axios": "^1.4.0",
     "deta": "^2.0.0",
     "hls.js": "^1.4.0",
