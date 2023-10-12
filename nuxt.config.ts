@@ -1,6 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-import vuetify from "vite-plugin-vuetify";
-
 export default defineNuxtConfig({
   app: {
     head: {
@@ -60,6 +57,14 @@ export default defineNuxtConfig({
     transpile: ["vuetify"],
   },
 
+  vuetify:{
+    vuetifyOptions: {
+      theme: {
+        defaultTheme: "dark"
+      }
+    }
+  },
+
   routeRules: {
     "/": { static: true, ssr: true, swr: true },
     "/search": { static: true },
@@ -91,12 +96,9 @@ export default defineNuxtConfig({
     "@nuxtjs/eslint-module",
     "@vite-pwa/nuxt",
     "@vueuse/nuxt",
-    async (options, nuxt) => {
-      nuxt.hooks.hook("vite:extendConfig", (config) => {
-        config?.plugins?.push(vuetify());
-      });
-    },
     "nuxt-disqus",
+    "vuetify-nuxt-module",
+    "nuxt-csurf",
   ],
   disqus: {
     shortname: process.env.DISQUS_ID,
