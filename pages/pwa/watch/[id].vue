@@ -139,8 +139,9 @@ setHistory.value.latest_anime_watched = latestAnimeWatched;
 setHistory.value.latest_watched_date = Date.now();
 
 const get_key = useStorage("cloud-cfg", {});
+
 if (get_key.value.enabled) {
-  await useFetch("/api/saveToDB?mutate=add_latest_watch", {
+  await useCsrfFetch("/api/saveToDB?mutate=add_latest_watch", {
     method: "POST",
     headers: {
       "x-space-collection": get_key.value.deta_collection_key,
@@ -149,19 +150,25 @@ if (get_key.value.enabled) {
       latest_watch: useStorage("site-watch", {}).value,
     },
   });
-
-  setInterval(() => {
-    useFetch("/api/saveToDB?mutate=save_plyr_data", {
-      method: "POST",
-      headers: {
-        "x-space-collection": get_key.value.deta_collection_key,
-      },
-      body: {
-        plyr_data: useStorage("artplayer_settings", {}).value,
-      },
-    });
-  }, 120000);
 }
+
+const savedTime = async () => {
+  if (get_key.value.enabled) {
+    setInterval(() => {
+      useCsrfFetch("/api/saveToDB?mutate=save_plyr_data", {
+        method: "POST",
+        headers: {
+          "x-space-collection": get_key.value.deta_collection_key,
+        },
+        body: {
+          plyr_data: useStorage("artplayer_settings", {}).value,
+        },
+      });
+    }, 120000);
+  } else {
+    return true;
+  }
+};
 
 function getInstance(art) {
   art.setting.add({
@@ -213,6 +220,7 @@ function getInstance(art) {
     }
   });
   art.on("play", () => {
+    savedTime();
     art.layers.show = false;
   });
   art.on("pause", () => {
@@ -289,6 +297,7 @@ function getInstance(art) {
     }
   });
   art.on("video:ended", () => {
+    savedTime();
     if (useStorageState.value.s_autonext === true) {
       const currentEpisodeIndex = ep?.value.episodes.findIndex(
         (episode) => episode.id.split(`-episode-`)[1] === getEP
@@ -299,7 +308,7 @@ function getInstance(art) {
       ) {
         art.notice.show = "Next episode >";
         const nextEpisode = ep?.value.episodes[currentEpisodeIndex - 1];
-        navigateTo(`/pwa/watch/${getID}-${nextEpisode.id}`, {
+        navigateTo(`/watch/${getID}-${nextEpisode.id}`, {
           external: true,
         });
       } else {
