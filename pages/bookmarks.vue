@@ -53,7 +53,7 @@ if (cfg.value.enabled) {
 }
 
 const saveAlltoDB = async () => {
-  await useFetch("/api/saveToDB?mutate=saved_all", {
+  await useCsrfFetch("/api/saveToDB?mutate=saved_all", {
     method: "POST",
     headers: {
       "x-space-collection": cfg.value.deta_collection_key,
