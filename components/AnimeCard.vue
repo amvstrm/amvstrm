@@ -79,7 +79,7 @@ const get_key = useStorage("cloud-cfg", {});
 async function saveBookmarks(bookmarks) {
   state.value = bookmarks || [];
   if (get_key.value.enabled) {
-    await useFetch("/api/saveToDB?mutate=add_bookmark", {
+    await useCsrfFetch("/api/saveToDB?mutate=add_bookmark", {
       method: "POST",
       headers: {
         "x-space-collection": get_key.value.deta_collection_key,
