@@ -4,7 +4,7 @@
 <script>
 import Artplayer from "artplayer";
 import artplayerPluginHlsQuality from "artplayer-plugin-hls-quality";
-import artplayerPluginVtt from "../package/artplayer-vtt-plugin";
+import artplayerPluginVttThumbnail from "artplayer-plugin-thumbnail";
 import Hls from "hls.js";
 
 export default {
@@ -40,7 +40,7 @@ export default {
           setting: true,
           auto: "Auto",
         }),
-        artplayerPluginVtt({
+        artplayerPluginVttThumbnail({
           vtt: this.vtt,
         }),
       ],
@@ -71,6 +71,9 @@ export default {
           },
         },
       ],
+      screenshot: true,
+      miniProgressBar: true,
+      airplay: true,
       autoSize: true,
       setting: true,
       fullscreen: true,
