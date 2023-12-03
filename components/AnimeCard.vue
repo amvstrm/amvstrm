@@ -30,6 +30,53 @@
     >
       <img class="card-img" loading="lazy" :src="imgsrc" :alt="imgalt" />
     </NuxtLink>
+    <div
+      class="d-none d-md-flex d-lg-flex align-center justify-center"
+      style="gap: 0.2rem"
+    >
+      <v-chip
+        v-if="props.type !== ''"
+        label
+        :color="
+          props?.type === 'TV'
+            ? 'success'
+            : props?.type === 'SPECIAL'
+            ? 'info'
+            : props?.type === 'MOVIE'
+            ? 'warning'
+            : props?.type === 'OVA' || props?.type === 'ONA'
+            ? 'danger'
+            : ''
+        "
+      >
+        {{ props.type }}
+      </v-chip>
+      <v-chip
+        v-if="props.status !== ''"
+        label
+        :color="
+          props?.status === 'FINISHED'
+            ? 'success'
+            : props?.status === 'RELEASING'
+            ? 'warning'
+            : props?.status === 'NOT_YET_RELEASED'
+            ? 'info'
+            : props?.status === 'CANCELLED'
+            ? 'danger'
+            : ''
+        "
+      >
+        {{
+          props.status === "FINISHED"
+            ? "Finished"
+            : props?.status === "RELEASING"
+            ? "Released"
+            : props?.status === "NOT_YET_RELEASED"
+            ? "Soon"
+            : "No data"
+        }}
+      </v-chip>
+    </div>
     <NuxtLink
       class="card-title"
       :to="
@@ -44,22 +91,51 @@
 import { useStorage } from "@vueuse/core";
 
 const props = defineProps({
-  // eslint-disable-next-line vue/require-default-prop
-  title: String,
-  // eslint-disable-next-line vue/require-default-prop
-  imgsrc: String,
-  // eslint-disable-next-line vue/require-default-prop
-  imgalt: Number,
-  // eslint-disable-next-line vue/require-default-prop
-  animeColor: String || "white",
-  // eslint-disable-next-line vue/require-default-prop
-  id: Number,
-  // eslint-disable-next-line vue/require-default-prop
-  year: Number,
-  // eslint-disable-next-line vue/require-default-prop
-  totalEp: Number,
-  // eslint-disable-next-line vue/require-default-prop
-  type: String,
+  title: {
+    default: "",
+    required: true,
+    type: String,
+  },
+  imgsrc: {
+    default: "",
+    required: true,
+    type: String,
+  },
+  // eslint-disable-next-line vue/require-prop-types
+  imgalt: {
+    default: "",
+    required: true,
+  },
+  // eslint-disable-next-line vue/require-prop-types
+  animeColor: {
+    default: "",
+    required: true,
+  },
+  // eslint-disable-next-line vue/require-prop-types
+  id: {
+    default: "",
+    required: true,
+  },
+  year: {
+    default: 0,
+    required: true,
+    type: Number,
+  },
+  // eslint-disable-next-line vue/require-prop-types
+  totalEp: {
+    default: 0,
+    required: true,
+  },
+  type: {
+    default: "",
+    required: true,
+    type: String,
+  },
+  status: {
+    default: "",
+    required: true,
+    type: String,
+  },
 });
 
 const state = useStorage("site-bookmarker", []);
@@ -79,7 +155,7 @@ const get_key = useStorage("cloud-cfg", {});
 async function saveBookmarks(bookmarks) {
   state.value = bookmarks || [];
   if (get_key.value.enabled) {
-    await useCsrfFetch("/api/saveToDB?mutate=add_bookmark", {
+    await useFetch("/api/saveToDB?mutate=add_bookmark", {
       method: "POST",
       headers: {
         "x-space-collection": get_key.value.deta_collection_key,
@@ -106,6 +182,7 @@ function addBookmark() {
     type: props.type,
     totalEp: props.totalEp,
     year: props.year,
+    status: props.status
   });
   bookmarkStatus.value = "mdi-bookmark"; // Update bookmarkStatus
   saveBookmarks(bookmarks);
