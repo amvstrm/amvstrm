@@ -154,6 +154,7 @@ const stringInstring = '""';
                 :year="anime?.year"
                 :type="anime?.format"
                 :total-ep="anime?.episodes ? anime?.episodes : 0"
+                :status="anime?.status"
               />
             </div>
           </div>
@@ -223,6 +224,7 @@ const stringInstring = '""';
                 :year="anime?.year"
                 :type="anime?.format"
                 :total-ep="anime?.episodes ? anime?.episodes : 0"
+                :status="anime?.status"
               />
             </div>
             <v-btn
@@ -267,9 +269,6 @@ const stringInstring = '""';
                               :items="[
                                 'Gogoanime',
                                 'Gogoanime (DUB)',
-                                'Zoro/Aniwatch',
-                                'Animepahe',
-                                '9anime/Aniwave',
                               ]"
                               variant="solo"
                             ></v-select>
@@ -299,7 +298,7 @@ const stringInstring = '""';
                                 v-for="(ep, i) in epAni.episodes"
                                 v-else
                                 :key="i"
-                                :to="`/watch/${useRoute().params.id}-${ep.id}`"
+                                :to="`/pwa/watch/${useRoute().params.id}-${ep.id}`"
                                 title="Episode"
                                 :subtitle="ep.id.split('-episode-')[1]"
                               />
@@ -330,31 +329,10 @@ const stringInstring = '""';
                                 v-for="(ep, i) in epAniDub.episodes"
                                 v-else
                                 :key="i"
-                                :to="`/watch/${useRoute().params.id}-${ep.id}`"
+                                :to="`/pwa/watch/${useRoute().params.id}-${ep.id}`"
                                 title="Episode"
                                 :subtitle="ep.id.split('-episode-')[1]"
                               />
-                            </v-list>
-                            <v-list
-                              v-else-if="selectedProvider == 'Zoro/Aniwatch'"
-                              lines="two"
-                              height="300px"
-                            >
-                              Comming Soon
-                            </v-list>
-                            <v-list
-                              v-else-if="selectedProvider == 'Animepahe'"
-                              lines="two"
-                              height="300px"
-                            >
-                              Comming Soon
-                            </v-list>
-                            <v-list
-                              v-else-if="selectedProvider == '9anime/Aniwave'"
-                              lines="two"
-                              height="300px"
-                            >
-                              Comming Soon
                             </v-list>
                           </div>
                         </v-window-item>
@@ -622,6 +600,7 @@ const stringInstring = '""';
           <v-card>
             <v-tabs v-model="infotab">
               <v-tab value="descrpt"> Description </v-tab>
+              <v-tab value="related"> Related </v-tab>
               <v-tab value="recomd"> Recommendations </v-tab>
             </v-tabs>
             <v-card-text>
@@ -629,6 +608,45 @@ const stringInstring = '""';
                 <v-window-item value="descrpt">
                   <!-- eslint-disable-next-line vue/no-v-html -->
                   <div v-html="anime?.description" />
+                </v-window-item>
+                <v-window-item value="related">
+                  <v-list lines="three">
+                    <v-list-item
+                      v-if="anime?.relation.length < 0"
+                      title="No relation"
+                      subtitle="Not available by Anilist"
+                    />
+                    <v-list-item
+                      v-for="(item, i) in anime.relation.filter((item) => item.type !== 'MANGA')"
+                      v-else
+                      :key="i"
+                      :title="item.title.userPreferred"
+                      :subtitle="`Episode ${item.episodes} / ${
+                        item.status === 'FINISHED'
+                          ? 'Finished'
+                          : item?.status === 'RELEASING'
+                          ? 'Currently Releasing'
+                          : item?.status === 'NOT_YET_RELEASED'
+                          ? 'Not Released'
+                          : item?.status === 'CANCELLED'
+                          ? 'Cancelled'
+                          : 'No data'
+                      }`"
+                      :to="'/anime/' + item.id"
+                    >
+                      <template #prepend>
+                        <v-img
+                          class="mr-5"
+                          style="border-radius: 4px; width: 60px; height: 10%"
+                          :src="item.coverImage.large"
+                        />
+                      </template>
+                      <template #append>
+                        <v-icon color="yellow"> mdi-star </v-icon>
+                        {{ item.averageScore / 10 }}
+                      </template>
+                    </v-list-item>
+                  </v-list>
                 </v-window-item>
                 <v-window-item value="recomd">
                   <v-list lines="three">
