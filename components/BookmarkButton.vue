@@ -1,41 +1,59 @@
 <template>
-  <v-btn :prepend-icon="bookmarkStatus" :color="bookmarkColor" @click="handleBookmark">
+  <v-btn
+    :prepend-icon="bookmarkStatus"
+    :color="bookmarkColor"
+    @click="handleBookmark"
+  >
     {{ isAlreadyBookmarked ? "Unbookmarked" : "Bookmark" }}
   </v-btn>
 </template>
 
 <script>
 import { useStorage } from "@vueuse/core";
-
 export default {
   props: {
-    id: {
-      type: String || Number,
-      required: true,
-    },
     title: {
-      type: String,
+      default: "",
       required: true,
+      type: String,
     },
     imgsrc: {
+      default: "",
+      required: true,
       type: String,
+    },
+    imgalt: {
+      default: "",
       required: true,
     },
     animeColor: {
-      type: String,
+      default: "",
       required: true,
-    },
-    type: {
       type: String,
-      required: true,
     },
-    totalEp: {
-      type: Number,
+    id: {
+      default: "",
       required: true,
     },
     year: {
-      type: Number,
+      default: 0,
       required: true,
+      type: Number,
+    },
+    totalEp: {
+      default: 0,
+      required: true,
+      type: Number,
+    },
+    type: {
+      default: "",
+      required: true,
+      type: String,
+    },
+    status: {
+      default: "",
+      required: true,
+      type: String,
     },
   },
   setup(props) {
@@ -47,20 +65,20 @@ export default {
       isAlreadyBookmarked.value ? "mdi-bookmark-outline" : "mdi-bookmark"
     );
     const bookmarkColor = ref(isAlreadyBookmarked.value ? "white" : "warning");
-    const get_key = useStorage("cloud-cfg", {})
+    const get_key = useStorage("cloud-cfg", {});
     async function saveBookmarks(bookmarks) {
       state.value = bookmarks || [];
 
       if (get_key.value.enabled) {
-        await useCsrfFetch('/api/saveToDB?mutate=add_bookmark', {
-          method: 'POST',
+        await useFetch("/api/saveToDB?mutate=add_bookmark", {
+          method: "POST",
           headers: {
-            'x-space-collection': get_key.value.deta_collection_key
+            "x-space-collection": get_key.value.deta_collection_key,
           },
           body: {
             bookmarks,
-          }
-        })
+          },
+        });
       }
     }
 
@@ -77,6 +95,7 @@ export default {
         type: props.type,
         totalEp: props.totalEp,
         year: props.year,
+        status: props.status,
       });
       bookmarkStatus.value = "mdi-bookmark";
       bookmarkColor.value = "white";
