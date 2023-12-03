@@ -7,15 +7,19 @@ const gotoRandomID = async () => {
   );
   navigateTo(`/anime/${data.value.id[0]}`);
 };
+
 </script>
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" temporary="">
       <v-list>
         <v-list-item>
-          <img
+          <NuxtImg
             src="/logo.png"
-            style="display: flex; width: 140px; height: 100%"
+            style="display: flex;"
+            alt="amvstrm"
+            quality="80"
+            width="140px"
           />
         </v-list-item>
         <ClientOnly>
@@ -68,9 +72,12 @@ const gotoRandomID = async () => {
     <v-app-bar absolute="">
       <v-col>
         <NuxtLink to="/">
-          <img
+          <NuxtImg
             src="/logo.png"
-            style="display: flex; width: 140px; height: 100%"
+            style="display: flex;"
+            alt="amvstrm"
+            quality="80"
+            width="140px"
           />
         </NuxtLink>
       </v-col>
