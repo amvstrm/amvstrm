@@ -76,6 +76,7 @@ export default defineNuxtConfig({
     "/download/**": { static: true, ssr: false },
     "/bookmarks": { static: true, ssr: false, prerender: true },
     "/pwa": { static: true, ssr: false },
+    "/pwa/bookmark": { static: true, ssr: false },
     "/pwa/search": { static: true, ssr: false },
     "/pwa/anime/**": { static: true, ssr: false },
     "/pwa/watch/**": { static: true, ssr: false },
@@ -88,6 +89,12 @@ export default defineNuxtConfig({
         "Cache-Control": "public, max-age=0, must-revalidate",
       },
     },
+    "/api/saveToDB": {
+      cors: true,
+    },
+    "/api/getData": {
+      cors: true
+    }
   },
 
   css: ["~/assets/style.css"],
@@ -98,7 +105,7 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "nuxt-disqus",
     "vuetify-nuxt-module",
-    "nuxt-csurf",
+    "@nuxt/image",
   ],
   disqus: {
     shortname: process.env.DISQUS_ID,
