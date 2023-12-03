@@ -308,6 +308,7 @@ const clearData = () => {
           :anime-color="d.color"
           :year="d.year"
           :type="d.type"
+          :status="d.status"
         />
       </div>
     </div>

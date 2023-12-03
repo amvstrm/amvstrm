@@ -53,7 +53,7 @@ if (cfg.value.enabled) {
 }
 
 const saveAlltoDB = async () => {
-  await useCsrfFetch("/api/saveToDB?mutate=saved_all", {
+  await useFetch("/api/saveToDB?mutate=saved_all", {
     method: "POST",
     headers: {
       "x-space-collection": cfg.value.deta_collection_key,
@@ -300,6 +300,7 @@ const clearData = () => {
           :anime-color="d.color"
           :year="d.year"
           :type="d.type"
+          :status="d?.status"
         />
       </div>
     </div>
