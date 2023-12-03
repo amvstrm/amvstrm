@@ -141,36 +141,40 @@ setHistory.value.latest_watched_date = Date.now();
 const get_key = useStorage("cloud-cfg", {});
 
 if (get_key.value.enabled) {
-  await useCsrfFetch("/api/saveToDB?mutate=add_latest_watch", {
+  await useFetch("/api/saveToDB?mutate=add_latest_watch", {
     method: "POST",
     headers: {
       "x-space-collection": get_key.value.deta_collection_key,
     },
     body: {
-      latest_watch: useStorage("site-watch", {}).value,
+      latest_watch: {
+        latest_anime_watched: latestAnimeWatched,
+        latest_watched_date: Date.now(),
+      },
     },
   });
 }
 
 const savedTime = async () => {
   if (get_key.value.enabled) {
-    setInterval(() => {
-      useCsrfFetch("/api/saveToDB?mutate=save_plyr_data", {
-        method: "POST",
-        headers: {
-          "x-space-collection": get_key.value.deta_collection_key,
-        },
-        body: {
-          plyr_data: useStorage("artplayer_settings", {}).value,
-        },
-      });
-    }, 120000);
+    useFetch("/api/saveToDB?mutate=save_plyr_data", {
+      method: "POST",
+      headers: {
+        "x-space-collection": get_key.value.deta_collection_key,
+      },
+      body: {
+        plyr_data: useStorage("artplayer_settings", {}).value,
+      },
+    });
   } else {
     return true;
   }
 };
 
 function getInstance(art) {
+  art.on("error", (error, reconnectTime) => {
+    console.info("video error!");
+  });
   art.setting.add({
     html: "Stream Source",
     width: 200,
@@ -224,6 +228,7 @@ function getInstance(art) {
     art.layers.show = false;
   });
   art.on("pause", () => {
+    savedTime();
     art.layers.show = true;
   });
   art.on("video:timeupdate", () => {
@@ -302,20 +307,21 @@ function getInstance(art) {
       const currentEpisodeIndex = ep?.value.episodes.findIndex(
         (episode) => episode.id.split(`-episode-`)[1] === getEP
       );
-      if (
-        currentEpisodeIndex !== -1 &&
-        currentEpisodeIndex < ep?.value.episodes.length + 1
-      ) {
-        art.notice.show = "Next episode >";
-        const nextEpisode = ep?.value.episodes[currentEpisodeIndex - 1];
-        navigateTo(`/watch/${getID}-${nextEpisode.id}`, {
-          external: true,
-        });
-      } else {
+      const nextEpisode = ep?.value.episodes[currentEpisodeIndex - 1];
+      if (currentEpisodeIndex === ep?.value.episodes.length - 1) {
         art.notice.show = "No more episode!";
+      } else {
+        navigateTo(
+          `/watch/${getID}-${getGogoID.split(`-episode-`)[0]}-episode-${
+            nextEpisode.id.split(`-episode-`)[1]
+          }`,
+          {
+            external: true,
+          }
+        );
+        art.notice.show = "Next episode >";
       }
     }
-    art.notice.show = "Episode ended";
   });
 }
 </script>
@@ -348,8 +354,9 @@ export default {
           <VideoPlayer
             v-if="switchplyr == 1"
             :option="{
+              id: useRoute().params.id || '',
               url: strm.stream.multi.main.url,
-              poster: anime.coverImage.large,
+              poster: anime.bannerImage || anime.coverImage.large,
               highlight: skipTimeHighlight(),
             }"
             :vtt="strm.stream?.tracks?.file"
@@ -388,7 +395,7 @@ export default {
           ></iframe>
         </ClientOnly>
       </v-col>
-      <v-col cols="">
+      <v-col>
         <v-card class="epinf_card">
           <div class="pa-4 d-flex justify-space-between">
             <div style="flex: 1">
@@ -502,11 +509,9 @@ export default {
       <v-col v-if="env.public.disqus_id" cols="12">
         <v-card id="comment">
           <v-card-title>Comment</v-card-title>
-          <ClientOnly>
-            <div class="pa-10">
-              <DisqusComments :identifier="useRoute().fullPath" />
-            </div>
-          </ClientOnly>
+          <div class="pa-10">
+            <DisqusComments :identifier="useRoute().fullPath" />
+          </div>
         </v-card>
       </v-col>
     </v-row>
