@@ -59,39 +59,35 @@ const {
         :src="item.bannerImage"
         cover
       >
-        <div class="d-flex flex-column align-center justify-end h-100">
-          <v-sheet
-            class="mb-1 pa-2 d-flex flex-row justify-space-between align-center"
-            rounded
-            :height="70"
-            :width="420"
-          >
-            <div>
-              <h4
-                style="
-                  width: 300px;
-                  overflow: hidden;
-                  transition: color 0.2s ease;
-                  display: -webkit-box;
-                  -webkit-box-orient: vertical;
-                  -webkit-line-clamp: 2;
-                "
-              >
-                {{ item.title.userPreferred }}
-              </h4>
-              <p class="text--secondary">
-                {{ item.title.native }}
-              </p>
-            </div>
-            <v-btn
-              :to="'/anime/' + item.id"
-              :color="
-                item.coverImage.color ? item.coverImage.color : 'transparent'
+        <div class="carousel-item">
+          <img :src="item.coverImage.large" alt="Carousel Image" />
+          <div class="d-flex flex-column pa-2 justify-center">
+            <h2>{{ item.title.userPreferred }}</h2>
+            <p class="text--secondary">
+              {{ item.title.native }}
+            </p>
+            <div
+              style="
+                overflow: hidden;
+                transition: color 0.2s ease;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
               "
-            >
-              <v-icon>mdi-open-in-new</v-icon>
-            </v-btn>
-          </v-sheet>
+              v-html="item.description"
+            />
+            <div class="pt-2">
+              <v-btn
+                :to="'/anime/' + item.id"
+                :color="
+                  item.coverImage.color ? item.coverImage.color : 'transparent'
+                "
+                append-icon="mdi-open-in-new"
+              >
+                Read more
+              </v-btn>
+            </div>
+          </div>
         </div>
       </v-carousel-item>
     </v-carousel>
@@ -162,6 +158,7 @@ const {
               :year="d.seasonYear"
               :type="d.format"
               :total-ep="d.episodes"
+              :status="d.status"
             />
           </div>
         </div>
@@ -200,6 +197,7 @@ const {
               :year="d.seasonYear"
               :type="d.format"
               :total-ep="d.episodes"
+              :status="d.status"
             />
           </div>
         </div>
@@ -207,8 +205,7 @@ const {
     </v-col>
   </v-container>
   <!-- MOBILE DEVICE -->
-  <!-- eslint-disable-next-line vue/no-multiple-template-root -->
-  <v-container class="d-lg-none d-sm-block d-xs" fluid>
+  <v-container class="d-lg-none d-sm-block d-xs mb-5" fluid>
     <h2>Trending Anime</h2>
     <div v-if="trpend" class="loadingBlock">
       <v-progress-circular :size="45" indeterminate />
@@ -237,6 +234,7 @@ const {
             :year="d.seasonYear"
             :type="d.format"
             :total-ep="d.episodes"
+            :status="d.status"
           />
         </div>
       </v-col>
@@ -269,6 +267,7 @@ const {
             :year="d.seasonYear"
             :type="d.format"
             :total-ep="d.episodes"
+            :status="d.status"
           />
         </div>
       </v-col>
@@ -311,5 +310,14 @@ const {
   .grid {
     grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
   }
+}
+
+.carousel-item {
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem;
+  height: 320px;
+  gap: 1rem;
 }
 </style>
