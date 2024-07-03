@@ -1,44 +1,41 @@
 <script setup>
-import debounce from "lodash.debounce";
-import axios from "axios";
-
 const env = useRuntimeConfig();
 const searchResults = ref();
 const search = ref("");
 
-const debouncedSearch = debounce(async (query) => {
-  const { data } = await axios.get(
+const debouncedSearch = useDebounceFn(async (query) => {
+  const data = await $fetch(
     `${env.public.API_URL}/api/${env.public.version}/search?q=${query}&limit=5`
   );
   searchResults.value = data;
 }, 500);
 </script>
-<!-- eslint-disable vue/no-use-v-if-with-v-for -->
 <template>
-<ClientOnly>
-  <v-menu
-    close-on-content-click
-    no-click-animation
-    origin="auto"
-    location="bottom"
-  >
-    <template #activator="{ props }">
-      <v-text-field
-        v-model="search"
-        variant="solo"
-        color="green"
-        label="Search"
-        flat
-        single-line
-        hide-details
-        prepend-inner-icon="mdi-magnify"
-        v-bind="props"
-        @update:model-value="debouncedSearch(search)"
-      />
-    </template>
-    
-      <v-card>
-        <v-list lines="two">
+  <ClientOnly>
+    <v-menu
+      close-on-content-click
+      no-click-animation
+      scroll-strategy="close"
+      location="bottom center"
+      origin="auto"
+    >
+      <template #activator="{ props }">
+        <v-text-field
+          v-model="search"
+          variant="solo"
+          color="green"
+          label="Search"
+          flat
+          single-line
+          hide-details
+          prepend-inner-icon="mdi-magnify"
+          v-bind="props"
+          @update:model-value="debouncedSearch(search)"
+        />
+      </template>
+
+      <v-card class="mt-2">
+        <v-list style="padding: 0 !important" lines="two">
           <v-list-item title="Search result" />
           <v-divider />
           <v-list-item
@@ -77,8 +74,10 @@ const debouncedSearch = debounce(async (query) => {
               }}
             </v-list-item-subtitle>
             <template #append>
-              <v-icon color="yellow"> mdi-star </v-icon>
-              {{ item.averageScore / 10 }}
+              <div class="d-flex" style="gap: 0.2rem; margin: 0 1rem">
+                <v-icon color="yellow"> mdi-star </v-icon>
+                {{ item.averageScore / 10 }}
+              </div>
             </template>
           </v-list-item>
           <v-list-item
@@ -88,7 +87,7 @@ const debouncedSearch = debounce(async (query) => {
             <v-list-item-title>Search more...</v-list-item-title>
           </v-list-item>
         </v-list>
-      </v-card> 
+      </v-card>
     </v-menu>
   </ClientOnly>
 </template>
