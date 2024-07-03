@@ -1,19 +1,23 @@
 <script>
 import { useStorage } from "@vueuse/core";
+
 export default {
   data() {
     return {
-      lStorage: useStorage("site-setting", {
+      lStorage: useStorage("site-settings", {
         allowCookies: true,
       }),
       showban: true,
     };
   },
   mounted() {
-    const { $posthog } = useNuxtApp();
-    if (!useRuntimeConfig().public.posthogPublicKey || useRuntimeConfig().public.posthogPublicKey == '') {
-      this.showban = false;
+    const posthogPublicKey = useRuntimeConfig().public.posthogPublicKey ?? "";
+    if (!posthogPublicKey) {
+      return;
     }
+
+    const { $posthog } = useNuxtApp();
+
     this.showban =
       !(
         $posthog().has_opted_out_capturing() ||
