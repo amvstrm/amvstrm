@@ -57,12 +57,12 @@ export default defineNuxtConfig({
     transpile: ["vuetify"],
   },
 
-  vuetify:{
+  vuetify: {
     vuetifyOptions: {
       theme: {
-        defaultTheme: "dark"
-      }
-    }
+        defaultTheme: "dark",
+      },
+    },
   },
 
   routeRules: {
@@ -93,8 +93,8 @@ export default defineNuxtConfig({
       cors: true,
     },
     "/api/getData": {
-      cors: true
-    }
+      cors: true,
+    },
   },
 
   css: ["~/assets/style.css"],
@@ -118,6 +118,7 @@ export default defineNuxtConfig({
       "manifest.webmanifest",
       "logo.png",
       "icon.png",
+      "wh-icon.png",
     ],
     manifest: {
       name: "amvstrm",
@@ -210,7 +211,7 @@ export default defineNuxtConfig({
           url: "/pwa",
           icons: [
             {
-              src: "https://api.iconify.design/mdi:home.svg",
+              src: "./pwa/home.svg",
             },
           ],
         },
@@ -220,7 +221,7 @@ export default defineNuxtConfig({
           url: "/pwa/search",
           icons: [
             {
-              src: "https://api.iconify.design/mdi:magnify.svg",
+              src: "./pwa/magnify.svg",
             },
           ],
         },
@@ -230,7 +231,7 @@ export default defineNuxtConfig({
           url: "/pwa/bookmarks",
           icons: [
             {
-              src: "https://api.iconify.design/mdi:book.svg",
+              src: "./pwa/book.svg",
             },
           ],
         },
@@ -240,15 +241,29 @@ export default defineNuxtConfig({
       categories: ["entertainment"],
     },
     workbox: {
+      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-          handler: "CacheFirst",
+          handler: "NetworkFirst",
           options: {
             cacheName: "google-fonts-cache",
             expiration: {
               maxEntries: 10,
               maxAgeSeconds: 60 * 60 * 24 * 365,
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        {
+          urlPattern: /^https:\/\/s4\.anilist\.co\/file\/anilist\/anime\/.*/i,
+          handler: "NetworkOnly",
+          options: {
+            cacheName: "anilist-img-cache",
+            expiration: {
+              maxAgeSeconds: 60 * 60 * 24 * 7,
             },
             cacheableResponse: {
               statuses: [0, 200],
@@ -275,7 +290,7 @@ export default defineNuxtConfig({
     },
   },
 
-  devtools: {
+  devtools: { 
     enabled: true,
   },
 });
