@@ -89,12 +89,6 @@ export default defineNuxtConfig({
         "Cache-Control": "public, max-age=0, must-revalidate",
       },
     },
-    "/api/saveToDB": {
-      cors: true,
-    },
-    "/api/getData": {
-      cors: true,
-    },
   },
 
   css: ["~/assets/style.css"],
@@ -290,7 +284,7 @@ export default defineNuxtConfig({
     },
   },
 
-  devtools: { 
+  devtools: {
     enabled: true,
   },
 });
