@@ -5,6 +5,7 @@
 import Artplayer from "artplayer";
 import artplayerPluginHlsQuality from "artplayer-plugin-hls-quality";
 import artplayerPluginVttThumbnail from "artplayer-plugin-thumbnail";
+import artplayerPluginChromecast from "artplayer-plugin-chromecast";
 import Hls from "hls.js";
 
 export default {
@@ -39,10 +40,18 @@ export default {
           control: false,
           setting: true,
           auto: "Auto",
+          getResolution: (level) => {
+            return level.height !== "unknown" ||
+              level.height === "" ||
+              !level.height
+              ? level.height + "P"
+              : "Auto";
+          },
         }),
         artplayerPluginVttThumbnail({
-          vtt: this.vtt,
+          vtt: this.vtt || "",
         }),
+        artplayerPluginChromecast({}),
       ],
       icons: {
         loading: `
@@ -57,6 +66,12 @@ export default {
           html: `© amvstrm ${new Date().getFullYear()}`,
           click: function () {
             window.open("/");
+          },
+        },
+        {
+          html: "Copy URL",
+          click: function () {
+            navigator.clipboard.writeText(window.location.href);
           },
         },
       ],
