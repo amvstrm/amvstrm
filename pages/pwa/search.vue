@@ -1,21 +1,12 @@
 <script setup>
-import debounce from "lodash.debounce";
-import axios from "axios";
-
 const env = useRuntimeConfig();
-const searchResults = ref();
-const search = ref();
-const searchLoading = ref(true);
-
-useHead({
-  htmlAttrs: {
-    lang: "en",
-  },
-  title: "Search Anime",
-});
-
+const searchResults = ref([]);
+const search = ref("");
+const searchLoading = ref(false);
+const isFocused = ref(false);
 const selectGenres = ref();
 const selectTags = ref();
+const errorMessage = ref("");
 
 const genreItems = [
   "Action",
@@ -223,44 +214,50 @@ const tagItems = [
   "Zombie",
 ];
 
-const debouncedSearch = debounce(async () => {
-  const { data } = await axios.post(
-    `${env.public.API_URL}/api/${env.public.version}/search`,
-    {
-      search: search.value,
-      genres: selectGenres.value,
-      tags: selectTags.value,
-    }
-  );
+const debouncedSearch = useDebounceFn(async (query) => {
+  searchLoading.value = true;
+  errorMessage.value = "";
 
-  searchResults.value = data;
-  searchLoading.value = false;
-}, 200);
+  try {
+    const data = await $fetch(
+      `${env.public.API_URL}/api/${env.public.version}/search`,
+      {
+        method: "POST",
+        body: {
+          search: query,
+          genres: selectGenres.value,
+          tags: selectTags.value,
+        },
+      }
+    );
+
+    searchResults.value = data.results;
+  } catch (error) {
+    errorMessage.value = "Failed to load search results.";
+  } finally {
+    searchLoading.value = false;
+  }
+}, 250);
 
 const query = useRoute().query;
 
-if (query.q || query.genres || query.tags) {
-  search.value = query?.q;
-  selectGenres.value =
-    query?.genres && query?.genres.includes(",")
-      ? query?.genres.split(",")
-      : query?.genres;
-  selectTags.value =
-    query?.tags && query?.tags.includes(",")
-      ? query?.tags.split(",")
-      : query?.tags;
-  debouncedSearch();
-}
+onMounted(() => {
+  if (query.q || query.genres || query.tags) {
+    search.value = query.q || "";
+    selectGenres.value = query.genres ? query.genres.split(",") : [];
+    selectTags.value = query.tags ? query.tags.split(",") : [];
+    debouncedSearch(search.value);
+  }
+});
+
+watch([search, selectGenres, selectTags], () => {
+  if (search.value) {
+    debouncedSearch(search.value);
+  }
+});
 </script>
+
 <template>
-  <v-breadcrumbs>
-    <template #prepend>
-      <v-icon size="small" icon="mdi-home"></v-icon>
-    </template>
-    <v-breadcrumbs-item title="Home" to="/pwa" />
-    <v-breadcrumbs-divider />
-    <v-breadcrumbs-item title="Search" />
-  </v-breadcrumbs>
   <v-container>
     <h1 class="mb-2">Search Anime</h1>
     <v-text-field
@@ -273,7 +270,7 @@ if (query.q || query.genres || query.tags) {
       single-line
       hide-details
       prepend-inner-icon="mdi-magnify"
-      @update:model-value="debouncedSearch()"
+      @focus="isFocused = true"
     />
     <v-row class="my-1">
       <v-col style="padding-bottom: 0" cols="12" sm="6">
@@ -283,7 +280,6 @@ if (query.q || query.genres || query.tags) {
           variant="solo"
           label="Genres"
           multiple
-          @update:model-value="debouncedSearch()"
         ></v-combobox>
       </v-col>
       <v-col style="padding-bottom: 0" cols="12" sm="6">
@@ -293,12 +289,11 @@ if (query.q || query.genres || query.tags) {
           variant="solo"
           label="Tags"
           multiple
-          @update:model-value="debouncedSearch()"
         ></v-combobox>
       </v-col>
     </v-row>
-    <v-card class="mt-4">
-      <v-card-text v-if="searchResults?.results ? false : true">
+    <v-card class="mt-2">
+      <v-card-text v-if="!isFocused && !searchLoading && !searchResults.length">
         <div class="loadingBlock" style="height: 40vh">
           <div class="d-flex flex-column align-center">
             <v-icon size="5rem">mdi-magnify</v-icon>
@@ -306,17 +301,21 @@ if (query.q || query.genres || query.tags) {
           </div>
         </div>
       </v-card-text>
-      <v-list v-if="searchResults?.results.length > 0" lines="two">
-        <v-list-item title="Search result" />
-        <v-divider />
-        <div v-if="searchLoading" class="loadingBlock">
+      <v-card-text v-else-if="isFocused && searchLoading">
+        <div class="loadingBlock">
           <v-progress-circular :size="45" indeterminate />
         </div>
+      </v-card-text>
+      <v-card-text v-else-if="errorMessage">
+        <div class="errorBlock">{{ errorMessage }}</div>
+      </v-card-text>
+      <v-list v-else-if="searchResults.length > 0">
+        <v-list-item title="Search result" />
+        <v-divider />
         <v-list-item
-          v-for="item in searchResults.results"
-          v-else
+          v-for="item in searchResults"
           :key="item.id"
-          :to="'/anime/' + item.id"
+          :to="'/pwa/anime/' + item.id"
         >
           <template #prepend>
             <img
@@ -333,28 +332,41 @@ if (query.q || query.genres || query.tags) {
             {{
               item.status === "FINISHED"
                 ? "Finished"
-                : item?.status === "RELEASING"
+                : item.status === "RELEASING"
                 ? "Currently Releasing"
-                : item?.status === "NOT_YET_RELEASED"
+                : item.status === "NOT_YET_RELEASED"
                 ? "Not Released"
-                : item?.status === "CANCELLED"
+                : item.status === "CANCELLED"
                 ? "Cancelled"
                 : "No data"
             }}
           </v-list-item-subtitle>
           <template #append>
-            <v-icon color="yellow"> mdi-star </v-icon>
-            {{ item.averageScore / 10 }}
+            <div class="d-flex" style="gap: 0.2rem">
+              <v-icon color="yellow">mdi-star</v-icon>
+              {{ item.averageScore / 10 }}
+            </div>
           </template>
         </v-list-item>
       </v-list>
+      <v-card-text v-else>
+        <div class="loadingBlock">
+          <h1>No results found!</h1>
+        </div>
+      </v-card-text>
     </v-card>
   </v-container>
 </template>
+
 <style>
 .loadingBlock {
-  height: 100vh;
-  display: grid;
-  place-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40vh;
+}
+.errorBlock {
+  color: red;
+  text-align: center;
 }
 </style>
