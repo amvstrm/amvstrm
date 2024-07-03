@@ -1,22 +1,26 @@
 <script setup>
 const env = useRuntimeConfig();
 const randomBTNstate = ref(false);
+const loadSettingDialog = ref(false);
+
 const gotoRandomID = async () => {
   const { data } = useFetch(
     `${env.public.API_URL}/api/${env.public.version}/random`
   );
   navigateTo(`/anime/${data.value.id[0]}`);
 };
-
 </script>
 <template>
   <v-app>
+    <v-dialog v-model="loadSettingDialog" max-width="560px" eager scrim="#191919">
+      <PgCompsWebSettings />
+    </v-dialog>
     <v-navigation-drawer v-model="drawer" temporary="">
       <v-list>
         <v-list-item>
           <NuxtImg
             src="/logo.png"
-            style="display: flex;"
+            style="display: flex"
             alt="amvstrm"
             quality="80"
             width="140px"
@@ -49,6 +53,7 @@ const gotoRandomID = async () => {
       <v-divider />
       <v-list>
         <v-list-subheader>More</v-list-subheader>
+        <v-list-item title="Settings" @click="loadSettingDialog = true" />
         <v-list-item title="About us" to="/about" />
         <v-list-item title="Privacy Policy" to="/privacy" />
         <v-list-item title="DMCA" href="/dmca">
@@ -74,7 +79,7 @@ const gotoRandomID = async () => {
         <NuxtLink to="/">
           <NuxtImg
             src="/logo.png"
-            style="display: flex;"
+            style="display: flex"
             alt="amvstrm"
             quality="80"
             width="140px"
@@ -97,7 +102,11 @@ const gotoRandomID = async () => {
         :prepend-icon="
           !/\/pwa\.*/.test(useRoute().path) ? 'mdi-cellphone' : 'mdi-web'
         "
-        :to="!/\/pwa\.*/.test(useRoute().path) ? '/pwa' : '/'"
+        :to="
+          !/\/pwa\.*/.test(useRoute().path)
+            ? '/pwa' + useRoute().path
+            : useRoute().path
+        "
       >
         {{ !/\/pwa\.*/.test(useRoute().path) ? "PWA" : "Web" }}
       </v-btn>
