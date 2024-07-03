@@ -18,8 +18,22 @@ const {
   }
 );
 
+if (
+  aniError.value?.statusCode === 404 ||
+  aniError.value?.data?.code === 404 ||
+  anime.value?.code === 404
+) {
+  createError({ statusCode: 404, message: "Not found" });
+} else if (
+  aniError.value?.statusCode === 500 ||
+  aniError.value?.data?.code === 500 ||
+  anime.value?.code === 404
+) {
+  createError({ statusCode: 500, message: "Internal server error" });
+}
+
 useSeoMeta({
-  ogTitle: anime.value?.title.userPreferred,
+  ogTitle: anime.value?.title.userPreferred || anime.value?.title.english,
   ogDescription: anime.value?.description,
   ogImage: anime.value?.coverImage.large,
   ogUrl: useRoute().fullPath,
@@ -74,7 +88,7 @@ onMounted(() => {
   updateCountdown();
 });
 
-const { data: recmedAnime, pending: recmedPending } = useFetch(
+const { data: recmedAnime, pending: recmedPending } = useLazyFetch(
   `${env.public.API_URL}/api/${env.public.version}/recommendations/${
     useRoute().params.id
   }`,
@@ -89,7 +103,7 @@ const {
   error: epAniError,
 } = useLazyFetch(
   `${env.public.API_URL}/api/v1/episode/${
-    anime?.value.id_provider === null ? "''" : anime.value.id_provider.idGogo
+    anime?.value?.id_provider === null ? "''" : anime.value?.id_provider?.idGogo
   }`,
   {
     cache: "default",
@@ -101,29 +115,39 @@ const {
   error: epDubAniError,
 } = useLazyFetch(
   `${env.public.API_URL}/api/v1/episode/${
-    anime?.value.id_provider === null ? "''" : anime.value.id_provider.idGogoDub
+    anime?.value?.id_provider === null ? "''" : anime?.value?.id_provider?.idGogoDub
   }`,
   {
     cache: "default",
   }
 );
-
 const stringInstring = '""';
+
+const formatStringDate = (year, month, day) => {
+  if (year === null && month === null && day === null) {
+    return "No EST";
+  } else if (year === "" && month === "" && day === "") {
+    return "No EST";
+  }
+
+  return `${day === null ? "" : day + "/"}${
+    month === null ? "" : month + "/"
+  }${year}`;
+};
 </script>
 
 <template>
   <div v-if="aniPending" class="loadingBlock">
     <v-progress-circular :size="45" indeterminate />
   </div>
+  <div v-else-if="aniError">
+    <v-empty-state
+      headline="Error"
+      title="Something went wrong"
+      text="The page you are looking for is not available"
+    ></v-empty-state>
+  </div>
   <div v-else>
-    <v-breadcrumbs>
-      <template #prepend>
-        <v-icon size="small" icon="mdi-home"></v-icon>
-      </template>
-      <v-breadcrumbs-item title="Home" to="/pwa" />
-      <v-breadcrumbs-divider />
-      <v-breadcrumbs-item :title="useRoute().params.id" />
-    </v-breadcrumbs>
     <v-card>
       <v-img
         v-if="anime?.bannerImage !== null"
@@ -212,8 +236,12 @@ const stringInstring = '""';
             <h1 class="mt-2" style="line-height: 2rem; font-size: x-large">
               {{ anime?.title.userPreferred }}
             </h1>
-            <p class="mb-2">{{ anime?.title.english }}</p>
-            <p class="mb-2">{{ anime?.title.native }}</p>
+            <p class="mb-2">
+              {{ anime?.title.english }}
+            </p>
+            <p class="mb-2">
+              {{ anime?.title.native }}
+            </p>
             <div class="d-flex d-lg-none flex-column">
               <BookmarkButton
                 :id="anime?.id"
@@ -266,16 +294,13 @@ const stringInstring = '""';
                               v-model="selectedProvider"
                               clearable
                               label="Select streaming provider"
-                              :items="[
-                                'Gogoanime',
-                                'Gogoanime (DUB)',
-                              ]"
+                              :items="['Gogoanime', 'Gogoanime (DUB)']"
                               variant="solo"
                             ></v-select>
                             <v-list
                               v-if="selectedProvider == 'Gogoanime'"
                               lines="two"
-                              height="300px"
+                              height="320px"
                             >
                               <v-progress-circular
                                 v-if="loadAni"
@@ -294,14 +319,24 @@ const stringInstring = '""';
                               <div v-else-if="epAniError">
                                 Episodes failed to load due to API error!
                               </div>
-                              <v-list-item
-                                v-for="(ep, i) in epAni.episodes"
+                              <v-virtual-scroll
                                 v-else
-                                :key="i"
-                                :to="`/pwa/watch/${useRoute().params.id}-${ep.id}`"
-                                title="Episode"
-                                :subtitle="ep.id.split('-episode-')[1]"
-                              />
+                                :height="300"
+                                :items="epAni.episodes"
+                              >
+                                <template #default="{ item }">
+                                  <v-list-item
+                                    :to="
+                                      (!/\/pwa\.*/.test(useRoute().path)
+                                        ? '/'
+                                        : '/pwa/') +
+                                      `watch/${useRoute().params.id}-${item.id}`
+                                    "
+                                    title="Episode"
+                                    :subtitle="item.id.split('-episode-')[1]"
+                                  />
+                                </template>
+                              </v-virtual-scroll>
                             </v-list>
                             <v-list
                               v-else-if="selectedProvider == 'Gogoanime (DUB)'"
@@ -329,7 +364,12 @@ const stringInstring = '""';
                                 v-for="(ep, i) in epAniDub.episodes"
                                 v-else
                                 :key="i"
-                                :to="`/pwa/watch/${useRoute().params.id}-${ep.id}`"
+                                :to="
+                                  (!/\/pwa\.*/.test(useRoute().path)
+                                    ? '/'
+                                    : '/pwa/') +
+                                  `watch/${useRoute().params.id}-${ep.id}`
+                                "
                                 title="Episode"
                                 :subtitle="ep.id.split('-episode-')[1]"
                               />
@@ -355,7 +395,7 @@ const stringInstring = '""';
                                 <v-btn
                                   icon="mdi-launch"
                                   :href="
-                                    'https://gogoanimehd.io/category/' +
+                                    'https://anitaku.to/category/' +
                                     anime?.id_provider.idGogo
                                   "
                                   target="blank"
@@ -375,7 +415,7 @@ const stringInstring = '""';
                                 <v-btn
                                   icon="mdi-launch"
                                   :href="
-                                    'https://gogoanimehd.io/category/' +
+                                    'https://anitaku.to/category/' +
                                     anime?.id_provider.idGogo
                                   "
                                   target="blank"
@@ -384,7 +424,7 @@ const stringInstring = '""';
                               </template>
                             </v-list-item>
                             <v-list-item
-                              title="Zoro/Aniwatch.to"
+                              title="Zoro/Hianime"
                               :subtitle="
                                 anime?.id_provider.idZoro == ''
                                   ? 'Not available'
@@ -395,7 +435,7 @@ const stringInstring = '""';
                                 <v-btn
                                   icon="mdi-launch"
                                   :href="
-                                    'https://aniwatch.to/' +
+                                    'https://hianime.to/' +
                                     anime?.id_provider.idZoro
                                   "
                                   target="blank"
@@ -508,7 +548,9 @@ const stringInstring = '""';
                         anime?.nextair.episode === 1
                           ? anime?.nextair.episode
                           : anime?.nextair.episode - 1
-                      } / Est : ${anime?.episodes}`
+                      } / Est : ${
+                        anime?.episodes ? anime?.episodes : 'No data'
+                      }`
                     : anime?.episodes
                     ? anime?.episodes
                     : 'No data'
@@ -546,11 +588,11 @@ const stringInstring = '""';
                   anime?.startIn.month === null &&
                   anime?.startIn.day === null
                     ? 'No EST'
-                    : anime?.startIn.year +
-                      '/' +
-                      anime?.startIn.month +
-                      '/' +
-                      anime?.startIn.day
+                    : formatStringDate(
+                        anime?.startIn.year,
+                        anime?.startIn.month,
+                        anime?.startIn.day
+                      )
                 "
               />
               <v-list-item
@@ -560,13 +602,25 @@ const stringInstring = '""';
                   anime?.endIn.month === null &&
                   anime?.endIn.day === null
                     ? 'No EST'
-                    : anime?.endIn.year +
-                      '/' +
-                      anime?.endIn.month +
-                      '/' +
-                      anime?.endIn.day
+                    : formatStringDate(
+                        anime?.endIn.year,
+                        anime?.endIn.month,
+                        anime?.endIn.day
+                      )
                 "
               />
+              <v-list-item title="Studios">
+                <template #default>
+                  <v-chip
+                    v-for="(d, i) in anime?.studios"
+                    :key="i"
+                    class="my-1 mr-1"
+                    label=""
+                  >
+                    {{ d.name }}
+                  </v-chip>
+                </template>
+              </v-list-item>
               <v-list-item title="Genres">
                 <template #default>
                   <v-chip
@@ -597,106 +651,142 @@ const stringInstring = '""';
           </v-card>
         </v-col>
         <v-col>
-          <v-card>
-            <v-tabs v-model="infotab">
-              <v-tab value="descrpt"> Description </v-tab>
-              <v-tab value="related"> Related </v-tab>
-              <v-tab value="recomd"> Recommendations </v-tab>
-            </v-tabs>
-            <v-card-text>
-              <v-window v-model="infotab">
-                <v-window-item value="descrpt">
+          <v-row>
+            <v-col cols="12">
+              <v-card>
+                <v-card-title>Description</v-card-title>
+                <v-card-text>
                   <!-- eslint-disable-next-line vue/no-v-html -->
                   <div v-html="anime?.description" />
-                </v-window-item>
-                <v-window-item value="related">
-                  <v-list lines="three">
-                    <v-list-item
-                      v-if="anime?.relation.length < 0"
-                      title="No relation"
-                      subtitle="Not available by Anilist"
-                    />
-                    <v-list-item
-                      v-for="(item, i) in anime.relation.filter((item) => item.type !== 'MANGA')"
-                      v-else
-                      :key="i"
-                      :title="item.title.userPreferred"
-                      :subtitle="`Episode ${item.episodes} / ${
-                        item.status === 'FINISHED'
-                          ? 'Finished'
-                          : item?.status === 'RELEASING'
-                          ? 'Currently Releasing'
-                          : item?.status === 'NOT_YET_RELEASED'
-                          ? 'Not Released'
-                          : item?.status === 'CANCELLED'
-                          ? 'Cancelled'
-                          : 'No data'
-                      }`"
-                      :to="'/anime/' + item.id"
-                    >
-                      <template #prepend>
-                        <v-img
-                          class="mr-5"
-                          style="border-radius: 4px; width: 60px; height: 10%"
-                          :src="item.coverImage.large"
+                </v-card-text>
+              </v-card>
+            </v-col>
+            <v-col>
+              <v-card>
+                <v-tabs v-model="infotab">
+                  <v-tab value="related"> Relation </v-tab>
+                  <v-tab value="recomd"> Recommendations </v-tab>
+                </v-tabs>
+                <v-card-text>
+                  <v-window v-model="infotab">
+                    <v-window-item value="related">
+                      <v-list lines="three">
+                        <v-list-item
+                          v-if="
+                            anime.relation.filter(
+                              (item) => item.type !== 'MANGA'
+                            ).length == 0
+                          "
+                          title="No relation"
+                          subtitle="Not available by Anilist"
                         />
-                      </template>
-                      <template #append>
-                        <v-icon color="yellow"> mdi-star </v-icon>
-                        {{ item.averageScore / 10 }}
-                      </template>
-                    </v-list-item>
-                  </v-list>
-                </v-window-item>
-                <v-window-item value="recomd">
-                  <v-list lines="three">
-                    <v-list-item v-if="recmedPending">
-                      <v-row>
-                        <v-col class="justify-center">
-                          <v-progress-circular :size="40" indeterminate />
-                        </v-col>
-                      </v-row>
-                    </v-list-item>
-                    <v-list-item
-                      v-else-if="recmedAnime.results.length == 0"
-                      title="No Recommendations"
-                      subtitle="Not available by anilist"
-                    />
-                    <v-list-item
-                      v-for="(item, i) in recmedAnime.results"
-                      v-else
-                      :key="i"
-                      :title="item.title.userPreferred"
-                      :subtitle="`Episode ${item.episodes} / ${
-                        item.status === 'FINISHED'
-                          ? 'Finished'
-                          : item?.status === 'RELEASING'
-                          ? 'Currently Releasing'
-                          : item?.status === 'NOT_YET_RELEASED'
-                          ? 'Not Released'
-                          : item?.status === 'CANCELLED'
-                          ? 'Cancelled'
-                          : 'No data'
-                      }`"
-                      :to="'/anime/' + item.id"
-                    >
-                      <template #prepend>
-                        <v-img
-                          class="mr-5"
-                          style="border-radius: 4px; width: 60px; height: 10%"
-                          :src="item.coverImage.large"
+                        <v-list-item
+                          v-for="(item, i) in anime.relation.filter(
+                            (item) => item.type !== 'MANGA'
+                          )"
+                          v-else
+                          :key="i"
+                          :title="item.title.userPreferred"
+                          :subtitle="`Episode ${item.episodes} / ${
+                            item.status === 'FINISHED'
+                              ? 'Finished'
+                              : item?.status === 'RELEASING'
+                              ? 'Currently Releasing'
+                              : item?.status === 'NOT_YET_RELEASED'
+                              ? 'Not Released'
+                              : item?.status === 'CANCELLED'
+                              ? 'Cancelled'
+                              : 'No data'
+                          }`"
+                          :to="(!/\/pwa\.*/.test(useRoute().path)
+                                        ? '/anime/'
+                                        : '/pwa/anime/') + item.id"
+                        >
+                          <template #prepend>
+                            <v-img
+                              class="mr-5"
+                              style="
+                                border-radius: 4px;
+                                width: 60px;
+                                height: 10%;
+                              "
+                              :src="item.coverImage.large"
+                            />
+                          </template>
+                          <template #append>
+                            <div
+                              class="d-flex"
+                              style="gap: 0.2rem; margin: 0 1rem"
+                            >
+                              <v-icon color="yellow"> mdi-star </v-icon>
+                              {{ item.averageScore / 10 }}
+                            </div>
+                          </template>
+                        </v-list-item>
+                      </v-list>
+                    </v-window-item>
+                    <v-window-item value="recomd">
+                      <v-list lines="three">
+                        <v-list-item v-if="recmedPending">
+                          <v-row>
+                            <v-col class="justify-center">
+                              <v-progress-circular :size="40" indeterminate />
+                            </v-col>
+                          </v-row>
+                        </v-list-item>
+                        <v-list-item
+                          v-else-if="recmedAnime.results.length == 0"
+                          title="No Recommendations"
+                          subtitle="Not available by anilist"
                         />
-                      </template>
-                      <template #append>
-                        <v-icon color="yellow"> mdi-star </v-icon>
-                        {{ item.averageScore / 10 }}
-                      </template>
-                    </v-list-item>
-                  </v-list>
-                </v-window-item>
-              </v-window>
-            </v-card-text>
-          </v-card>
+                        <v-list-item
+                          v-for="(item, i) in recmedAnime.results"
+                          v-else
+                          :key="i"
+                          :title="item.title.userPreferred"
+                          :subtitle="`Episode ${item.episodes} / ${
+                            item.status === 'FINISHED'
+                              ? 'Finished'
+                              : item?.status === 'RELEASING'
+                              ? 'Currently Releasing'
+                              : item?.status === 'NOT_YET_RELEASED'
+                              ? 'Not Released'
+                              : item?.status === 'CANCELLED'
+                              ? 'Cancelled'
+                              : 'No data'
+                          }`"
+                          :to="(!/\/pwa\.*/.test(useRoute().path)
+                                        ? '/anime/'
+                                        : '/pwa/anime/') + item.id"
+                        >
+                          <template #prepend>
+                            <v-img
+                              class="mr-5"
+                              style="
+                                border-radius: 4px;
+                                width: 60px;
+                                height: 10%;
+                              "
+                              :src="item.coverImage.large"
+                            />
+                          </template>
+                          <template #append>
+                            <div
+                              class="d-flex"
+                              style="gap: 0.2rem; margin: 0 1rem"
+                            >
+                              <v-icon color="yellow"> mdi-star </v-icon>
+                              {{ item.averageScore / 10 }}
+                            </div>
+                          </template>
+                        </v-list-item>
+                      </v-list>
+                    </v-window-item>
+                  </v-window>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-container>
