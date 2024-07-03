@@ -22,18 +22,15 @@ export default {
       required: true,
       type: String,
     },
-    imgalt: {
-      default: "",
-      required: true,
-    },
     animeColor: {
       default: "",
       required: true,
       type: String,
     },
     id: {
-      default: "",
+      default: 0,
       required: true,
+      type: Number,
     },
     year: {
       default: 0,
@@ -65,21 +62,9 @@ export default {
       isAlreadyBookmarked.value ? "mdi-bookmark-outline" : "mdi-bookmark"
     );
     const bookmarkColor = ref(isAlreadyBookmarked.value ? "white" : "warning");
-    const get_key = useStorage("cloud-cfg", {});
+
     async function saveBookmarks(bookmarks) {
       state.value = bookmarks || [];
-
-      if (get_key.value.enabled) {
-        await useFetch("/api/saveToDB?mutate=add_bookmark", {
-          method: "POST",
-          headers: {
-            "x-space-collection": get_key.value.deta_collection_key,
-          },
-          body: {
-            bookmarks,
-          },
-        });
-      }
     }
 
     function isBookmarked(id) {
