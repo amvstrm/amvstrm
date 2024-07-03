@@ -28,14 +28,14 @@
         /\/pwa\.*/.test(useRoute().path) ? '/pwa/anime/' + id : '/anime/' + id
       "
     >
-      <img class="card-img" loading="lazy" :src="imgsrc" :alt="imgalt" />
+      <img class="card-img" loading="lazy" :src="imgsrc" :alt="id" />
     </NuxtLink>
     <div
       class="d-none d-md-flex d-lg-flex align-center justify-center"
       style="gap: 0.2rem"
     >
       <v-chip
-        v-if="props.type !== ''"
+        v-if="props.type !== '' || props.type !== null"
         label
         :color="
           props?.type === 'TV'
@@ -52,7 +52,7 @@
         {{ props.type }}
       </v-chip>
       <v-chip
-        v-if="props.status !== ''"
+        v-if="props.status !== '' || props.status !== null"
         label
         :color="
           props?.status === 'FINISHED'
@@ -101,40 +101,35 @@ const props = defineProps({
     required: true,
     type: String,
   },
-  // eslint-disable-next-line vue/require-prop-types
-  imgalt: {
-    default: "",
-    required: true,
-  },
-  // eslint-disable-next-line vue/require-prop-types
   animeColor: {
     default: "",
     required: true,
+    type: String || Null
   },
-  // eslint-disable-next-line vue/require-prop-types
   id: {
-    default: "",
+    default: 0,
     required: true,
+    type: Number || Null,
   },
   year: {
     default: 0,
     required: true,
-    type: Number,
+    type: Number || Null,
   },
-  // eslint-disable-next-line vue/require-prop-types
   totalEp: {
     default: 0,
     required: true,
+    type: Number || Null,
   },
   type: {
     default: "",
     required: true,
-    type: String,
+    type: String || Null,
   },
   status: {
     default: "",
     required: true,
-    type: String,
+    type: String || Null,
   },
 });
 
