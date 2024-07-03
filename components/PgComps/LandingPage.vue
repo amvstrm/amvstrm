@@ -2,22 +2,27 @@
 import { useStorage } from "@vueuse/core";
 const env = useRuntimeConfig();
 
-// const setHistory = ref();
-
 const history_state = useStorage("site-watch", {});
-// const get_key = useStorage("cloud-cfg", {});
 
-// if (get_key.value.enabled) {
-//   const { data } = await useFetch('/api/getData', {
-//     method: 'GET',
-//     headers: {
-//       'x-space-collection': get_key.value.deta_collection_key
-//     },
-//   })
-//   setHistory.value = data.value.data.app_user_last_data
-// } else {
-//   setHistory.value = history_state.value
-// }
+const getSeason = () => {
+  const today = new Date();
+  const month = today.getMonth();
+  const seasons = {
+    0: "Winter",
+    1: "Winter",
+    2: "Spring",
+    3: "Spring",
+    4: "Summer",
+    5: "Summer",
+    6: "Fall",
+    7: "Fall",
+    8: "Fall",
+    9: "Fall",
+    10: "Winter",
+    11: "Winter",
+  };
+  return seasons[month].toUpperCase();
+};
 
 const {
   data: trendingData,
@@ -41,57 +46,89 @@ const {
     cache: "force-cache",
   }
 );
+
+// const {
+//   data: scheduleData,
+//   pending: schpend,
+//   refresh: scheduledataRefresh,
+//   error: scheduleerr,
+// } = useFetch(
+//   `${env.public.API_URL}/api/${env.public.version}/schedule?limit=12`,
+//   {
+//     cache: "force-cache",
+//   }
+// );
+
+const {
+  data: seasonData,
+  pending: seaspend,
+  refresh: seasdataRefresh,
+  error: seaserr,
+} = useFetch(
+  `${env.public.API_URL}/api/${
+    env.public.version
+  }/season/${getSeason()}/${new Date().getFullYear()}?limit=12`,
+  {
+    cache: "force-cache",
+  }
+);
 </script>
 
 <template>
-  <ClientOnly>
+  <!-- eslint-disable vue/no-v-html -->
+  <v-no-ssr>
     <v-carousel
-      class="d-none d-md-block"
-      hide-delimiters
-      progress="green"
-      height="320px"
-      :show-arrows="false"
-      :cycle="true"
+    class="d-none d-md-block"
+    hide-delimiters
+    progress="green"
+    height="320px"
+    :show-arrows="false"
+    :cycle="true"
+  >
+    <v-carousel-item
+      v-for="(item, i) in popularData?.results"
+      :key="i"
+      :src="item.bannerImage"
+      cover
     >
-      <v-carousel-item
-        v-for="(item, i) in popularData?.results"
-        :key="i"
-        :src="item.bannerImage"
-        cover
-      >
-        <div class="carousel-item">
-          <img :src="item.coverImage.large" alt="Carousel Image" />
-          <div class="d-flex flex-column pa-2 justify-center">
-            <h2>{{ item.title.userPreferred }}</h2>
-            <p class="text--secondary">
-              {{ item.title.native }}
-            </p>
-            <div
-              style="
-                overflow: hidden;
-                transition: color 0.2s ease;
-                display: -webkit-box;
-                -webkit-box-orient: vertical;
-                -webkit-line-clamp: 2;
+      <div class="carousel-item">
+        <img :src="item.coverImage.large" alt="Carousel Image" />
+        <div class="d-flex flex-column pa-2 justify-center">
+          <h2>{{ item.title.userPreferred }}</h2>
+          <p class="text--secondary">
+            {{ item.title.native }}
+          </p>
+          <div
+            style="
+              overflow: hidden;
+              transition: color 0.2s ease;
+              display: -webkit-box;
+              -webkit-box-orient: vertical;
+              -webkit-line-clamp: 2;
+            "
+            v-html="item.description"
+          />
+          <div class="pt-2">
+            <v-btn
+              :to="
+                (!/\/pwa\.*/.test(useRoute().path) ? '/' : '/pwa/') +
+                'anime/' +
+                item.id
               "
-              v-html="item.description"
-            />
-            <div class="pt-2">
-              <v-btn
-                :to="'/anime/' + item.id"
-                :color="
-                  item.coverImage.color ? item.coverImage.color : 'transparent'
-                "
-                append-icon="mdi-open-in-new"
-              >
-                Read more
-              </v-btn>
-            </div>
+              :color="
+                item.coverImage.color ? item.coverImage.color : 'transparent'
+              "
+              append-icon="mdi-open-in-new"
+            >
+              Read more
+            </v-btn>
           </div>
         </div>
-      </v-carousel-item>
-    </v-carousel>
-  </ClientOnly>
+      </div>
+    </v-carousel-item>
+  </v-carousel>
+  </v-no-ssr>
+  <!-- Search&History -->
   <v-container>
     <SearchBar />
     <ClientOnly>
@@ -153,7 +190,45 @@ const {
               :id="d.id"
               :title="d.title.userPreferred"
               :imgsrc="d.coverImage.large"
-              :imgalt="d.id"
+              :imgalt="d.id.toString()"
+              :anime-color="d.coverImage.color"
+              :year="d.seasonYear"
+              :type="d.format"
+              :total-ep="d.episodes"
+              :status="d.status"
+            />
+          </div>
+        </div>
+      </v-container>
+    </v-col>
+    <v-col>
+      <h1>Upcoming Anime : {{ getSeason() }}</h1>
+      <div v-if="seaspend" class="loadingBlock">
+        <v-progress-circular :size="45" indeterminate />
+      </div>
+      <div v-else-if="seaserr">
+        <v-alert
+          dense
+          type="error"
+          title="Error"
+          text="Error loading season anime!"
+        />
+        <v-btn @click="seasdataRefresh()">
+          Reload?
+          <v-icon>mdi-reload</v-icon>
+        </v-btn>
+      </div>
+      <v-container v-else fluid>
+        <div class="grid">
+          <div
+            v-for="(d, i) in seasonData?.results"
+            :key="i"
+            class="d-flex justify-center"
+          >
+            <AnimeCard
+              :id="d.id"
+              :title="d.title.userPreferred"
+              :imgsrc="d.coverImage.large"
               :anime-color="d.coverImage.color"
               :year="d.seasonYear"
               :type="d.format"
@@ -192,7 +267,6 @@ const {
               :id="d.id"
               :title="d.title.userPreferred"
               :imgsrc="d.coverImage.large"
-              :imgalt="d.id"
               :anime-color="d.coverImage.color"
               :year="d.seasonYear"
               :type="d.format"
@@ -229,7 +303,38 @@ const {
             :id="d.id"
             :title="d.title.userPreferred"
             :imgsrc="d.coverImage.large"
-            :imgalt="d.id"
+            :anime-color="d.coverImage.color"
+            :year="d.seasonYear"
+            :type="d.format"
+            :total-ep="d.episodes"
+            :status="d.status"
+          />
+        </div>
+      </v-col>
+    </v-row>
+    <h2 class="mt-10">Upcoming Anime : {{ getSeason() }}</h2>
+    <div v-if="seaspend" class="loadingBlock">
+      <v-progress-circular :size="45" indeterminate />
+    </div>
+    <div v-else-if="seaserr">
+      <v-alert
+        dense
+        type="error"
+        title="Error"
+        text="Error loading season anime!"
+      />
+      <v-btn @click="seasdataRefresh()">
+        Reload?
+        <v-icon>mdi-reload</v-icon>
+      </v-btn>
+    </div>
+    <v-row v-else>
+      <v-col class="media-scrolling">
+        <div v-for="d in seasonData?.results" :key="d.id">
+          <AnimeCard
+            :id="d.id"
+            :title="d.title.userPreferred"
+            :imgsrc="d.coverImage.large"
             :anime-color="d.coverImage.color"
             :year="d.seasonYear"
             :type="d.format"
@@ -262,7 +367,6 @@ const {
             :id="d.id"
             :title="d.title.userPreferred"
             :imgsrc="d.coverImage.large"
-            :imgalt="d.id"
             :anime-color="d.coverImage.color"
             :year="d.seasonYear"
             :type="d.format"
