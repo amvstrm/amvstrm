@@ -1,5 +1,6 @@
 <script setup>
 import { useStorage } from "@vueuse/core";
+
 const env = useRuntimeConfig();
 
 const getID = useRoute().params.id.split("-")[0];
@@ -9,6 +10,8 @@ const getEP = getGogoID.split(`-episode-`)[1];
 const loadSettingDialog = ref(false);
 const switchtobackup = ref(false);
 
+const switchplyr = ref(0);
+
 const { data: anime } = await useFetch(
   `${env.public.API_URL}/api/${env.public.version}/info/${getID}`,
   {
@@ -16,7 +19,12 @@ const { data: anime } = await useFetch(
   }
 );
 
-const { data: strm, pending: strmLoading } = useLazyFetch(
+const {
+  data: strm,
+  pending: strmLoading,
+  refresh: strmRefresh,
+  error: strmError,
+} = await useFetch(
   `${env.public.API_URL}/api/${env.public.version}/stream/${getGogoID}`,
   {
     cache: "force-cache",
@@ -31,6 +39,13 @@ const {
   `${env.public.API_URL}/api/v1/episode/${anime?.value.id_provider.idGogo}`,
   {
     cache: "default",
+  }
+);
+
+const { data: time2Skip } = useFetch(
+  `${env.public.API_URL}/api/v2/stream/skiptime/${getID}/${getEP}`,
+  {
+    cache: "force-cache",
   }
 );
 
@@ -70,15 +85,8 @@ useHead({
     : "amvstrm",
 });
 
-const { data: time2Skip } = useFetch(
-  `${env.public.API_URL}/api/v2/stream/skiptime/${getID}/${getEP}`,
-  {
-    cache: "force-cache",
-  }
-);
-
 const skipTimeHighlight = () => {
-  if (time2Skip.value.found === true) {
+  if (time2Skip.value?.found === true) {
     const output = [];
 
     if (time2Skip.value.results.op) {
@@ -105,15 +113,21 @@ const skipTimeHighlight = () => {
       });
     }
     return output;
+  } else if (
+    !time2Skip.value ||
+    !time2Skip.value?.results ||
+    !time2Skip.value?.found
+  ) {
+    return [];
   }
   return [];
 };
 
-const useStorageState = useStorage("ap_settings", {
+const playerSettings = useStorage("ap_settings", {
   s_source: "Main",
-  s_autoskip: false,
-  s_autoplay: false,
   s_autonext: false,
+  s_autoskip: false,
+  s_theatre: false,
 });
 
 const setHistory = useStorage("site-watch", {
@@ -135,86 +149,70 @@ const latestAnimeWatched = {
   year: anime?.value.year,
 };
 
-setHistory.value.latest_anime_watched = latestAnimeWatched;
-setHistory.value.latest_watched_date = Date.now();
-
-const get_key = useStorage("cloud-cfg", {});
-
-if (get_key.value.enabled) {
-  await useFetch("/api/saveToDB?mutate=add_latest_watch", {
-    method: "POST",
-    headers: {
-      "x-space-collection": get_key.value.deta_collection_key,
-    },
-    body: {
-      latest_watch: {
-        latest_anime_watched: latestAnimeWatched,
-        latest_watched_date: Date.now(),
-      },
-    },
-  });
+if (strmError.value) {
+  console.log("stream error");
+} else {
+  setHistory.value.latest_anime_watched = latestAnimeWatched;
+  setHistory.value.latest_watched_date = Date.now();
 }
 
-const savedTime = async () => {
-  if (get_key.value.enabled) {
-    useFetch("/api/saveToDB?mutate=save_plyr_data", {
-      method: "POST",
-      headers: {
-        "x-space-collection": get_key.value.deta_collection_key,
-      },
-      body: {
-        plyr_data: useStorage("artplayer_settings", {}).value,
-      },
-    });
-  } else {
-    return true;
-  }
-};
+const artError = ref();
 
 function getInstance(art) {
   art.on("error", (error, reconnectTime) => {
-    console.info("video error!");
+    console.log("video error!");
+    artError.value = error;
   });
   art.setting.add({
     html: "Stream Source",
     width: 200,
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="#ffffff" d="M4 1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 8h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1m0 8h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1M9 5h1V3H9v2m0 8h1v-2H9v2m0 8h1v-2H9v2M5 3v2h2V3H5m0 8v2h2v-2H5m0 8v2h2v-2H5Z"/></svg>',
-    tooltip: useStorageState.value.s_source === "Main" ? "Main" : "Backup",
+    tooltip: playerSettings.value.s_source === "Main" ? "Main" : "Backup",
     selector: [
       {
-        default: useStorageState.value.s_source === "Main" ? true : false,
+        default: playerSettings.value.s_source === "Main" ? true : false,
         html: "Main",
         url: strm.value?.stream.multi.main.url,
       },
       {
-        default: useStorageState.value.s_source === "Backup" ? true : false,
+        default: playerSettings.value.s_source === "Backup" ? true : false,
         html: "Backup",
         url: strm.value?.stream.multi.backup.url,
       },
     ],
     onSelect(item) {
       art.switchQuality(item.url, item.html);
-      useStorageState.value.s_source = item.html;
+      playerSettings.value.s_source = item.html;
       return item.html;
     },
   });
   art.setting.add({
     html: "Auto Skip (OP&ED)",
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="#ffffff" d="M6 9.83L8.17 12L6 14.17V9.83M4 5v14l7-7m9-7h-2v14h2m-7-9.17L15.17 12L13 14.17V9.83M11 5v14l7-7"/></svg>',
-    switch: useStorageState.value.s_autoskip === false ? false : true,
+    switch: playerSettings.value.s_autoskip === false ? false : true,
     onSwitch: function (item) {
       const nextState = !item.switch;
-      useStorageState.value.s_autoskip = nextState;
+      playerSettings.value.s_autoskip = nextState;
       return nextState;
     },
   });
   art.setting.add({
     html: "Auto play",
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="#ffffff" d="M16 18h2V6h-2M6 18l8.5-6L6 6v12Z"/></svg>',
-    switch: useStorageState.value.s_autonext === false ? false : true,
+    switch: playerSettings.value.s_autonext === false ? false : true,
     onSwitch: function (item) {
       const nextState = !item.switch;
-      useStorageState.value.s_autonext = nextState;
+      playerSettings.value.s_autonext = nextState;
+      return nextState;
+    },
+  });
+  art.setting.add({
+    html: "Theatre mode",
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6v13h16V6H4m14 11H6V8h12v9Z"/></svg>',
+    switch: playerSettings.value.s_theatre === false ? false : true,
+    onSwitch: function (item) {
+      const nextState = !item.switch;
+      playerSettings.value.s_theatre = nextState;
       return nextState;
     },
   });
@@ -224,17 +222,15 @@ function getInstance(art) {
     }
   });
   art.on("play", () => {
-    savedTime();
     art.layers.show = false;
   });
   art.on("pause", () => {
-    savedTime();
     art.layers.show = true;
   });
   art.on("video:timeupdate", () => {
     const currentTime = art.currentTime;
 
-    if (useStorageState.value.s_autoskip === true) {
+    if (playerSettings.value.s_autoskip === true) {
       if (
         time2Skip.value?.results.op &&
         currentTime >= time2Skip.value?.results.op.interval.startTime &&
@@ -302,28 +298,63 @@ function getInstance(art) {
     }
   });
   art.on("video:ended", () => {
-    savedTime();
-    if (useStorageState.value.s_autonext === true) {
-      const currentEpisodeIndex = ep?.value.episodes.findIndex(
+    if (playerSettings.value.s_autonext === true) {
+      const currentEpisodeIndex = ep?.value.episodes?.findIndex(
         (episode) => episode.id.split(`-episode-`)[1] === getEP
       );
-      const nextEpisode = ep?.value.episodes[currentEpisodeIndex - 1];
-      if (currentEpisodeIndex === ep?.value.episodes.length - 1) {
+
+      if (currentEpisodeIndex === -1) {
+        console.error("Episode not found!");
+        return;
+      }
+
+      if (currentEpisodeIndex === 0) {
         art.notice.show = "No more episode!";
       } else {
+        const nextEpisode = ep?.value.episodes[currentEpisodeIndex - 1];
         navigateTo(
-          `/watch/${getID}-${getGogoID.split(`-episode-`)[0]}-episode-${
+          `/pwa/watch/${getID}-${getGogoID.split(`-episode-`)[0]}-episode-${
             nextEpisode.id.split(`-episode-`)[1]
-          }`,
-          {
-            external: true,
-          }
+          }`
         );
         art.notice.show = "Next episode >";
       }
     }
   });
 }
+
+const videoIframe = ref([
+  {
+    name: "Integrated Player (Recommended)",
+    url: "",
+    bk_url: "",
+    value: 0,
+  },
+  {
+    name: "Plyr",
+    url: strm.value?.plyr?.main,
+    bk_url: strm.value?.plyr?.backup,
+    value: 1,
+  },
+  {
+    name: "NSPL",
+    url: strm.value?.nspl?.main,
+    bk_url: strm.value?.nspl?.backup,
+    value: 2,
+  },
+]);
+
+onMounted(() => {
+  strm.value?.iframe.forEach((e) => {
+    videoIframe.value.push({
+      name: e.name,
+      url: e.iframe,
+      bk_url: "",
+      value: videoIframe.value.length + 1,
+    });
+  });
+});
+
 </script>
 
 <script>
@@ -347,30 +378,41 @@ export default {
   <div v-if="strmLoading" class="loadingBlock">
     <v-progress-circular :size="45" indeterminate />
   </div>
+  <div v-else-if="strmError">
+    <v-empty-state
+      headline="Stream Error"
+      title="Stream not found"
+      text="Video stream not found or not available by the source."
+    ></v-empty-state>
+  </div>
   <v-container v-else>
-    <v-row>
-      <v-col cols="12" style="padding: 0">
-        <v-breadcrumbs>
-          <template #prepend>
-            <v-icon size="small" icon="mdi-home"></v-icon>
-          </template>
-          <v-breadcrumbs-item title="Home" to="/pwa" />
-          <v-breadcrumbs-divider />
-          <v-breadcrumbs-item :title="getID" :to="'/pwa/anime/' + getID" />
-          <v-breadcrumbs-divider />
-          <v-breadcrumbs-item
-            :title="'Episode ' + getGogoID.split('-episode-')[1]"
-          />
-        </v-breadcrumbs>
-      </v-col>
-      <v-col cols="12" lg="8">
+    <v-row
+      :class="{
+        'stream-ctn': playerSettings.s_theatre,
+      }"
+    >
+      <v-col v-if="!strmError" :cols="playerSettings.s_theatre ? 12 : 12" :lg="playerSettings.s_theatre ? 12 : 8">
         <ClientOnly>
+          <v-card
+            v-if="
+              artError ||
+              strm.value?.stream.multi.main === null ||
+              strm.value?.stream.multi.backup === null
+            "
+            title="Stream error"
+            text="This can be cause by our website or the video source. Please use other sources, use embedded version of the stream or refresh the page."
+            variant="tonal"
+          >
+            <v-card-actions>
+              <v-btn @click="strmRefresh"> Click me </v-btn>
+            </v-card-actions>
+          </v-card>
           <VideoPlayer
-            v-if="switchplyr == 1"
+            v-if="switchplyr == 0"
             :option="{
               id: useRoute().params.id || '',
               url: strm.stream.multi.main.url,
-              poster: anime.coverImage.large,
+              poster: anime.bannerImage || anime.coverImage.large,
               highlight: skipTimeHighlight(),
             }"
             :vtt="strm.stream?.tracks?.file"
@@ -378,45 +420,46 @@ export default {
             @get-instance="getInstance"
           />
           <iframe
-            v-else-if="switchplyr == 2"
-            :src="switchtobackup === true ? strm.plyr.backup : strm.plyr.main"
-            allowfullscreen
-            frameborder="0"
-            :style="style"
-          ></iframe>
-          <iframe
-            v-else-if="switchplyr == 3"
-            :src="switchtobackup === true ? strm.nspl.backup : strm.nspl.main"
-            allowfullscreen
-            frameborder="0"
-            :style="style"
-          ></iframe>
-          <iframe
-            v-else-if="switchplyr == 4"
-            id="gogoiFrame"
-            :src="strm.iframe.default"
-            allowfullscreen
-            frameborder="0"
-            :style="style"
-          ></iframe>
-          <iframe
-            v-else-if="switchplyr == 5"
-            id="gogoiFrame"
-            :src="strm.iframe.backup || strm.iframe.default"
+            v-else-if="switchplyr > 0"
+            ref="amv_iframe"
+            class="amv_iframe"
+            :src="
+              switchtobackup === true
+                ? videoIframe[switchplyr].bk_url
+                : videoIframe[switchplyr].url
+            "
             allowfullscreen
             frameborder="0"
             :style="style"
           ></iframe>
         </ClientOnly>
       </v-col>
-      <v-col cols="">
-        <v-card class="epinf_card">
+      <v-col v-else-if="strmError || artError" cols="12" lg="8">
+        <v-empty-state
+          headline="Player Error"
+          title="Video player error"
+          text="This can be cause by our website or the video source. Please use other sources, use embedded version of the stream or refresh the page."
+        ></v-empty-state>
+      </v-col>
+      <v-col>
+        <v-card
+          class="epinf_card"
+        >
           <div class="pa-4 d-flex justify-space-between">
             <div style="flex: 1">
-              <NuxtLink :to="'/anime/' + getID">
-                <h1 style="font-size: large">
-                  {{ anime?.title.userPreferred }}
-                </h1>
+              <NuxtLink
+                :to="
+                  (!/\/pwa\.*/.test(useRoute().path) ? '/' : '/pwa/') +
+                  'anime/' +
+                  getID
+                "
+              >
+                <div>
+                  <h1 style="font-size: large">
+                    {{ anime?.title.userPreferred }}
+                  </h1>
+                  <span>{{ anime?.title.romaji }}</span>
+                </div>
               </NuxtLink>
               <span>Episode {{ getEP }}</span>
             </div>
@@ -449,34 +492,55 @@ export default {
                 </template>
                 <v-card class="mx-auto">
                   <v-card-title> Player setting </v-card-title>
-                  <div class="ma-4">
-                    <v-radio-group v-model="switchplyr">
-                      <v-radio
-                        label="Integrated Player (Recommended)"
-                        :value="1"
-                      ></v-radio>
-                      <v-radio label="Plyr" :value="2"></v-radio>
-                      <v-radio label="nsPlayer" :value="3"></v-radio>
-                      <v-radio label="Embedded (ADs)" :value="4"></v-radio>
-                      <v-radio
-                        label="Backup Embedded (ADs)"
-                        :value="5"
-                      ></v-radio>
-                    </v-radio-group>
-                    <div v-if="switchplyr == 2 || switchplyr == 3">
-                      Using Plyr and nsPlayer will lose some of the
-                      functionality (Time saved, Auto-skip, and more)
-                      <v-checkbox
-                        v-model="switchtobackup"
-                        label="Backup stream"
-                        color="primary"
-                      ></v-checkbox>
-                    </div>
-                    <div v-else-if="switchplyr === 4">
-                      Recommend to use Adblocker and close the web inspect to
-                      watch it.
-                    </div>
-                  </div>
+                  <v-row class="ma-4">
+                    <v-col cols="12" lg="6">
+                      <h4 class="my-1">Sources :</h4>
+                      <ClientOnly>
+                        <v-radio-group v-model="switchplyr">
+                          <v-radio
+                            v-for="(src, i) in videoIframe"
+                            :key="i"
+                            :label="src.name"
+                            :value="i"
+                          ></v-radio>
+                        </v-radio-group>
+                      </ClientOnly>
+                      <v-divider class="my-2"></v-divider>
+                      <div v-if="switchplyr == 0">
+                        Integrated Player is recommended for best experience.
+                      </div>
+                      <div v-else-if="switchplyr == 1 || switchplyr == 2">
+                        Using Plyr and nsPlayer will lose some of the
+                        functionality (Resumed Video, Intro and Outro skip, and
+                        more)
+                        <v-checkbox
+                          v-model="switchtobackup"
+                          label="Backup stream"
+                          color="primary"
+                        ></v-checkbox>
+                      </div>
+                      <div v-else-if="switchplyr > 2">
+                        Recommend to use Adblocker and close the web inspect to
+                        watch it.
+                      </div>
+                    </v-col>
+                    <v-col cols="12" lg="6">
+                      <div>
+                        <h4 class="my-1">Video data :</h4>
+                        <i style="font-size: small">
+                          * Only refresh when the data is outdated or error
+                        </i>
+                        <v-btn
+                          class="mt-2"
+                          color="red"
+                          prepend-icon="mdi-refresh"
+                          @click="strmRefresh"
+                        >
+                          Refresh Data
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
                   <v-card-actions>
                     <v-btn
                       prepend-icon="mdi-help"
@@ -500,25 +564,30 @@ export default {
             <v-list-item v-if="epPending">
               <v-list-item-title>LOADING...</v-list-item-title>
             </v-list-item>
-            <v-list-item v-else-if="epError">
-              <v-list-item-title> Error </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ epError.message }}
-              </v-list-item-subtitle>
-            </v-list-item>
+            <v-list-item
+              v-else-if="epError"
+              title="Error"
+              :subtitle="epError.message"
+            />
             <v-list-item
               v-for="(epitm, i) in ep.episodes"
               v-else
               :key="i"
-              :to="'/pwa/watch/' + getID + '-' + epitm.id"
-            >
-              <v-list-item-title>{{ epitm.title }}</v-list-item-title>
-              <v-list-item-subtitle>
-                Episode {{ epitm.id.split("-episode-")[1] }}
-              </v-list-item-subtitle>
-            </v-list-item>
+              :to="
+                (/\/pwa\.*/.test(useRoute().path) ? '/pwa/' : '/') +
+                'watch/' +
+                getID +
+                '-' +
+                epitm.id
+              "
+              :title="epitm.title"
+              :subtitle="'Episode' + epitm.id.split('-episode-')[1]"
+            />
           </v-list>
         </v-card>
+      </v-col>
+      <v-col v-if="env.public.disqus_id" cols="12">
+        <WCompsCommentBlock />
       </v-col>
     </v-row>
   </v-container>
@@ -530,6 +599,10 @@ export default {
   place-items: center;
 }
 
+.stream-ctn {
+  padding: 0;
+}
+
 .epinf_card {
   aspect-ratio: 9/7;
   overflow-y: scroll !important;
@@ -539,6 +612,9 @@ export default {
   .epinf_card {
     aspect-ratio: 9/10.3;
     overflow-y: scroll !important;
+  }
+  .stream-ctn {
+    padding: 12px 12rem;
   }
 }
 </style>
