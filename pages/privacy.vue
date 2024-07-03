@@ -1,31 +1,37 @@
 <script setup>
 useSeoMeta({
-  ogTitle: 'Privacy Policy',
-  ogDescription: 'Privacy policy for amvstrm',
-  ogImage: 'logo.png',
-  ogUrl: '[og:url]',
-  twitterTitle: 'Home',
-  twitterDescription: 'Privacy policy for amvstrm',
-  twitterImage: 'logo.png',
-  twitterCard: 'summary'
-})
+  ogTitle: "Privacy Policy",
+  ogDescription: "Privacy policy for amvstrm",
+  ogImage: "logo.png",
+  ogUrl: "[og:url]",
+  twitterTitle: "Home",
+  twitterDescription: "Privacy policy for amvstrm",
+  twitterImage: "logo.png",
+  twitterCard: "summary",
+});
 
 useHead({
   htmlAttrs: {
-    lang: 'en'
+    lang: "en",
   },
-  title: "Privacy Policy"
-})
-
+  title: "Privacy Policy",
+});
 </script>
 <template>
   <v-container>
-    <h1 style="padding-bottom: 0">
-      Privacy Policy
-    </h1>
-    <p style="color: gray; margin-bottom: 1rem">
-      Last updated: June 17, 2023
-    </p>
+    <h1 style="padding-bottom: 0">Privacy Policy</h1>
+    <p style="color: gray; margin-bottom: 1rem">Last updated: June 17, 2023</p>
+    <div class="my-4">
+      <v-divider></v-divider>
+      <h1 style="padding-bottom: 0">Tl;dr</h1>
+      <p style="margin-bottom: 1rem">
+        We use Cloudflare and Posthog analytics to track your usage of the site.
+        This is done to help us improve the site and to make it more useful to
+        you. You can opt out of this by disagreeing with the use of these
+        services or use other mirror.
+      </p>
+      <v-divider></v-divider>
+    </div>
     <div>
       <p>
         This Privacy Policy describes Our policies and procedures on the
@@ -515,8 +521,5 @@ ul > li > ul {
 }
 ul > li > ul > li > ul {
   list-style-type: square;
-}
-ol li {
-  font-family: Arial;
 }
 </style>
