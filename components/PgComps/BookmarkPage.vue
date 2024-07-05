@@ -95,7 +95,7 @@ const exportData = () => {
 };
 
 const clearData = () => {
-  state.value = [];
+  bk_state.value = [];
   clear_dia.value = false;
   app_dialog.value = true;
   dialog_title.value = "Success";
