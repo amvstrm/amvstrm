@@ -77,10 +77,9 @@ useHead({
           >
             1080p (FHD)
           </v-btn>
-
           <i class="d-block text-gray">
             API is provided by
-            <a href="https://api3.iotserver24.workers.dev/">iotserver24</a>
+            <a href="https://api3.iotserver24.workers.dev/">R3AP3R</a>
           </i>
         </v-card-text>
         <v-card-actions>
@@ -101,11 +100,8 @@ useHead({
         {{ anime?.title.userPreferred + " Episode " + getEP }}
         <br />
       </h3>
-      <em class="pb-4 d-block" style="color: red">
-        *This will redirected to Anitaku download page!
-      </em>
       <v-divider class="mb-4" />
-      <div class="text-end ga-2 d-flex flex-row-reverse">
+      <div class="text-end ga-2 d-grid">
         <v-btn
           :to="'/watch/' + useRoute().params.id"
           prepend-icon="mdi-play"
@@ -113,17 +109,21 @@ useHead({
         >
           Watch
         </v-btn>
-        <v-btn color="yellow" prepend-icon="mdi-link" @click="dl_dialog = true">
-          Raw
-        </v-btn>
         <v-btn
           :loading="aniDLpending"
           :href="animedl?.download"
           target="blank"
-          prepend-icon="mdi-download"
-          color="blue"
+          prepend-icon="mdi-exit-to-app"
+          color="yellow"
         >
-          Download
+          Anitaku
+        </v-btn>
+        <v-btn
+          color="blue"
+          prepend-icon="mdi-download"
+          @click="dl_dialog = true"
+        >
+          Download (Raw)
         </v-btn>
       </div>
     </v-sheet>
