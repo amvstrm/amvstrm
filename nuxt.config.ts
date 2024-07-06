@@ -276,7 +276,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL || "https://api.amvstr.me",
+      API_URL: process.env.API_URL,
       version: process.env.VERSION || "v2",
       posthogPublicKey: process.env.POSTHOG_PK || "",
       posthogHost: process.env.POSTHOG_HOST || "https://app.posthog.com",
