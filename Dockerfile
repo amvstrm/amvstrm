@@ -12,7 +12,7 @@ RUN npm install --production=false
 
 COPY --link . .
 
-ENV API_URL=https://api.amvstr.me
+ENV API_URL=
 ENV VERSION=v2
 ENV DISQUS_ID=
 ENV POSTHOG_PK=
