@@ -13,8 +13,8 @@ __Good News! You can now access our website from our new domain 👇__
 We have multiple mirrors in case our main domain is down for no reason
 
 - [amvstr.me](https://amvstr.me)🌟
-- [amvstrm.nyt92.eu.org](https://amvstrm.nyt92.eu.org)
-- [v2amvstrm.vercel.app](https://v2amvstrm.vercel.app)
+- [www2.amvstr.me](https://www2.amvstr.me)
+- [www3.amvstr.me](https://www3.amvstr.me)
 
 ## Donation
 
