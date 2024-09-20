@@ -22,7 +22,7 @@ const { data: animedl, pending: aniDLpending } = useFetch(
 );
 
 const { data: dlURL } = useFetch(
-  `https://api3.iotserver24.workers.dev/download/${getGogoID}`,
+  `https://api.iotserver24.workers.dev/download/${getGogoID}`,
   {
     cache: "force-cache",
     responseType: "json",
