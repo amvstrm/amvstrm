@@ -52,7 +52,9 @@ export default defineNuxtConfig({
       ],
     },
   },
+
   ssr: true,
+
   build: {
     transpile: ["vuetify"],
   },
@@ -94,17 +96,21 @@ export default defineNuxtConfig({
   css: ["~/assets/style.css"],
 
   modules: [
-    "@nuxtjs/eslint-module",
     "@vite-pwa/nuxt",
     "@vueuse/nuxt",
     "nuxt-disqus",
     "vuetify-nuxt-module",
     "@nuxt/image",
   ],
+
   disqus: {
     shortname: process.env.DISQUS_ID,
   },
+
   pwa: {
+    devOptions: {
+      enabled: false,
+    },
     registerType: "autoUpdate",
     strategies: "generateSW",
     includeAssets: [
@@ -203,31 +209,19 @@ export default defineNuxtConfig({
           name: "Home",
           short_name: "Home",
           url: "/pwa",
-          icons: [
-            {
-              src: "./pwa/home.svg",
-            },
-          ],
+          icons: [{ src: "./pwa/home.svg" }],
         },
         {
           name: "Search",
           short_name: "Search Anime",
           url: "/pwa/search",
-          icons: [
-            {
-              src: "./pwa/magnify.svg",
-            },
-          ],
+          icons: [{ src: "./pwa/magnify.svg" }],
         },
         {
           name: "Bookmarker",
           short_name: "Your Bookmarked Anime",
           url: "/pwa/bookmarks",
-          icons: [
-            {
-              src: "./pwa/book.svg",
-            },
-          ],
+          icons: [{ src: "./pwa/book.svg" }],
         },
       ],
       dir: "ltr",
@@ -235,32 +229,24 @@ export default defineNuxtConfig({
       categories: ["entertainment"],
     },
     workbox: {
-      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-          handler: "NetworkFirst",
+          handler: "StaleWhileRevalidate",
           options: {
             cacheName: "google-fonts-cache",
-            expiration: {
-              maxEntries: 10,
-              maxAgeSeconds: 60 * 60 * 24 * 365,
-            },
-            cacheableResponse: {
-              statuses: [0, 200],
-            },
+            expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            cacheableResponse: { statuses: [0, 200] },
           },
         },
         {
-          urlPattern: /^https:\/\/s4\.anilist\.co\/file\/anilist\/anime\/.*/i,
-          handler: "NetworkOnly",
+          urlPattern: /\.(png|jpg|jpeg|svg|gif|woff|woff2|ttf|eot|ico)$/,
+          handler: "CacheFirst",
           options: {
-            cacheName: "anilist-img-cache",
+            cacheName: "assets-cache",
             expiration: {
-              maxAgeSeconds: 60 * 60 * 24 * 7,
-            },
-            cacheableResponse: {
-              statuses: [0, 200],
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
             },
           },
         },
@@ -270,21 +256,19 @@ export default defineNuxtConfig({
       installPrompt: true,
     },
   },
-  eslint: {
-    emitWarning: false,
-    ignore: true,
-  },
+
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL || "https://api.amvstr.me",
-      version: process.env.VERSION || "v2",
+      API_URL: process.env.API_URL,
+      version: process.env.VERSION,
+      useAnalytics: process.env.USE_ANALYTICS,
       posthogPublicKey: process.env.POSTHOG_PK || "",
       posthogHost: process.env.POSTHOG_HOST || "https://app.posthog.com",
       disqus_id: process.env.DISQUS_ID,
     },
   },
-
   devtools: {
     enabled: true,
   },
+  compatibilityDate: "2024-10-15",
 });
