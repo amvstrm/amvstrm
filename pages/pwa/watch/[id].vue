@@ -1,5 +1,16 @@
 <script setup>
 import { useStorage } from "@vueuse/core";
+const { width } = useWindowSize();
+
+const buttonSize = computed(() => {
+  if (width.value < 600) {
+    return "small";
+  } else if (width.value < 960) {
+    return "large";
+  } else {
+    return "large";
+  }
+});
 
 const env = useRuntimeConfig();
 
@@ -9,6 +20,9 @@ const getEP = getGogoID.split(`-episode-`)[1];
 
 const loadSettingDialog = ref(false);
 const switchtobackup = ref(false);
+const dl_dialog = ref(false);
+const dl_data = ref();
+const isDataFetched = ref(false);
 
 const switchplyr = ref(0);
 
@@ -25,7 +39,9 @@ const {
   refresh: strmRefresh,
   error: strmError,
 } = await useFetch(
-  `${env.public.API_URL}/api/${env.public.version}/stream/${getGogoID}`,
+  `${env.public.API_URL}/api/${env.public.version}/stream/${
+    getGogoID.split(`-episode-`)[0]
+  }/${getEP}`,
   {
     cache: "force-cache",
   }
@@ -35,15 +51,15 @@ const {
   data: ep,
   pending: epPending,
   error: epError,
-} = useLazyFetch(
-  `${env.public.API_URL}/api/v1/episode/${anime?.value.id_provider.idGogo}`,
+} = await useFetch(
+  `${env.public.API_URL}/api/v1/episode/${getGogoID.split(`-episode-`)[0]}`,
   {
     cache: "default",
   }
 );
 
-const { data: time2Skip } = useFetch(
-  `${env.public.API_URL}/api/v2/stream/skiptime/${getID}/${getEP}`,
+const { data: time2Skip } = await useFetch(
+  `${env.public.API_URL}/api/${env.public.version}/stream/skiptimes/${getID}/${getEP}`,
   {
     cache: "force-cache",
   }
@@ -86,10 +102,10 @@ useHead({
 });
 
 const skipTimeHighlight = () => {
-  if (time2Skip.value?.found === true) {
+  if (time2Skip.value?.results) {
     const output = [];
 
-    if (time2Skip.value.results.op) {
+    if (time2Skip.value?.results.op) {
       output.push({
         text: "Opening start",
         time: time2Skip.value.results.op.interval.startTime,
@@ -101,7 +117,7 @@ const skipTimeHighlight = () => {
       });
     }
 
-    if (time2Skip.value.results.ed) {
+    if (time2Skip.value?.results.ed) {
       output.push({
         text: "Ending start",
         time: time2Skip.value.results.ed.interval.startTime,
@@ -114,20 +130,38 @@ const skipTimeHighlight = () => {
     }
     return output;
   } else if (
-    !time2Skip.value ||
-    !time2Skip.value?.results ||
-    !time2Skip.value?.found
+    (time2Skip.value?.results.op === null &&
+      time2Skip.value?.results.ed === null) ||
+    time2Skip.value?.results.op === null ||
+    time2Skip.value?.results.ed === null
   ) {
     return [];
   }
   return [];
 };
 
+const getDownload = async () => {
+  if (!isDataFetched.value) {
+    try {
+      dl_dialog.value = true;
+      const dldata = await $fetch(
+        `${env.public.API_URL}/api/v1/download/${getGogoID}`
+      );
+      dl_data.value = dldata;
+      isDataFetched.value = true;
+    } catch (error) {
+      console.error("Failed to fetch download data:", error);
+    }
+  } else {
+    dl_dialog.value = true;
+  }
+};
 const playerSettings = useStorage("ap_settings", {
   s_source: "Main",
   s_autonext: false,
   s_autoskip: false,
   s_theatre: false,
+  proxy_url: "",
 });
 
 const setHistory = useStorage("site-watch", {
@@ -159,7 +193,7 @@ if (strmError.value) {
 const artError = ref();
 
 function getInstance(art) {
-  art.on("error", (error, reconnectTime) => {
+  art.on("error", (error) => {
     console.log("video error!");
     artError.value = error;
   });
@@ -206,17 +240,10 @@ function getInstance(art) {
       return nextState;
     },
   });
-  art.setting.add({
-    html: "Theatre mode",
-    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6v13h16V6H4m14 11H6V8h12v9Z"/></svg>',
-    switch: playerSettings.value.s_theatre === false ? false : true,
-    onSwitch: function (item) {
-      const nextState = !item.switch;
-      playerSettings.value.s_theatre = nextState;
-      return nextState;
-    },
-  });
   art.on("ready", () => {
+    if (navigator.userAgent.includes("Firefox")) {
+      art.controls.remove("chromecast");
+    }
     if (useRoute().query.time) {
       art.seek = parseInt(useRoute().query.time) || 0;
     }
@@ -263,7 +290,7 @@ function getInstance(art) {
             position: "top",
             html: '<button class="app-skip-btn">Skip Opening</button>',
             click: function () {
-              art.seek = time2Skip.value?.results.op.interval.endTime;
+              art.seek = time2Skip.value?.results.op.interval.endTime + 1;
               art.notice.show = "Skipped Opening";
             },
           });
@@ -282,7 +309,7 @@ function getInstance(art) {
             position: "top",
             html: '<button class="app-skip-btn">Skip Ending</button>',
             click: function () {
-              art.seek = time2Skip.value?.results.ed.interval.endTime;
+              art.seek = time2Skip.value?.results.ed.interval.endTime + 1;
               art.notice.show = "Skipped Ending";
             },
           });
@@ -323,6 +350,81 @@ function getInstance(art) {
   });
 }
 
+const setPrevNxtState = ref({
+  prev: false,
+  next: false,
+});
+
+const handleEpisodeNavigation = () => {
+  const currentEpisodeIndex = ep?.value.episodes?.findIndex(
+    (episode) => episode.id.split("-episode-")[1] === getEP
+  );
+
+  if (currentEpisodeIndex === -1) {
+    console.error("Episode not found!");
+    return;
+  }
+
+  const totalEpisodes = ep?.value.episodes?.length;
+
+  setPrevNxtState.value = {
+    prev: currentEpisodeIndex < totalEpisodes - 1, // Has previous episodes
+    next: currentEpisodeIndex > 0, // Has next episodes
+  };
+};
+
+const goToPrevEpisode = () => {
+  const currentEpisodeIndex = ep?.value.episodes?.findIndex(
+    (episode) => episode.id.split("-episode-")[1] === getEP
+  );
+
+  if (currentEpisodeIndex === -1) {
+    console.error("Episode not found!");
+    return;
+  }
+
+  if (currentEpisodeIndex >= ep?.value.episodes.length - 1) {
+    console.log("No previous episode!");
+    return;
+  }
+
+  const prevEpisode = ep?.value.episodes[currentEpisodeIndex + 1];
+  navigateTo(
+    `/watch/${getID}-${getGogoID.split("-episode-")[0]}-episode-${
+      prevEpisode.id.split("-episode-")[1]
+    }`
+  );
+  console.log("Previous episode >");
+};
+
+const goToNextEpisode = () => {
+  const currentEpisodeIndex = ep?.value.episodes?.findIndex(
+    (episode) => episode.id.split("-episode-")[1] === getEP
+  );
+
+  if (currentEpisodeIndex === -1) {
+    console.error("Episode not found!");
+    return;
+  }
+
+  if (currentEpisodeIndex === 0) {
+    console.log("No next episode!");
+    return;
+  }
+
+  const nextEpisode = ep?.value.episodes[currentEpisodeIndex - 1];
+  navigateTo(
+    `/watch/${getID}-${getGogoID.split("-episode-")[0]}-episode-${
+      nextEpisode.id.split("-episode-")[1]
+    }`
+  );
+  console.log("Next episode >");
+};
+
+const theatreMode = () => {
+  playerSettings.value.s_theatre = !playerSettings.value.s_theatre;
+};
+
 const videoIframe = ref([
   {
     name: "Integrated Player (Recommended)",
@@ -353,8 +455,15 @@ onMounted(() => {
       value: videoIframe.value.length + 1,
     });
   });
+  handleEpisodeNavigation();
 });
 
+watch(
+  () => ep.value,
+  () => {
+    handleEpisodeNavigation();
+  }
+);
 </script>
 
 <script>
@@ -383,7 +492,7 @@ export default {
       headline="Stream Error"
       title="Stream not found"
       text="Video stream not found or not available by the source."
-    ></v-empty-state>
+    />
   </div>
   <v-container v-else>
     <v-row
@@ -391,7 +500,11 @@ export default {
         'stream-ctn': playerSettings.s_theatre,
       }"
     >
-      <v-col v-if="!strmError" :cols="playerSettings.s_theatre ? 12 : 12" :lg="playerSettings.s_theatre ? 12 : 8">
+      <v-col
+        v-if="!strmError"
+        :cols="playerSettings.s_theatre ? 12 : 12"
+        :lg="playerSettings.s_theatre ? 12 : 8"
+      >
         <ClientOnly>
           <v-card
             v-if="
@@ -411,7 +524,7 @@ export default {
             v-if="switchplyr == 0"
             :option="{
               id: useRoute().params.id || '',
-              url: strm.stream.multi.main.url,
+              url: playerSettings.proxy_url + strm.stream.multi.main.url,
               poster: anime.bannerImage || anime.coverImage.large,
               highlight: skipTimeHighlight(),
             }"
@@ -433,46 +546,128 @@ export default {
             :style="style"
           ></iframe>
         </ClientOnly>
-      </v-col>
-      <v-col v-else-if="strmError || artError" cols="12" lg="8">
-        <v-empty-state
-          headline="Player Error"
-          title="Video player error"
-          text="This can be cause by our website or the video source. Please use other sources, use embedded version of the stream or refresh the page."
-        ></v-empty-state>
-      </v-col>
-      <v-col>
-        <v-card
-          class="epinf_card"
-        >
-          <div class="pa-4 d-flex justify-space-between">
-            <div style="flex: 1">
-              <NuxtLink
-                :to="
-                  (!/\/pwa\.*/.test(useRoute().path) ? '/' : '/pwa/') +
-                  'anime/' +
-                  getID
-                "
-              >
-                <div>
-                  <h1 style="font-size: large">
-                    {{ anime?.title.userPreferred }}
-                  </h1>
-                  <span>{{ anime?.title.romaji }}</span>
-                </div>
-              </NuxtLink>
-              <span>Episode {{ getEP }}</span>
-            </div>
-            <div class="d-flex align-center">
+        <v-card>
+          <div class="d-flex justify-space-between flex-row align-center">
+            <v-btn
+              :size="buttonSize"
+              :disabled="!setPrevNxtState.prev"
+              variant="flat"
+              @click="goToPrevEpisode"
+            >
+              <template #default>
+                <v-icon icon="mdi-skip-previous" />
+              </template>
+            </v-btn>
+            <div>
               <v-btn
-                class="mr-2"
-                color="blue"
-                :href="'/download/' + useRoute().params.id"
-                icon="mdi-download"
-                target="blank"
-                variant="plain"
+                variant="flat"
+                :size="buttonSize"
+                :disabled="width < 960"
+                @click="theatreMode"
               >
+                <template #default>
+                  <v-icon icon="mdi-panorama-outline" />
+                </template>
               </v-btn>
+              <v-dialog v-model="dl_dialog" max-width="500px" scrim="#191919">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    :size="buttonSize"
+                    @click="getDownload"
+                    target="blank"
+                    variant="flat"
+                  >
+                    <template #default>
+                      <v-icon icon="mdi-download-outline" />
+                    </template>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-title>Download</v-card-title>
+                  <v-card-text class="d-flex flex-column ga-2">
+                    <div v-if="!isDataFetched">
+                      <v-progress-circular :size="45" indeterminate />
+                    </div>
+                    <template v-else>
+                      <v-btn
+                        prepend-icon="mdi-link"
+                        :href="dl_data.downloadLink"
+                        color="yellow"
+                        target="_blank"
+                      >
+                        Download from s3taku
+                      </v-btn>
+                      <v-divider />
+                      <v-btn
+                        prepend-icon="mdi-quality-low"
+                        :href="
+                          dl_data.raw.find((e) => e.resolution === '640x360')
+                            .url
+                        "
+                        color="red"
+                        :disabled="
+                          dl_data.raw.find((e) => e.resolution === '640x360')
+                            .url === ''
+                        "
+                        target="_blank"
+                      >
+                        360p
+                      </v-btn>
+                      <v-btn
+                        prepend-icon="mdi-quality-low"
+                        :href="
+                          dl_data.raw.find((e) => e.resolution === '854x480')
+                            .url
+                        "
+                        color="red"
+                        :disabled="
+                          dl_data.raw.find((e) => e.resolution === '854x480')
+                            .url === ''
+                        "
+                        target="_blank"
+                      >
+                        480p
+                      </v-btn>
+                      <v-btn
+                        prepend-icon="mdi-quality-medium"
+                        :href="
+                          dl_data.raw.find((e) => e.resolution === '1280x720')
+                            .url
+                        "
+                        color="red"
+                        :disabled="
+                          dl_data.raw.find((e) => e.resolution === '1280x720')
+                            .url === ''
+                        "
+                        target="_blank"
+                      >
+                        720p (HD)
+                      </v-btn>
+                      <v-btn
+                        prepend-icon="mdi-quality-high"
+                        :href="
+                          dl_data.raw.find((e) => e.resolution === '1920x1080')
+                            .url
+                        "
+                        color="red"
+                        :disabled="
+                          dl_data.raw.find((e) => e.resolution === '1920x1080')
+                            .url === ''
+                        "
+                        target="_blank"
+                      >
+                        1080p (FHD)
+                      </v-btn>
+                    </template>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-btn prepend-icon="mdi-close" @click="dl_dialog = false"
+                      >Close</v-btn
+                    >
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
               <v-dialog
                 v-model="loadSettingDialog"
                 width="auto"
@@ -481,13 +676,10 @@ export default {
                 scrollable
               >
                 <template #activator="{ props }">
-                  <v-btn
-                    class="mr-2"
-                    color="gray"
-                    icon="mdi-cog"
-                    variant="plain"
-                    v-bind="props"
-                  >
+                  <v-btn v-bind="props" variant="flat" :size="buttonSize">
+                    <template #default>
+                      <v-icon icon="mdi-cog-outline" />
+                    </template>
                   </v-btn>
                 </template>
                 <v-card class="mx-auto">
@@ -527,7 +719,10 @@ export default {
                     <v-col cols="12" lg="6">
                       <div>
                         <h4 class="my-1">Video data :</h4>
-                        <i style="font-size: small">
+                        <i
+                          class="mb-2"
+                          style="font-size: small; display: block"
+                        >
                           * Only refresh when the data is outdated or error
                         </i>
                         <v-btn
@@ -537,6 +732,31 @@ export default {
                           @click="strmRefresh"
                         >
                           Refresh Data
+                        </v-btn>
+                        <h4 class="mt-4 mb-1">Proxy URL :</h4>
+                        <i
+                          class="mb-2"
+                          style="font-size: small; display: block"
+                        >
+                          This will only work with Integrated Player / Use the
+                          full URL (https://proxy.cors/)
+                        </i>
+                        <v-text-field
+                          v-model="playerSettings.proxy_url"
+                          placeholder="Enter proxy URL"
+                          variant="outlined"
+                          density="compact"
+                        />
+
+                        <v-btn
+                          color="primary"
+                          class="mt-1"
+                          @click="
+                            playerSettings.proxy_url =
+                              playerSettings.proxy_url.trim()
+                          "
+                        >
+                          Save Proxy URL
                         </v-btn>
                       </div>
                     </v-col>
@@ -557,6 +777,52 @@ export default {
                   </v-card-actions>
                 </v-card>
               </v-dialog>
+            </div>
+            <v-btn
+              :size="buttonSize"
+              :disabled="!setPrevNxtState.next"
+              variant="flat"
+              @click="goToNextEpisode"
+            >
+              <template #default>
+                <v-icon icon="mdi-skip-next" />
+              </template>
+            </v-btn>
+          </div>
+        </v-card>
+      </v-col>
+      <v-col v-else-if="strmError || artError" cols="12" lg="8">
+        <v-empty-state
+          headline="Player Error"
+          title="Video player error"
+          text="This can be cause by our website or the video source. Please use other sources, use embedded version of the stream or refresh the page."
+        ></v-empty-state>
+      </v-col>
+      <v-col>
+        <v-card
+          :style="{
+            aspectRatio:
+              width < 960 ? '9/7' : playerSettings.s_theatre ? '9/4' : '9/11',
+            overflowY: 'scroll !important',
+          }"
+        >
+          <div class="pa-4 d-flex justify-space-between">
+            <div style="flex: 1">
+              <NuxtLink
+                :to="
+                  (!/\/pwa\.*/.test(useRoute().path) ? '/' : '/pwa/') +
+                  'anime/' +
+                  getID
+                "
+              >
+                <div>
+                  <h1 style="font-size: large">
+                    {{ anime?.title.userPreferred }}
+                  </h1>
+                  <span>{{ anime?.title.romaji }}</span>
+                </div>
+              </NuxtLink>
+              <span>Episode {{ getEP }}</span>
             </div>
           </div>
           <v-divider />
