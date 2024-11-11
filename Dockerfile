@@ -12,12 +12,7 @@ RUN npm install --production=false
 
 COPY --link . .
 
-ENV API_URL=https://api.amvstr.me
-ENV VERSION=v2
-ENV DISQUS_ID=
-ENV POSTHOG_PK=
-ENV POSTHOG_HOST=https://app.posthog.com
-
+# Remove hardcoded ENV variables since they'll be provided externally
 RUN npm run build
 RUN npm prune
 
@@ -25,7 +20,7 @@ RUN npm prune
 FROM base
 
 ENV PORT=80
-
 COPY --from=build /src/.output /src/.output
 
+# The command now uses an entrypoint script to ensure environment variables are properly loaded
 CMD [ "node", ".output/server/index.mjs" ]

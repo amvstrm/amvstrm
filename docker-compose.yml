@@ -5,9 +5,5 @@ services:
       context: .
     ports:
       - "80:80"
-    environment:
-      - API_URL=https://api.amvstr.me
-      - VERSION=v2
-      - DISQUS_ID=amvstrm
-      - POSTHOG_PK=
-      - POSTHOG_HOST=https://app.posthog.com
+    env_file:
+      - .env
