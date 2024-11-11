@@ -92,49 +92,50 @@ import { useStorage } from "@vueuse/core";
 
 const props = defineProps({
   title: {
-    default: "",
-    required: true,
     type: String,
+    required: true,
+    default: "",
   },
   imgsrc: {
-    default: "",
-    required: true,
     type: String,
+    required: true,
+    default: "",
   },
   animeColor: {
-    default: "",
+    type: [String, null], // Accepts both String and null
     required: true,
-    type: String || Null
+    default: "",
   },
   id: {
-    default: 0,
+    type: [Number, null], // Accepts both Number and null
     required: true,
-    type: Number || Null,
+    default: 0,
   },
   year: {
-    default: 0,
+    type: [Number, null], // Accepts both Number and null
     required: true,
-    type: Number || Null,
+    default: 0,
   },
   totalEp: {
-    default: 0,
+    type: [Number, null], // Accepts both Number and null
     required: true,
-    type: Number || Null,
+    default: 0,
   },
   type: {
-    default: "",
+    type: [String, null], // Accepts both String and null
     required: true,
-    type: String || Null,
+    default: "",
   },
   status: {
-    default: "",
+    type: [String, null], // Accepts both String and null
     required: true,
-    type: String || Null,
+    default: "",
   },
 });
 
 const state = useStorage("site-bookmarker", []);
 
+// Check if item is already bookmarked
 const isBookmarked = (id) => {
   const bookmarks = state.value;
   return bookmarks.find((item) => item.id == id) !== undefined;
@@ -146,7 +147,6 @@ const bookmarkStatus = ref(
   isAlreadyBookmarked ? "mdi-bookmark" : "mdi-bookmark-outline"
 );
 
-const get_key = useStorage("cloud-cfg", {});
 async function saveBookmarks(bookmarks) {
   state.value = bookmarks || [];
   if (get_key.value.enabled) {
@@ -177,9 +177,9 @@ function addBookmark() {
     type: props.type,
     totalEp: props.totalEp,
     year: props.year,
-    status: props.status
+    status: props.status,
   });
-  bookmarkStatus.value = "mdi-bookmark"; // Update bookmarkStatus
+  bookmarkStatus.value = "mdi-bookmark";
   saveBookmarks(bookmarks);
 }
 
@@ -187,9 +187,10 @@ function removeBookmark() {
   const bookmarks = state.value;
   const index = bookmarks.findIndex((item) => item.id == props.id);
   bookmarks.splice(index, 1);
-  bookmarkStatus.value = "mdi-bookmark-outline"; // Update bookmarkStatus
+  bookmarkStatus.value = "mdi-bookmark-outline";
   saveBookmarks(bookmarks);
 }
+
 watch(
   () => isAlreadyBookmarked,
   (newValue) => {
@@ -197,6 +198,7 @@ watch(
   }
 );
 </script>
+
 <style>
 .card {
   width: 165px;
@@ -269,8 +271,8 @@ watch(
 
 @media (max-width: 960px) {
   .card-img {
-    width: auto;
-    height: 210px;
+    width: 152px;
+    height: 216px;
   }
   .card {
     margin: 1rem 1rem 1rem 0rem;
