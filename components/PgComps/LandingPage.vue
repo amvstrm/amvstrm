@@ -2,6 +2,7 @@
 import { useStorage } from "@vueuse/core";
 const env = useRuntimeConfig();
 
+const { width } = useWindowSize();
 const history_state = useStorage("site-watch", {});
 
 const getSeason = () => {
@@ -21,7 +22,7 @@ const getSeason = () => {
     10: "Winter",
     11: "Winter",
   };
-  return seasons[month].toUpperCase();
+  return seasons[month].toLowerCase();
 };
 
 const {
@@ -47,18 +48,6 @@ const {
   }
 );
 
-// const {
-//   data: scheduleData,
-//   pending: schpend,
-//   refresh: scheduledataRefresh,
-//   error: scheduleerr,
-// } = useFetch(
-//   `${env.public.API_URL}/api/${env.public.version}/schedule?limit=12`,
-//   {
-//     cache: "force-cache",
-//   }
-// );
-
 const {
   data: seasonData,
   pending: seaspend,
@@ -78,55 +67,48 @@ const {
   <!-- eslint-disable vue/no-v-html -->
   <v-no-ssr>
     <v-carousel
-    class="d-none d-md-block"
-    hide-delimiters
-    progress="green"
-    height="320px"
-    :show-arrows="false"
-    :cycle="true"
-  >
-    <v-carousel-item
-      v-for="(item, i) in popularData?.results"
-      :key="i"
-      :src="item.bannerImage"
-      cover
+      :style="{
+        height: width < 768 ? '526px' : '320px',
+      }"
+      hide-delimiters
+      progress="green"
+      :show-arrows="false"
+      touch
+      :cycle="true"
     >
-      <div class="carousel-item">
-        <img :src="item.coverImage.large" alt="Carousel Image" />
-        <div class="d-flex flex-column pa-2 justify-center">
-          <h2>{{ item.title.userPreferred }}</h2>
-          <p class="text--secondary">
-            {{ item.title.native }}
-          </p>
-          <div
-            style="
-              overflow: hidden;
-              transition: color 0.2s ease;
-              display: -webkit-box;
-              -webkit-box-orient: vertical;
-              -webkit-line-clamp: 2;
-            "
-            v-html="item.description"
-          />
-          <div class="pt-2">
-            <v-btn
-              :to="
-                (!/\/pwa\.*/.test(useRoute().path) ? '/' : '/pwa/') +
-                'anime/' +
-                item.id
-              "
-              :color="
-                item.coverImage.color ? item.coverImage.color : 'transparent'
-              "
-              append-icon="mdi-open-in-new"
-            >
-              Read more
-            </v-btn>
+      <v-carousel-item
+        v-for="(item, i) in popularData?.results"
+        :key="i"
+        :src="item.bannerImage"
+        cover
+      >
+        <div class="carousel-item">
+          <img :src="item.coverImage.large" alt="Carousel Image" />
+          <div class="d-flex flex-column pa-2 justify-center">
+            <h2>{{ item.title.userPreferred }}</h2>
+            <p class="text--secondary">
+              {{ item.title.native }}
+            </p>
+            <div class="text-description" v-html="item.description" />
+            <div class="pt-2">
+              <v-btn
+                :to="
+                  (!/\/pwa\.*/.test(useRoute().path) ? '/' : '/pwa/') +
+                  'anime/' +
+                  item.id
+                "
+                :color="
+                  item.coverImage.color ? item.coverImage.color : 'transparent'
+                "
+                append-icon="mdi-open-in-new"
+              >
+                Read more
+              </v-btn>
+            </div>
           </div>
         </div>
-      </div>
-    </v-carousel-item>
-  </v-carousel>
+      </v-carousel-item>
+    </v-carousel>
   </v-no-ssr>
   <!-- Search&History -->
   <v-container>
@@ -410,18 +392,40 @@ const {
   scroll-snap-align: start;
 }
 
-@media (min-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  }
+.text-description {
+  overflow: hidden;
+  transition: color 0.2s ease;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .carousel-item {
   background-color: rgba(0, 0, 0, 0.7);
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   padding: 2.5rem;
-  height: 320px;
+  height: 526px;
   gap: 1rem;
+}
+
+.carousel-item img {
+  width: 162px;
+}
+
+@media (min-width: 768px) {
+  .carousel-item {
+    flex-direction: row;
+    height: 320px;
+  }
+
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  }
 }
 </style>
