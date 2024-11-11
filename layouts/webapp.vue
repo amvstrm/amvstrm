@@ -49,9 +49,23 @@ function generateBreadcrumbs(route) {
   const pathSegments = route.path.slice(4).split("/");
   for (let i = 1; i < pathSegments.length; i++) {
     const segment = pathSegments[i];
-    const text = segment.charAt(0).toUpperCase() + segment.slice(1);
-    const link = `${pathSegments.slice(0, i + 1).join("/")}`;
-    breadcrumbs.push({ text, link });
+    if (segment.match(/^\d+-.*-episode-\d+$/)) {
+      const episodeNum = segment.match(/\d+$/)[0];
+      breadcrumbs.push({
+        text: `Episode ${episodeNum}`,
+        link: `${pathSegments.slice(0, i + 1).join("/")}`,
+      });
+      if (i === 1) {
+        breadcrumbs.splice(1, 0, {
+          text: "Anime",
+          link: `${pathSegments.slice(0, i + 1).join("/")}`,
+        });
+      }
+    } else {
+      const text = segment.charAt(0).toUpperCase() + segment.slice(1);
+      const link = `${pathSegments.slice(0, i + 1).join("/")}`;
+      breadcrumbs.push({ text, link });
+    }
   }
 
   return breadcrumbs;
