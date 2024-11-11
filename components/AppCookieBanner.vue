@@ -11,8 +11,12 @@ export default {
     };
   },
   mounted() {
-    const posthogPublicKey = useRuntimeConfig().public.posthogPublicKey ?? "";
-    if (!posthogPublicKey) {
+    const config = useRuntimeConfig();
+    const posthogPublicKey = config.public.posthogPublicKey ?? "";
+    const useAnalytics = Boolean(config.public.useAnalytics) ?? false;
+
+    if (!useAnalytics || !posthogPublicKey) {
+      this.showban = false;
       return;
     }
 
@@ -22,7 +26,7 @@ export default {
       !(
         $posthog().has_opted_out_capturing() ||
         $posthog().has_opted_in_capturing()
-      ) || false;
+      );
   },
   methods: {
     doNottrkfn() {
@@ -40,6 +44,7 @@ export default {
   },
 };
 </script>
+
 <template>
   <v-alert
     v-show="showban"
