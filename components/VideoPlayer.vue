@@ -1,10 +1,9 @@
 <template>
-  <div ref="artRef" />
+  <div ref="artRef"></div>
 </template>
 <script>
 import Artplayer from "artplayer";
-import artplayerPluginHlsQuality from "artplayer-plugin-hls-quality";
-import artplayerPluginVttThumbnail from "artplayer-plugin-thumbnail";
+import artplayerPluginHlsQuality from "artplayer-plugin-hls-control";
 import artplayerPluginChromecast from "artplayer-plugin-chromecast";
 import Hls from "hls.js";
 
@@ -30,26 +29,19 @@ export default {
     };
   },
   async mounted() {
-    window.hls = new Hls();
     this.instance = new Artplayer({
       ...this.option,
       container: this.$refs.artRef,
       whitelist: ["*"],
       plugins: [
-        artplayerPluginHlsQuality({
-          control: false,
-          setting: true,
-          auto: "Auto",
-          getResolution: (level) => {
-            return level.height !== "unknown" ||
-              level.height === "" ||
-              !level.height
-              ? level.height + "P"
-              : "Auto";
+        artplayerPluginHlsControl({
+          quality: {
+            control: false,
+            setting: true,
+            getName: (level) => level.height + "P",
+            title: "Quality",
+            auto: "Auto",
           },
-        }),
-        artplayerPluginVttThumbnail({
-          vtt: this.vtt || "",
         }),
         artplayerPluginChromecast({}),
       ],
@@ -102,16 +94,17 @@ export default {
       autoplay: true,
       autoMini: false,
       customType: {
-        m3u8: async function (video, url) {
+        m3u8: async function (video, url, art) {
+          art.hls = new Hls();
           if (Hls.isSupported()) {
-            window.hls.loadSource(url);
-            window.hls.attachMedia(video);
+            art.hls.loadSource(url);
+            art.hls.attachMedia(video);
           } else {
             const canPlay = video.canPlayType("application/vnd.apple.mpegurl");
             if (canPlay === "probably" || canPlay == "maybe") {
               video.src = url;
             } else {
-              window.art.notice.show = "Does not support playback of m3u8";
+              art.notice.show = "Does not support playback of m3u8";
             }
           }
         },
