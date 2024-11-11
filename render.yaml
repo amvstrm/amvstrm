@@ -12,11 +12,13 @@ services:
       - key: NITRO_PRESET
         value: render_com
       - key: API_URL
-        value: "https://api.amvstr.me"
+        value: ""
       - key: VERSION
         value: "v2"
       - key: DISCUS_ID
         value: ""
+      - key: USE_ANALYTICS
+        value: "false"
       - key: POSTHOG_PK
         value: ""
       - key: POSTHOG_HOST
