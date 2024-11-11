@@ -62,6 +62,10 @@ a {
   padding: 0.5em !important;
 }
 
+.art-video-player {
+  font-family: 'Inter', sans-serif !important;
+}
+
 .app-skip-btn:hover {
   background: #212121;
 }
