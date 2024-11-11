@@ -55,7 +55,7 @@ const countdown = ref();
 const updateCountdown = () => {
   setInterval(() => {
     const currentTime = Math.floor(Date.now() / 1000);
-    const remainingTime = anime?.value.nextair?.airingAt - currentTime;
+    const remainingTime = anime?.value?.nextair?.airingAt - currentTime;
     countdown.value = formatDuration(remainingTime);
   }, 1000);
 };
@@ -70,7 +70,7 @@ const formatDuration = (duration) => {
 };
 
 function getAiringDay() {
-  const airingDate = new Date(anime?.value.nextair?.airingAt * 1000);
+  const airingDate = new Date(anime?.value?.nextair?.airingAt * 1000);
   const daysOfWeek = [
     "Sunday",
     "Monday",
@@ -115,12 +115,15 @@ const {
   error: epDubAniError,
 } = useLazyFetch(
   `${env.public.API_URL}/api/v1/episode/${
-    anime?.value?.id_provider === null ? "''" : anime?.value?.id_provider?.idGogoDub
+    anime?.value?.id_provider === null
+      ? "''"
+      : anime?.value?.id_provider?.idGogoDub
   }`,
   {
     cache: "default",
   }
 );
+
 const stringInstring = '""';
 
 const formatStringDate = (year, month, day) => {
@@ -443,46 +446,6 @@ const formatStringDate = (year, month, day) => {
                                 />
                               </template>
                             </v-list-item>
-                            <v-list-item
-                              title="9anime/Aniwave.to"
-                              :subtitle="
-                                anime?.id_provider.id9anime == ''
-                                  ? 'Not available'
-                                  : anime?.id_provider.id9anime
-                              "
-                            >
-                              <template #append>
-                                <v-btn
-                                  icon="mdi-launch"
-                                  :href="
-                                    'https://aniwave.to/watch/' +
-                                    anime?.id_provider.id9anime
-                                  "
-                                  target="blank"
-                                  :disabled="anime?.id_provider.id9anime == ''"
-                                />
-                              </template>
-                            </v-list-item>
-                            <v-list-item
-                              title="AnimePahe"
-                              :subtitle="
-                                anime?.id_provider.idPahe == ''
-                                  ? 'Not available'
-                                  : anime?.id_provider.idPahe
-                              "
-                            >
-                              <template #append>
-                                <v-btn
-                                  icon="mdi-launch"
-                                  :href="
-                                    'https://animepahe.ru/a/' +
-                                    anime?.id_provider.idPahe
-                                  "
-                                  target="blank"
-                                  :disabled="anime?.id_provider.idPahe == ''"
-                                />
-                              </template>
-                            </v-list-item>
                           </v-list>
                           <v-list v-else>
                             <v-list-item
@@ -513,7 +476,7 @@ const formatStringDate = (year, month, day) => {
       <v-row>
         <v-col cols="12" lg="3" md="4" sm="12">
           <ClientOnly>
-            <v-card class="mb-2">
+            <v-card class="mb-4">
               <v-list lines="two">
                 <v-list-subheader> Episode release date </v-list-subheader>
                 <v-list-item
@@ -556,7 +519,6 @@ const formatStringDate = (year, month, day) => {
                     : 'No data'
                 "
               />
-
               <v-list-item
                 title="Score"
                 :subtitle="
@@ -650,6 +612,7 @@ const formatStringDate = (year, month, day) => {
             </v-list>
           </v-card>
         </v-col>
+
         <v-col>
           <v-row>
             <v-col cols="12">
@@ -698,9 +661,11 @@ const formatStringDate = (year, month, day) => {
                               ? 'Cancelled'
                               : 'No data'
                           }`"
-                          :to="(!/\/pwa\.*/.test(useRoute().path)
-                                        ? '/anime/'
-                                        : '/pwa/anime/') + item.id"
+                          :to="
+                            (!/\/pwa\.*/.test(useRoute().path)
+                              ? '/anime/'
+                              : '/pwa/anime/') + item.id
+                          "
                         >
                           <template #prepend>
                             <v-img
@@ -755,9 +720,11 @@ const formatStringDate = (year, month, day) => {
                               ? 'Cancelled'
                               : 'No data'
                           }`"
-                          :to="(!/\/pwa\.*/.test(useRoute().path)
-                                        ? '/anime/'
-                                        : '/pwa/anime/') + item.id"
+                          :to="
+                            (!/\/pwa\.*/.test(useRoute().path)
+                              ? '/anime/'
+                              : '/pwa/anime/') + item.id
+                          "
                         >
                           <template #prepend>
                             <v-img
